@@ -22,7 +22,7 @@ from frontend import (
 )
 
 # Import Backend Subpackage Utilities
-from backend import get_gtmetrix_screenshot, get_domain_info, crawl_page, generate_excel_report
+from backend import get_gtmetrix_screenshot, get_domain_info, crawl_page, generate_excel_report, generate_security_report, run_cyber_scan
 
 st.set_page_config(page_title="SEO Domain Intelligence Agent", layout="wide")
 
@@ -38,6 +38,23 @@ with st.container(border=True):
     domains_input = st.text_area("Target Website URLs (one domain per line):",
                                  value="https://jeenweb.com",
                                  height=100)
+    
+    col_mode, col_source = st.columns(2)
+    with col_mode:
+        scan_mode = st.selectbox(
+            "Intelligence Scanning Mode:",
+            options=["SEO Audit Mode", "AI Cybersecurity Scanner"],
+            index=0
+        )
+    with col_source:
+        screenshot_source = st.selectbox(
+            "Screenshot Preview Source:",
+            options=["Local Puppeteer Service (Port 3000)",
+                     "Thum.io (Free & Fast)",
+                     "GTmetrix API v2.0 (Premium & Authorized)"],
+            index=0
+        )
+
     col_c1, col_c2 = st.columns(2)
     with col_c1:
         max_pages = st.slider("Max crawl depth pages per domain:", 5, 300, 25)
@@ -49,14 +66,6 @@ with st.container(border=True):
                 "Thorough Deep Scan (~10min/website)"],
             index=1
         )
-
-    screenshot_source = st.selectbox(
-        "Screenshot Preview Source:",
-        options=["Local Puppeteer Service (Port 3000)",
-                 "Thum.io (Free & Fast)",
-                 "GTmetrix API v2.0 (Premium & Authorized)"],
-        index=0
-    )
 
 
 run_analysis = st.button(
@@ -124,11 +133,6 @@ if run_analysis:
     if not domains:
         st.error("Please enter at least one domain")
     else:
-        all_domain_info = []
-        all_pages = []
-        all_issues = []
-        all_audit = []
-
         progress_bar = st.progress(0)
 
         # Determine simulation sleep time
@@ -137,170 +141,347 @@ if run_analysis:
         else:
             sleep_time = 0.2
 
-        for idx, domain in enumerate(domains):
-            # Dynamic scanning simulation
-            logs = [
-                "Initializing Intelligent SEO Agent...",
-                "Configuring secure handshake protocols...",
-                "Querying public WHOIS registry databases...",
-                "Analyzing domain registrar and name server propagation...",
-                "Locating and verifying DNS Mail Exchange (MX) records...",
-                "Requesting target robots.txt file...",
-                "Parsing crawl permissions from robots.txt...",
-                "Locating domain sitemap.xml structure...",
-                "Validating SSL certificate and encryption handshake...",
-                "Establishing crawl connections...",
-                "Analyzing document structure and headers...",
-                "Evaluating title tags and meta descriptions...",
-                "Analyzing internal/external hypermedia links...",
-                "Inspecting image assets and alt tags...",
-                "Simulating page load times and Core Web Vitals...",
-                "Calculating First Input Delay (FID)...",
-                "Calculating Cumulative Layout Shift (CLS)...",
-                "Evaluating Largest Contentful Paint (LCP)...",
-                "Compiling technical audit datasets...",
-                "Reviewing high-priority SEO recommendations..."
-            ]
+        if scan_mode == "SEO Audit Mode":
+            all_domain_info = []
+            all_pages = []
+            all_issues = []
+            all_audit = []
 
-            for p in range(0, 101, 1):
-                # Map progress to corresponding logs
-                log_idx = min(p // (100 // len(logs)), len(logs) - 1)
-                current_log = logs[log_idx]
+            for idx, domain in enumerate(domains):
+                # Dynamic scanning simulation
+                logs = [
+                    "Initializing Intelligent SEO Agent...",
+                    "Configuring secure handshake protocols...",
+                    "Querying public WHOIS registry databases...",
+                    "Analyzing domain registrar and name server propagation...",
+                    "Locating and verifying DNS Mail Exchange (MX) records...",
+                    "Requesting target robots.txt file...",
+                    "Parsing crawl permissions from robots.txt...",
+                    "Locating domain sitemap.xml structure...",
+                    "Validating SSL certificate and encryption handshake...",
+                    "Establishing crawl connections...",
+                    "Analyzing document structure and headers...",
+                    "Evaluating title tags and meta descriptions...",
+                    "Analyzing internal/external hypermedia links...",
+                    "Inspecting image assets and alt tags...",
+                    "Simulating page load times and Core Web Vitals...",
+                    "Calculating First Input Delay (FID)...",
+                    "Calculating Cumulative Layout Shift (CLS)...",
+                    "Evaluating Largest Contentful Paint (LCP)...",
+                    "Compiling technical audit datasets...",
+                    "Reviewing high-priority SEO recommendations..."
+                ]
 
-                render_scan_progress(scan_placeholder, domain, current_log, p)
-                if sleep_time > 0:
-                    time.sleep(sleep_time)
+                for p in range(0, 101, 1):
+                    log_idx = min(p // (100 // len(logs)), len(logs) - 1)
+                    current_log = logs[log_idx]
 
+                    render_scan_progress(scan_placeholder, domain, current_log, p)
+                    if sleep_time > 0:
+                        time.sleep(sleep_time)
 
-            def make_live_callback():
-                count = [0]
+                def make_live_callback():
+                    count = [0]
 
-                def live_callback(url, status, load_time, title):
-                    count[0] += 1
-                    crawl_count_placeholder.markdown(f"""
-                    <div style="background: rgba(30, 41, 59, 0.45); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem;">
-                        <h4 style="margin: 0; color: #22d3ee;">Active Crawling: {domain}</h4>
-                        <p style="margin: 5px 0 0 0; color: #cbd5e1;">Pages Audited: <strong style="color: #22d3ee;">{count[0]} / {max_pages}</strong></p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                    crawl_log_placeholder.markdown(f"""
-                    <div class="recommendation-item" style="border-left-color: #475569; margin: 0.25rem 0;">
-                        <strong>Status:</strong> <code>{status}</code> | <strong>Load Time:</strong> {load_time}s | <strong>URL:</strong> <a href="{url}" target="_blank" style="color: #22d3ee; text-decoration: none;">{url}</a>
-                        <br/><span style="font-size: 0.85rem; color: #94a3b8;"><strong>Page Title:</strong> {title[:100]}</span>
-                    </div>
-                    """, unsafe_allow_html=True)
-                return live_callback
+                    def live_callback(url, status, load_time, title):
+                        count[0] += 1
+                        crawl_count_placeholder.markdown(f"""
+                        <div style="background: rgba(30, 41, 59, 0.45); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem;">
+                            <h4 style="margin: 0; color: #22d3ee;">Active Crawling: {domain}</h4>
+                            <p style="margin: 5px 0 0 0; color: #cbd5e1;">Pages Audited: <strong style="color: #22d3ee;">{count[0]} / {max_pages}</strong></p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        crawl_log_placeholder.markdown(f"""
+                        <div class="recommendation-item" style="border-left-color: #475569; margin: 0.25rem 0;">
+                            <strong>Status:</strong> <code>{status}</code> | <strong>Load Time:</strong> {load_time}s | <strong>URL:</strong> <a href="{url}" target="_blank" style="color: #22d3ee; text-decoration: none;">{url}</a>
+                            <br/><span style="font-size: 0.85rem; color: #94a3b8;"><strong>Page Title:</strong> {title[:100]}</span>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    return live_callback
 
-            df_domain = pd.DataFrame([get_domain_info(domain)])
-            df_pages, df_issues, df_audit = crawl_page(
-                domain, max_pages, live_callback=make_live_callback())
+                df_domain = pd.DataFrame([get_domain_info(domain)])
+                df_pages, df_issues, df_audit = crawl_page(
+                    domain, max_pages, live_callback=make_live_callback())
 
-            # Clean up the crawl placeholder UI
-            crawl_count_placeholder.empty()
-            crawl_log_placeholder.empty()
+                # Clean up the crawl placeholder UI
+                crawl_count_placeholder.empty()
+                crawl_log_placeholder.empty()
 
-            if not df_issues.empty:
-                df_issues['Domain'] = domain
-            if not df_audit.empty:
-                df_audit['Domain'] = domain
+                if not df_issues.empty:
+                    df_issues['Domain'] = domain
+                if not df_audit.empty:
+                    df_audit['Domain'] = domain
 
-            all_domain_info.append(df_domain)
-            all_pages.append(df_pages)
-            all_issues.append(df_issues)
-            all_audit.append(df_audit)
+                all_domain_info.append(df_domain)
+                all_pages.append(df_pages)
+                all_issues.append(df_issues)
+                all_audit.append(df_audit)
 
-            progress_bar.progress((idx + 1) / len(domains))
+                progress_bar.progress((idx + 1) / len(domains))
 
-        scan_placeholder.empty()
-        progress_bar.empty()
+            scan_placeholder.empty()
+            progress_bar.empty()
 
-        df_all_domain = pd.concat(all_domain_info, ignore_index=True)
-        df_all_pages = pd.concat(all_pages, ignore_index=True)
-        df_all_issues = pd.concat(all_issues, ignore_index=True)
-        df_all_audit = pd.concat(all_audit, ignore_index=True)
-        st.success(f"Analysis Completed for {len(domains)} Websites!")
+            df_all_domain = pd.concat(all_domain_info, ignore_index=True)
+            df_all_pages = pd.concat(all_pages, ignore_index=True)
+            df_all_issues = pd.concat(all_issues, ignore_index=True)
+            df_all_audit = pd.concat(all_audit, ignore_index=True)
+            st.success(f"Analysis Completed for {len(domains)} Websites!")
 
-        tab1, tab2, tab3, tab4, tab5 = st.tabs(
-            ["Summary", "Domain Info", "Crawled Pages", "SEO Issues", "Technical Audit"])
+            tab1, tab2, tab3, tab4, tab5 = st.tabs(
+                ["Summary", "Domain Info", "Crawled Pages", "SEO Issues", "Technical Audit"])
 
-        with tab1:
-            high_crit_count = len(df_all_issues[df_all_issues.get('Severity', pd.Series()).isin(
-                ['High', 'Critical'])]) if not df_all_issues.empty else 0
+            with tab1:
+                high_crit_count = len(df_all_issues[df_all_issues.get('Severity', pd.Series()).isin(
+                    ['High', 'Critical'])]) if not df_all_issues.empty else 0
 
-            render_metric_cards(len(domains), len(df_all_issues), high_crit_count)
+                render_metric_cards(len(domains), len(df_all_issues), high_crit_count)
 
-            if not df_all_pages.empty and 'Status' in df_all_pages.columns:
-                st.markdown(
-                    "<h3 style='color: #22d3ee; margin-top: 2rem;'>HTTP Status Code Distribution</h3>",
-                    unsafe_allow_html=True)
-                status_counts = df_all_pages['Status'].value_counts(
-                ).reset_index()
-                status_counts.columns = ['Status Code', 'Number of Pages']
-                status_counts['Status Code'] = status_counts['Status Code'].astype(
-                    str)
-                # Show Streamlit native bar chart
-                st.bar_chart(status_counts.set_index('Status Code'))
-
-        with tab2:
-            st.dataframe(df_all_domain, use_container_width=True)
-        with tab3:
-            st.dataframe(df_all_pages, use_container_width=True)
-        with tab4:
-            if not df_all_issues.empty:
-                st.dataframe(df_all_issues, use_container_width=True)
-            else:
-                st.info("No issues found")
-
-        with tab5:
-            st.markdown(
-                "<h3 style='color: #22d3ee; margin-top: 1.5rem;'>Technical Audit + Core Web Vitals</h3>",
-                unsafe_allow_html=True)
-            if not df_all_audit.empty:
-                st.dataframe(df_all_audit, use_container_width=True)
-
-                if 'Load_Time_sec' in df_all_audit.columns:
+                if not df_all_pages.empty and 'Status' in df_all_pages.columns:
                     st.markdown(
-                        "<h3 style='color: #22d3ee; margin-top: 2rem;'>Page Load Time by URL (seconds)</h3>",
+                        "<h3 style='color: #22d3ee; margin-top: 2rem;'>HTTP Status Code Distribution</h3>",
                         unsafe_allow_html=True)
-                    load_df = df_all_audit[[
-                        'URL_Slug', 'Load_Time_sec']].copy()
-                    load_df['Page'] = load_df['URL_Slug'].apply(
-                        lambda x: x if len(x) < 25 else x[:22] + '...')
-                    # Render using streamlit area_chart or bar_chart
-                    st.area_chart(load_df.set_index('Page')['Load_Time_sec'])
+                    status_counts = df_all_pages['Status'].value_counts(
+                    ).reset_index()
+                    status_counts.columns = ['Status Code', 'Number of Pages']
+                    status_counts['Status Code'] = status_counts['Status Code'].astype(
+                        str)
+                    # Show Streamlit native bar chart
+                    st.bar_chart(status_counts.set_index('Status Code'))
+
+            with tab2:
+                st.dataframe(df_all_domain, use_container_width=True)
+            with tab3:
+                st.dataframe(df_all_pages, use_container_width=True)
+            with tab4:
+                if not df_all_issues.empty:
+                    st.dataframe(df_all_issues, use_container_width=True)
+                else:
+                    st.info("No issues found")
+
+            with tab5:
+                st.markdown(
+                    "<h3 style='color: #22d3ee; margin-top: 1.5rem;'>Technical Audit + Core Web Vitals</h3>",
+                    unsafe_allow_html=True)
+                if not df_all_audit.empty:
+                    st.dataframe(df_all_audit, use_container_width=True)
+
+                    if 'Load_Time_sec' in df_all_audit.columns:
+                        st.markdown(
+                            "<h3 style='color: #22d3ee; margin-top: 2rem;'>Page Load Time by URL (seconds)</h3>",
+                            unsafe_allow_html=True)
+                        load_df = df_all_audit[[
+                            'URL_Slug', 'Load_Time_sec']].copy()
+                        load_df['Page'] = load_df['URL_Slug'].apply(
+                            lambda x: x if len(x) < 25 else x[:22] + '...')
+                        # Render using streamlit area_chart or bar_chart
+                        st.area_chart(load_df.set_index('Page')['Load_Time_sec'])
+
+                st.markdown(
+                    "<h3 style='color: #22d3ee; margin-top: 2rem;'>Actions & Recommendations</h3>",
+                    unsafe_allow_html=True)
+                st.markdown("""
+                <div class="glass-card" style="padding: 1.5rem !important;">
+                    <div class="recommendation-item"><strong>Core Web Vitals:</strong> Focus on optimizing Largest Contentful Paint (LCP) under 2.5s.</div>
+                    <div class="recommendation-item"><strong>Server & Client Errors:</strong> Address any 4xx (client) and 5xx (server) responses immediately to prevent crawl budget waste.</div>
+                    <div class="recommendation-item"><strong>Canonical Tags:</strong> Verify self-referencing canonical links are present on all indexable pages.</div>
+                    <div class="recommendation-item"><strong>Social Metadata:</strong> Implement Facebook Open Graph (OG) tags and Twitter Cards for better social CTR.</div>
+                    <div class="recommendation-item"><strong>Crawl Architecture:</strong> Improve internal link equity by reducing orphaned pages and link silos.</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+            filename = f"Multi_SEO_Report_{timestamp}.xlsx"
+
+            generate_excel_report(df_all_domain, df_all_pages, df_all_issues, df_all_audit, filename)
 
             st.markdown(
-                "<h3 style='color: #22d3ee; margin-top: 2rem;'>Actions & Recommendations</h3>",
+                "<div style='margin-top: 2rem;'></div>",
                 unsafe_allow_html=True)
-            st.markdown("""
-            <div class="glass-card" style="padding: 1.5rem !important;">
-                <div class="recommendation-item"><strong>Core Web Vitals:</strong> Focus on optimizing Largest Contentful Paint (LCP) under 2.5s.</div>
-                <div class="recommendation-item"><strong>Server & Client Errors:</strong> Address any 4xx (client) and 5xx (server) responses immediately to prevent crawl budget waste.</div>
-                <div class="recommendation-item"><strong>Canonical Tags:</strong> Verify self-referencing canonical links are present on all indexable pages.</div>
-                <div class="recommendation-item"><strong>Social Metadata:</strong> Implement Facebook Open Graph (OG) tags and Twitter Cards for better social CTR.</div>
-                <div class="recommendation-item"><strong>Crawl Architecture:</strong> Improve internal link equity by reducing orphaned pages and link silos.</div>
-            </div>
-            """, unsafe_allow_html=True)
+            
+            render_download_section()
 
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M")
-        filename = f"Multi_SEO_Report_{timestamp}.xlsx"
+            with open(filename, "rb") as file:
+                st.download_button(
+                    "Download Enterprise SEO Report (4 Sheets)",
+                    data=file,
+                    file_name=filename,
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    use_container_width=True
+                )
 
-        generate_excel_report(df_all_domain, df_all_pages, df_all_issues, df_all_audit, filename)
+        else:
+            all_cyber_results = []
+            for idx, domain in enumerate(domains):
+                logs = [
+                    "Initializing AI Cybersecurity Agent...",
+                    "Establishing security context handshake...",
+                    "Querying WHOIS records for domain age telemetry...",
+                    "Performing port 443 socket connection check...",
+                    "Requesting SSL peer certificates...",
+                    "Validating certificate authority and expiration details...",
+                    "Analyzing HTTP response status and latency...",
+                    "Extracting HTTP Security Headers compliance policies...",
+                    "Scanning landing page HTML for code injection patterns...",
+                    "Analyzing script node entropy and hidden iframe alerts...",
+                    "Running brand spoofing and typo-squatting heuristics...",
+                    "Compiling complete risk assessment report..."
+                ]
 
-        st.markdown(
-            "<div style='margin-top: 2rem;'></div>",
-            unsafe_allow_html=True)
-        
-        render_download_section()
+                for p in range(0, 101, 1):
+                    log_idx = min(p // (100 // len(logs)), len(logs) - 1)
+                    current_log = logs[log_idx]
 
-        with open(filename, "rb") as file:
-            st.download_button(
-                "Download Enterprise SEO Report (4 Sheets)",
-                data=file,
-                file_name=filename,
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                use_container_width=True
+                    render_scan_progress(scan_placeholder, domain, current_log, p)
+                    if sleep_time > 0:
+                        time.sleep(sleep_time)
+
+                clean_domain = domain.replace("https://", "").replace("http://", "").rstrip("/").split("/")[0]
+                original_url = f"https://{clean_domain}" if domain.startswith("https://") else f"http://{clean_domain}"
+                
+                # Fetch WHOIS creation date
+                info = get_domain_info(domain)
+                creation_str = info.get("Creation_Date", "N/A")
+                
+                html_content = ""
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                }
+                try:
+                    resp = requests.get(original_url, timeout=8, headers=headers, allow_redirects=True, verify=False)
+                    html_content = resp.text
+                except Exception:
+                    try:
+                        fallback_url = f"http://{clean_domain}" if original_url.startswith("https://") else f"https://{clean_domain}"
+                        resp = requests.get(fallback_url, timeout=8, headers=headers, allow_redirects=True, verify=False)
+                        html_content = resp.text
+                        original_url = fallback_url
+                    except Exception:
+                        pass
+                
+                cyber_res = run_cyber_scan(clean_domain, original_url, html_content, creation_str)
+                all_cyber_results.append(cyber_res)
+                progress_bar.progress((idx + 1) / len(domains))
+
+            scan_placeholder.empty()
+            progress_bar.empty()
+
+            st.success(f"Cybersecurity Auditing Completed for {len(domains)} Websites!")
+
+            tab1, tab2, tab3, tab4 = st.tabs(
+                ["Security Scorecard", "SSL Validation Details", "Security Headers Audit", "Threat Heuristics"]
             )
+
+            with tab1:
+                # Select box for target domain
+                clean_domains = [r["domain"] for r in all_cyber_results]
+                if len(clean_domains) > 1:
+                    selected_domain = st.selectbox("Select Domain to Inspect Scorecard:", options=clean_domains)
+                else:
+                    selected_domain = clean_domains[0]
+
+                res = next(r for r in all_cyber_results if r["domain"] == selected_domain)
+
+                # Show metric cards
+                col_m1, col_m2, col_m3 = st.columns(3)
+                with col_m1:
+                    st.markdown(f"""
+                    <div class="metric-card">
+                        <div class="metric-label">Security Compliance Score</div>
+                        <div class="metric-value" style="color: #22d3ee;">{res['global_score']}%</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                with col_m2:
+                    st.markdown(f"""
+                    <div class="metric-card">
+                        <div class="metric-label">Security Grade</div>
+                        <div class="metric-value" style="color: #818cf8;">{res['grade']}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                with col_m3:
+                    rating_color = "#f87171" if "High" in res['rating'] or "Critical" in res['rating'] else "#4ade80"
+                    st.markdown(f"""
+                    <div class="metric-card">
+                        <div class="metric-label">Risk Exposure Rating</div>
+                        <div class="metric-value" style="color: {rating_color};">{res['rating']}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                st.markdown("<h3 style='color: #22d3ee; margin-top: 2rem;'>Vulnerability Remediation Plan</h3>", unsafe_allow_html=True)
+
+                rec_html = '<div class="glass-card" style="padding: 1.5rem !important;">'
+                for idx_rec, rec in enumerate(res["recommendations"]):
+                    rec_html += f'<div class="recommendation-item"><strong>Action Item {idx_rec + 1}:</strong> {rec}</div>'
+                rec_html += '</div>'
+                st.markdown(rec_html, unsafe_allow_html=True)
+
+            with tab2:
+                ssl_rows = []
+                for r in all_cyber_results:
+                    ssl_rows.append({
+                        "Domain": r["domain"],
+                        "SSL Valid": "Yes" if r["ssl_info"]["valid"] else "No / Untrusted",
+                        "Issuer Common Name": r["ssl_info"]["issuer_cn"],
+                        "Issuer Organization": r["ssl_info"]["issuer_org"],
+                        "Expiration Date": r["ssl_info"]["expiry_date"],
+                        "Days Remaining": r["ssl_info"]["days_left"] if r["ssl_info"]["days_left"] >= 0 else "N/A"
+                    })
+                st.dataframe(pd.DataFrame(ssl_rows), use_container_width=True)
+
+            with tab3:
+                clean_domains_h = [r["domain"] for r in all_cyber_results]
+                if len(clean_domains_h) > 1:
+                    selected_domain_h = st.selectbox("Select Domain to Inspect Headers:", options=clean_domains_h, key="headers_sel")
+                else:
+                    selected_domain_h = clean_domains_h[0]
+
+                res_h = next(r for r in all_cyber_results if r["domain"] == selected_domain_h)
+                st.dataframe(pd.DataFrame(res_h["header_findings"])[["header", "status", "value", "severity", "desc"]], use_container_width=True)
+
+            with tab4:
+                clean_domains_t = [r["domain"] for r in all_cyber_results]
+                if len(clean_domains_t) > 1:
+                    selected_domain_t = st.selectbox("Select Domain to Inspect Threats:", options=clean_domains_t, key="threats_sel")
+                else:
+                    selected_domain_t = clean_domains_t[0]
+
+                res_t = next(r for r in all_cyber_results if r["domain"] == selected_domain_t)
+
+                col_t1, col_t2 = st.columns(2)
+                with col_t1:
+                    st.markdown("### 🎣 Phishing Indicators")
+                    if res_t["phishing_reasons"]:
+                        for reason in res_t["phishing_reasons"]:
+                            st.error(reason)
+                    else:
+                        st.success("No brand spoofing or high-entropy anomalies detected.")
+                with col_t2:
+                    st.markdown("### 👾 Malware Risk Analysis")
+                    if res_t["malware_reasons"]:
+                        for reason in res_t["malware_reasons"]:
+                            st.error(reason)
+                    else:
+                        st.success("No drive-by hidden frames or obfuscated script signatures found.")
+
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+            filename = f"AI_Security_Report_{timestamp}.xlsx"
+
+            generate_security_report(all_cyber_results, filename)
+
+            st.markdown(
+                "<div style='margin-top: 2rem;'></div>",
+                unsafe_allow_html=True)
+            
+            render_download_section()
+
+            with open(filename, "rb") as file:
+                st.download_button(
+                    "Download AI Security Report (5 Sheets)",
+                    data=file,
+                    file_name=filename,
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    use_container_width=True
+                )
 
 else:
     render_ready_to_scan()
