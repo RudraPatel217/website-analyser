@@ -22,7 +22,7 @@ from frontend import (
 )
 
 # Import Backend Subpackage Utilities
-from backend import get_gtmetrix_screenshot, get_domain_info, crawl_page, generate_excel_report, generate_security_report, run_cyber_scan
+from backend import get_gtmetrix_screenshot, get_domain_info, crawl_page, generate_excel_report, generate_security_report, run_cyber_scan, generate_ai_seo_recommendations
 
 st.set_page_config(page_title="SEO Domain Intelligence Agent", layout="wide")
 
@@ -280,15 +280,36 @@ if run_analysis:
                 st.markdown(
                     "<h3 style='color: #22d3ee; margin-top: 2rem;'>Actions & Recommendations</h3>",
                     unsafe_allow_html=True)
-                st.markdown("""
-                <div class="glass-card" style="padding: 1.5rem !important;">
-                    <div class="recommendation-item"><strong>Core Web Vitals:</strong> Focus on optimizing Largest Contentful Paint (LCP) under 2.5s.</div>
-                    <div class="recommendation-item"><strong>Server & Client Errors:</strong> Address any 4xx (client) and 5xx (server) responses immediately to prevent crawl budget waste.</div>
-                    <div class="recommendation-item"><strong>Canonical Tags:</strong> Verify self-referencing canonical links are present on all indexable pages.</div>
-                    <div class="recommendation-item"><strong>Social Metadata:</strong> Implement Facebook Open Graph (OG) tags and Twitter Cards for better social CTR.</div>
-                    <div class="recommendation-item"><strong>Crawl Architecture:</strong> Improve internal link equity by reducing orphaned pages and link silos.</div>
-                </div>
-                """, unsafe_allow_html=True)
+                
+                recs = generate_ai_seo_recommendations(df_all_pages, df_all_issues, df_all_audit)
+                
+                rec_html = '<div class="glass-card" style="padding: 1.5rem !important;">'
+                for r in recs:
+                    # Determine border and background styles based on severity
+                    sev = r["severity"].lower()
+                    if sev == "critical":
+                        color_style = "border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
+                        sev_badge = '<span style="color: #ef4444; font-weight: 800;">[CRITICAL]</span>'
+                    elif sev == "high":
+                        color_style = "border-left: 4px solid #f97316; background: rgba(249, 115, 22, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
+                        sev_badge = '<span style="color: #f97316; font-weight: 800;">[HIGH]</span>'
+                    elif sev == "medium":
+                        color_style = "border-left: 4px solid #eab308; background: rgba(234, 179, 8, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
+                        sev_badge = '<span style="color: #eab308; font-weight: 800;">[MEDIUM]</span>'
+                    else:
+                        color_style = "border-left: 4px solid #22c55e; background: rgba(34, 197, 94, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
+                        sev_badge = '<span style="color: #22c55e; font-weight: 800;">[LOW]</span>'
+                        
+                    rec_html += f"""
+                    <div style="{color_style}">
+                        <div style="font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; color: #f1f5f9;">{sev_badge} {r['title']}</div>
+                        <div style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 6px;">{r['description']}</div>
+                        <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 4px;"><strong>Impact:</strong> {r['impact']}</div>
+                        <div style="color: #22d3ee; font-size: 0.85rem; font-weight: 600;"><strong>Action:</strong> {r['action_item']}</div>
+                    </div>
+                    """
+                rec_html += '</div>'
+                st.markdown(rec_html, unsafe_allow_html=True)
 
             timestamp = datetime.now().strftime("%Y%m%d_%H%M")
             filename = f"Multi_SEO_Report_{timestamp}.xlsx"
