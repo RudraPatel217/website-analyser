@@ -299,15 +299,16 @@ if run_analysis:
                     else:
                         color_style = "border-left: 4px solid #22c55e; background: rgba(34, 197, 94, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
                         sev_badge = '<span style="color: #22c55e; font-weight: 800;">[LOW]</span>'
-                        
-                    rec_html += f"""
-                    <div style="{color_style}">
-                        <div style="font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; color: #f1f5f9;">{sev_badge} {r['title']}</div>
-                        <div style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 6px;">{r['description']}</div>
-                        <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 4px;"><strong>Impact:</strong> {r['impact']}</div>
-                        <div style="color: #22d3ee; font-size: 0.85rem; font-weight: 600;"><strong>Action:</strong> {r['action_item']}</div>
-                    </div>
-                    """
+                    
+                    item_html = (
+                        f'<div style="{color_style}">'
+                        f'<div style="font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; color: #f1f5f9;">{sev_badge} {r["title"]}</div>'
+                        f'<div style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 6px;">{r["description"]}</div>'
+                        f'<div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 4px;"><strong>Impact:</strong> {r["impact"]}</div>'
+                        f'<div style="color: #22d3ee; font-size: 0.85rem; font-weight: 600;"><strong>Action:</strong> {r["action_item"]}</div>'
+                        f'</div>'
+                    )
+                    rec_html += item_html
                 rec_html += '</div>'
                 st.markdown(rec_html, unsafe_allow_html=True)
 
