@@ -5,8 +5,23 @@ def inject_premium_styles():
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
-        * {
-            font-family: 'Plus Jakarta Sans', sans-serif !important;
+        /* Scoped global typography targeting standard text elements */
+        html, body, .stApp, p, label, button, input, select, textarea, h1, h2, h3, h4, h5, h6,
+        .glass-card, .metric-card, .recommendation-item, .browser-frame {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        /* Preserve Material Symbols & Streamlit Icon Fonts (Prevents icon text overlap on menus) */
+        [class*="material-symbols"],
+        [class*="material-icons"],
+        [class*="icon"],
+        [data-testid="stIcon"],
+        .material-symbols-outlined,
+        .material-symbols-rounded,
+        .material-symbols-sharp {
+            font-family: 'Material Symbols Outlined', 'Material Icons', 'StreamlitIcons', sans-serif !important;
+            font-style: normal !important;
+            text-transform: none !important;
         }
 
         /* Background and global text color */
@@ -15,7 +30,7 @@ def inject_premium_styles():
             color: #f1f5f9 !important;
         }
 
-        /* Hide Streamlit components for a custom dashboard look */
+        /* Hide Streamlit elements for a custom dashboard look */
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
         header {visibility: hidden;}
@@ -259,6 +274,48 @@ def inject_premium_styles():
         }
         .browser-content {
             padding: 12px !important;
+        }
+
+        /* Clean Popover & Menu Container Styling (Fixes Dataframe 3-Dots Menu Overlap) */
+        div[data-baseweb="popover"],
+        div[data-baseweb="menu"],
+        ul[role="listbox"],
+        div[role="listbox"],
+        div[data-testid="stColumnMenu"],
+        div[data-baseweb="tooltip"],
+        [data-testid="stPopoverContent"] {
+            background-color: #0f172a !important;
+            background: #0f172a !important;
+            border: 1px solid rgba(34, 211, 238, 0.3) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            color: #f1f5f9 !important;
+            z-index: 999999 !important;
+        }
+
+        /* Popover Menu Option Hover Styling */
+        div[data-baseweb="menu"] li:hover,
+        div[role="option"]:hover,
+        div[role="option"][aria-selected="true"],
+        ul[role="listbox"] li:hover,
+        div[data-baseweb="popover"] [role="option"]:hover {
+            background-color: rgba(34, 211, 238, 0.15) !important;
+            color: #22d3ee !important;
+        }
+
+        div[data-baseweb="popover"] input {
+            background-color: rgba(30, 41, 59, 0.8) !important;
+            color: #f1f5f9 !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            border-radius: 8px !important;
+            padding: 6px 12px !important;
+        }
+
+        div[data-baseweb="popover"] input:focus {
+            border-color: #22d3ee !important;
+            box-shadow: 0 0 10px rgba(34, 211, 238, 0.2) !important;
         }
     </style>
     """, unsafe_allow_html=True)
