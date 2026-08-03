@@ -25,6 +25,16 @@ An enterprise-grade, multi-website SEO Auditor and Domain Intelligence Tool. Thi
 
 ---
 
+## 🎨 Premium UI Aesthetics
+
+The application overrides default Streamlit components with a custom, tailored CSS interface:
+*   **Typography:** The layout uses the premium `Plus Jakarta Sans` Google Font.
+*   **Glassmorphic Panels:** Cards feature blurred backdrops (`backdrop-filter: blur(16px)`), subtle borders, and deep shadows for a high-end feel.
+*   **Live Scanning Loader:** When a crawl begins, a custom radial loader and log-stream component render the agent's real-time action telemetry.
+*   **Responsive Previews:** Displayed website screenshots are rendered inside mock desktop browser frames.
+
+---
+
 ## 📷 Flexible Screenshot Solutions for Other Users
 
 To ensure website screenshots work seamlessly whether users run locally or deploy to cloud hosting, the agent provides 5 screenshot options:
@@ -52,6 +62,42 @@ This project is hardened against common security threats:
 *   **Secret Protection:** API keys are loaded strictly from `.env` files (ignored in `.gitignore`).
 
 For complete details, see [SECURITY.md](SECURITY.md).
+
+---
+
+## 🏗️ System Architecture
+
+The project consists of two core components working together:
+
+1.  **Frontend & Crawl Agent (Python / Streamlit):** Orchestrates the scraping, analyzes elements, performs DNS/WHOIS lookups, and generates final XLSX sheets.
+2.  **Screenshot Microservice (Node.js / Puppeteer):** Runs an Express server on port 3000 that spins up a headless Chromium browser to capture the exact layout of the target URL.
+
+```mermaid
+graph TD
+    Client[Streamlit Dashboard / UI] -->|WHOIS & DNS Query| DNS[Whois & dns.resolver]
+    Client -->|Crawl Pages & Parse Tags| Web[Target Website]
+    Client -->|Screenshot Request| LocalPuppeteer[Express + Puppeteer Service :3000]
+    Client -->|API fallback / screenshot| GT[GTmetrix / Thum.io API]
+    LocalPuppeteer -->|Render Page & Capture PNG| Web
+    Client -->|Consolidate & Download| Excel[openpyxl Excel Exporter]
+```
+
+---
+
+## 📋 Audit Parameters & Rules
+
+The auditor performs multiple checks across every scanned page:
+
+| Category | Parameter Checked | Target Threshold | Impact / Action |
+| :--- | :--- | :--- | :--- |
+| **Technical** | HTTP Status Code | `200 OK` | Reports 4xx client and 5xx server issues. |
+| **On-Page SEO** | Title Tag Length | `10 - 65 characters` | Crucial for click-through rate (CTR) optimization. |
+| **On-Page SEO** | Meta Description | `50 - 160 characters` | Optimizes search engine snippet presentation. |
+| **On-Page SEO** | H1 Headers | `At least one H1 present` | Establishes content hierarchy for indexers. |
+| **Technical** | Image Alt Tags | `All images must have alt attributes` | Improves web accessibility and image search SEO. |
+| **Performance**| Core Web Vitals | `Simulated LCP < 2.5s, FID < 0.1s` | Identifies layout shifts and performance bottle-necks. |
+| **Security** | SSL Validity | `HTTPS with Verified Certificate` | Establishes secure connection trust signals. |
+| **Metadata** | Social & Schema | `og:title, og:description, JSON-LD` | Enhances rich-results and social media sharing. |
 
 ---
 
