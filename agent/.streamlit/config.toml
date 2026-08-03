@@ -5,3 +5,11 @@ secondaryBackgroundColor = "#1e293b"
 textColor = "#f1f5f9"
 font = "sans serif"
 base = "dark"
+
+[server]
+enableXsrfProtection = true
+enableCORS = false
+maxUploadSize = 10
+
+[browser]
+gatherUsageStats = false

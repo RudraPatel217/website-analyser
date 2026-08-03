@@ -9,7 +9,8 @@ import requests
 from datetime import datetime
 import time
 import base64
-from config import GTMETRIX_API_KEY
+from urllib.parse import quote
+from config import GTMETRIX_API_KEY, BUILTWITH_API_KEY
 
 # Import Frontend Subpackage Components
 from frontend import inject_premium_styles, inject_header_element, inject_footer_element
@@ -30,7 +31,10 @@ from backend import (
     generate_security_report,
     run_cyber_scan,
     generate_ai_seo_recommendations,
-    generate_unified_report
+    generate_unified_report,
+    is_safe_public_domain,
+    check_service_health,
+    install_and_start_puppeteer_service
 )
 
 st.set_page_config(page_title="SEO Domain Intelligence Agent", layout="wide")
@@ -52,9 +56,13 @@ with st.container(border=True):
     with col_source:
         screenshot_source = st.selectbox(
             "Screenshot Preview Source:",
-            options=["Local Puppeteer Service (Port 3000)",
-                     "Thum.io (Free & Fast)",
-                     "GTmetrix API v2.0 (Premium & Authorized)"],
+            options=[
+                "Local Puppeteer Service (Port 3000)",
+                "Microlink Cloud API (Free & Cloud-Compatible)",
+                "WordPress mShot API (Fast Preview)",
+                "Thum.io (Backup Fallback)",
+                "GTmetrix API v2.0 (Premium & Authorized)"
+            ],
             index=0
         )
     with col_c1:
@@ -68,6 +76,39 @@ with st.container(border=True):
             index=1
         )
 
+    # Secure API Key Overrides for Visitors / Users
+    with st.expander("🔑 API Key Settings (Optional - Use Your Own Keys)", expanded=False):
+        st.markdown(
+            "<p style='color: #cbd5e1; font-size: 0.9rem; margin-bottom: 0.75rem;'>"
+            "To protect admin keys and quota, you can supply your personal API keys below. "
+            "If left blank, the app will use server defaults or free public APIs (Microlink / WordPress mShot) automatically."
+            "</p>",
+            unsafe_allow_html=True
+        )
+        col_k1, col_k2 = st.columns(2)
+        with col_k1:
+            user_gtmetrix_key = st.text_input(
+                "Personal GTmetrix API Key:",
+                type="password",
+                placeholder="Paste your GTmetrix API Key...",
+                help="Sign up and obtain your free API key at https://gtmetrix.com/api/"
+            )
+        with col_k2:
+            user_builtwith_key = st.text_input(
+                "Personal BuiltWith API Key:",
+                type="password",
+                placeholder="Paste your BuiltWith API Key...",
+                help="Sign up and obtain your API key at https://builtwith.com/api"
+            )
+
+    # Determine active API keys (User UI input takes priority over server environment keys)
+    active_gtmetrix_key = user_gtmetrix_key.strip() if user_gtmetrix_key.strip() else GTMETRIX_API_KEY.strip()
+    active_builtwith_key = user_builtwith_key.strip() if user_builtwith_key.strip() else BUILTWITH_API_KEY.strip()
+
+    # Session state for tracking user choice on skipping preview
+    if "skip_puppeteer_preview" not in st.session_state:
+        st.session_state["skip_puppeteer_preview"] = False
+
 run_analysis = st.button(
     "Start Full Multi-Website Analysis",
     type="primary",
@@ -77,53 +118,65 @@ scan_placeholder = st.empty()
 crawl_count_placeholder = st.empty()
 crawl_log_placeholder = st.empty()
 
+# Check local Puppeteer service status
+service_active, _ = check_service_health()
+
 # ===================== HOMEPAGE PREVIEW =====================
 if domains_input.strip():
     st.markdown("### 🌐 Homepage Previews")
-    for domain in domains_input.split('\n'):
-        domain = domain.strip()
-        if domain:
-            try:
-                screenshot_loaded = False
-                error_msg = None
-                screenshot_url = ""
 
-                if "Local Puppeteer" in screenshot_source:
-                    try:
-                        # Fast status check to see if the local Node service is running
-                        health_check = requests.get("http://localhost:3000/health", timeout=1.5)
-                        if health_check.status_code == 200 and health_check.text == "OK":
-                            screenshot_url = f"http://localhost:3000/screenshot?url={domain}"
-                            screenshot_loaded = True
-                        else:
-                            error_msg = "Local Puppeteer service health check failed. Falling back to Thum.io."
-                    except Exception:
-                        error_msg = "Local Puppeteer service is not running on port 3000. Start it by running 'node server.js' in the 'screenshot-service' directory. Falling back to Thum.io."
+    # CASE 1: Service is ALREADY running on port 3000 -> Render preview directly with ZERO message/prompt!
+    if service_active:
+        for domain in domains_input.split('\n'):
+            domain = domain.strip()
+            if domain:
+                try:
+                    # SSRF Protection Check
+                    is_safe, ssrf_msg = is_safe_public_domain(domain)
+                    if not is_safe:
+                        st.error(f"🛡️ Security Block ({domain}): {ssrf_msg}")
+                        continue
 
-                elif "GTmetrix" in screenshot_source:
-                    active_key = GTMETRIX_API_KEY.strip() if GTMETRIX_API_KEY else ""
-                    if not active_key:
-                        error_msg = "GTmetrix API Key is required but missing."
+                    screenshot_url = f"http://localhost:3000/screenshot?url={quote(domain)}"
+                    render_browser_preview(domain, screenshot_url)
+                except Exception as e:
+                    st.warning(f"Could not preview {domain}: {str(e)}")
+
+    # CASE 2: Service is NOT running, but user selected "No, Skip Website Preview"
+    elif st.session_state.get("skip_puppeteer_preview", False):
+        st.info("ℹ️ Website visual preview is currently skipped. All SEO crawling, WHOIS, DNS, Excel export, and Security diagnostics remain 100% active.")
+
+    # CASE 3: Service is NOT running -> Ask user permission to install & start Puppeteer service on their laptop
+    else:
+        st.markdown("""
+        <div style="background: rgba(30, 41, 59, 0.7); border-left: 4px solid #22d3ee; border-radius: 12px; padding: 1.5rem; margin: 1rem 0;">
+            <h4 style="color: #22d3ee; margin-top: 0; font-size: 1.2rem; font-weight: 700;">
+                🌐 Local Puppeteer Screenshot Service Required
+            </h4>
+            <p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 1rem; line-height: 1.5;">
+                The Puppeteer screenshot service is currently not running on your laptop (port 3000). 
+                Would you like to automatically install dependencies and start the screenshot service on your laptop?
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        col_perm1, col_perm2 = st.columns([1, 1])
+        with col_perm1:
+            if st.button("⚡ Yes, Install & Start Service on my Laptop", type="primary", use_container_width=True):
+                with st.spinner("Setting up Puppeteer screenshot service on your machine..."):
+                    success, msg = install_and_start_puppeteer_service(progress_callback=st.info)
+                    if success:
+                        st.success(msg)
+                        st.session_state["skip_puppeteer_preview"] = False
+                        time.sleep(1.5)
+                        st.rerun()
                     else:
-                        with st.spinner(f"Requesting GTmetrix screenshot for {domain}..."):
-                            img_bytes, err = get_gtmetrix_screenshot(
-                                domain, active_key)
-                            if img_bytes:
-                                base64_img = base64.b64encode(
-                                    img_bytes).decode("utf-8")
-                                screenshot_url = f"data:image/png;base64,{base64_img}"
-                                screenshot_loaded = True
-                            else:
-                                error_msg = f"GTmetrix failed ({err}). Falling back to Thum.io."
+                        st.error(msg)
 
-                if not screenshot_loaded:
-                    screenshot_url = f"https://image.thum.io/get/width/600/crop/800/{domain}"
-                    if error_msg:
-                        st.warning(error_msg)
-
-                render_browser_preview(domain, screenshot_url)
-            except Exception as e:
-                st.warning(f"Could not preview {domain}: {str(e)}")
+        with col_perm2:
+            if st.button("❌ No, Skip Website Preview", use_container_width=True):
+                st.session_state["skip_puppeteer_preview"] = True
+                st.rerun()
 
 
 # ===================== MAIN ANALYSIS =====================
@@ -148,6 +201,11 @@ if run_analysis:
         all_cyber_results = []
 
         for idx, domain in enumerate(domains):
+            is_safe, ssrf_msg = is_safe_public_domain(domain)
+            if not is_safe:
+                st.error(f"🛡️ Target Security Block ({domain}): {ssrf_msg}")
+                continue
+
             # Dynamic scanning simulation
             logs = [
                 "Initializing Intelligent Domain Agent...",

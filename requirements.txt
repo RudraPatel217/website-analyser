@@ -8,3 +8,4 @@ python-dotenv
 tqdm
 streamlit
 python-dateutil
+urllib3
