@@ -28,19 +28,14 @@ jobs:
       - name: Verify Secret Leak Prevention
         run: |
           echo "Scanning codebase for accidentally committed secrets..."
-          # Scan for real API keys while excluding docs, env examples, and standard placeholders
-          if grep -rnEI "AIzaSy[a-zA-Z0-9_-]{33}|sk-[a-zA-Z0-9]{32,}" \
+          matches=$(grep -rnEI "AIzaSy[a-zA-Z0-9_-]{33}|sk-[a-zA-Z0-9]{32,}|GTMETRIX_API_KEY\s*=\s*['\"][^'\"]+['\"]" \
             --exclude-dir={.git,.venv,node_modules} \
             --exclude="*.md" \
-            --exclude=".env.example" .; then
-            echo "ERROR: Potential hardcoded secret or API key detected!"
-            exit 1
-          fi
-          if grep -rnEI "GTMETRIX_API_KEY\s*=\s*['\"][^'\"]+['\"]" \
-            --exclude-dir={.git,.venv,node_modules} \
-            --exclude="*.md" \
-            --exclude=".env.example" . | grep -vE "(your_key_here|your_gtmetrix_key|placeholder|YOUR_KEY)"; then
-            echo "ERROR: Potential hardcoded GTMETRIX_API_KEY detected in source code!"
+            --exclude=".env.example" . | grep -vE "(your_key_here|your_gtmetrix_key|placeholder|YOUR_KEY)" || true)
+          if [ -n "$matches" ]; then
+            echo "ERROR: Potential hardcoded secret(s) detected:"
+            echo "$matches"
+            echo "Remove or replace these values with placeholders and move secrets to environment variables."
             exit 1
           fi
           echo "No exposed secrets found."
@@ -52,9 +47,12 @@ jobs:
           python -m py_compile agent/app.py agent/config.py agent/backend/*.py agent/frontend/*.py
 
       - name: Verify Node.js Screenshot Microservice
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: "true"
         run: |
           cd screenshot-service
-          npm install
+          npm ci
+          echo "Running npm vulnerability audit..."
           npm audit --audit-level=high
 
       - name: Sanity Check Security Policies

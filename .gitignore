@@ -1,54 +1,80 @@
-# Environment & Secrets (CRITICAL SECURITY)
+# ==========================================
+# ENVIRONMENT & SECRETS (CRITICAL SECURITY)
+# ==========================================
 .env
 .env.*
 !.env.example
-.streamlit/secrets.toml
+*.env
+secrets.json
 secrets.toml
+credentials.json
+config.local.json
+.streamlit/secrets.toml
+
+# Certificates & Private Keys
 *.pem
 *.key
 *.p12
 *.pfx
 *.crt
 *.cer
+*.pub
+id_rsa
+id_ed25519
 
-# Python Byte-compiled / optimized / DLL files
+# ==========================================
+# PYTHON BYTECODE & VIRTUAL ENVIRONMENTS
+# ==========================================
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 *.py.class
 
-# Python Virtual Environments
 .venv/
 venv/
 ENV/
 env/
 venv.bak/
 
-# Testing & Coverage Caches
+# ==========================================
+# TESTING, COVERAGE & LINT CACHES
+# ==========================================
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.pytype/
 .coverage
 htmlcov/
+.coverage.*
 
-# Node.js dependencies & debug logs
+# ==========================================
+# NODE.JS & NPM DEPENDENCIES
+# ==========================================
 node_modules/
+screenshot-service/node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
 
-# Generated Reports & Export Datasets
+# ==========================================
+# GENERATED REPORTS, EXPORTS & LOGS
+# ==========================================
 *.xlsx
+*.xls
 *.csv
 *.pdf
 *.log
 *.sqlite
 *.sqlite3
 *.db
+*.dat
 
-# IDEs and Code Editors
+# ==========================================
+# IDES & CODE EDITORS
+# ==========================================
 .vscode/
 .idea/
 *.suo
@@ -58,11 +84,21 @@ pnpm-debug.log*
 *.sw?
 *.sublime-project
 *.sublime-workspace
+.project
+.settings/
 
-# Operating System & Temp files
+# ==========================================
+# OPERATING SYSTEM & TEMP FILES
+# ==========================================
 Thumbs.db
+ehthumbs.db
+desktop.ini
 db.lock
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
 *.tmp
 *.bak
 *.temp
