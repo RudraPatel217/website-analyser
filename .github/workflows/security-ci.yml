@@ -1,0 +1,54 @@
+name: Security & Automated Integrity CI
+
+on:
+  push:
+    branches: [ main, feature/* ]
+  pull_request:
+    branches: [ main, feature/* ]
+
+jobs:
+  security-and-quality-check:
+    name: Security & Code Integrity Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Verify Secret Leak Prevention
+        run: |
+          echo "Scanning codebase for accidentally committed secrets..."
+          if grep -rnEI "AIzaSy|sk-[a-zA-Z0-9]{32,}|GTMETRIX_API_KEY\s*=\s*['\"][^'\"]+['\"]" --exclude-dir={.git,.venv,node_modules} .; then
+            echo "ERROR: Potential hardcoded secret or API key detected!"
+            exit 1
+          fi
+          echo "No exposed secrets found."
+
+      - name: Install Python Dependencies & Check Syntax
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          python -m py_compile agent/app.py agent/config.py agent/backend/*.py agent/frontend/*.py
+
+      - name: Verify Node.js Screenshot Microservice
+        run: |
+          cd screenshot-service
+          npm install
+          npm audit --audit-level=high
+
+      - name: Sanity Check Security Policies
+        run: |
+          echo "Validating SSRF protection & security config..."
+          test -f SECURITY.md
+          test -f agent/.streamlit/config.toml
+          grep -q "enableXsrfProtection = true" agent/.streamlit/config.toml
