@@ -52,6 +52,9 @@ with st.container(border=True):
                                  value="https://jeenweb.com",
                                  height=100)
     
+    service_healthy, _ = check_service_health()
+    default_source_index = 0 if service_healthy else 1
+
     col_source, col_c1, col_c2 = st.columns(3)
     with col_source:
         screenshot_source = st.selectbox(
@@ -63,7 +66,7 @@ with st.container(border=True):
                 "Thum.io (Backup Fallback)",
                 "GTmetrix API v2.0 (Premium & Authorized)"
             ],
-            index=0
+            index=default_source_index
         )
     with col_c1:
         max_pages = st.slider("Max crawl depth pages per domain:", 5, 300, 25)
