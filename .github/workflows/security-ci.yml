@@ -29,7 +29,7 @@ jobs:
         run: |
           echo "Scanning codebase for accidentally committed secrets..."
           matches=$(grep -rnEI "AIzaSy[a-zA-Z0-9_-]{33}|sk-[a-zA-Z0-9]{32,}|GTMETRIX_API_KEY\s*=\s*['\"][^'\"]+['\"]" \
-            --exclude-dir={.git,.venv,node_modules} \
+            --exclude-dir=.git --exclude-dir=.venv --exclude-dir=node_modules \
             --exclude="*.md" \
             --exclude=".env.example" . | grep -vE "(your_key_here|your_gtmetrix_key|placeholder|YOUR_KEY)" || true)
           if [ -n "$matches" ]; then
@@ -44,7 +44,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          python -m py_compile agent/app.py agent/config.py agent/backend/*.py agent/frontend/*.py
+          python -m py_compile app.py agent/app.py agent/config.py agent/backend/*.py agent/frontend/*.py
 
       - name: Verify Node.js Screenshot Microservice
         env:
