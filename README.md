@@ -1,6 +1,5 @@
 # 🌐 Domain Intelligence Agent & SEO Auditor
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Streamlit_Cloud-22D3EE?style=for-the-badge&logo=streamlit&logoColor=white)](https://website-analyser-qde8zxq3xsn7woamqbusut.streamlit.app/)
 [![Streamlit App](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=Streamlit&logoColor=white)](https://streamlit.io/)
 [![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![Puppeteer](https://img.shields.io/badge/Puppeteer-40B5A4?style=for-the-badge&logo=Puppeteer&logoColor=white)](https://pptr.dev/)
@@ -10,13 +9,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 An enterprise-grade, multi-website SEO Auditor and Domain Intelligence Tool. This application combines a fast Python-based crawler with multi-tiered screenshot engines and enterprise security protections, rendering an interactive, glassmorphic Streamlit dashboard for real-time diagnostics and comprehensive Excel reporting.
-
----
-
-## 🌐 Live Online Demo
-
-Access the live, fully functional application on Streamlit Cloud:
-👉 **[https://website-analyser-qde8zxq3xsn7woamqbusut.streamlit.app/](https://website-analyser-qde8zxq3xsn7woamqbusut.streamlit.app/)**
 
 ---
 
