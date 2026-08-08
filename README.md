@@ -134,36 +134,9 @@ The auditor performs multiple checks across every scanned page:
 
 ---
 
-## ⚡ Deployment & Installation Guide
+## ⚡ Installation Guide
 
-### Option 1: Deploy on Streamlit Community Cloud (Recommended for Public Hosting)
-
-1. Fork or Push this repository to your GitHub account.
-2. Log into [Streamlit Community Cloud](https://share.streamlit.io/) and click **New App**.
-3. Select your repository, set **Main file path** to `agent/app.py`.
-4. Add environment variables under **Advanced Settings > Secrets**:
-   ```toml
-   GTMETRIX_API_KEY = "your_key_here"
-   BUILTWITH_API_KEY = "your_key_here"
-   ```
-5. Click **Deploy!** 
-   *(The app will automatically use the **Microlink Cloud API** for website screenshots out of the box).*
-
----
-
-### Option 2: Run with Docker Compose (One-Click Container Setup)
-
-Ensure Docker and Docker Compose are installed, then run:
-
-```bash
-docker-compose up --build
-```
-
-Access the Streamlit Dashboard at `http://localhost:8501`. Both Streamlit and the Node.js Puppeteer screenshot service will run automatically in containerized isolation.
-
----
-
-### Option 3: Local Installation (Windows, Linux, macOS)
+### Option 1: Local Installation (Windows, Linux, macOS)
 
 #### Prerequisites
 *   [Python 3.8+](https://www.python.org/downloads/)
