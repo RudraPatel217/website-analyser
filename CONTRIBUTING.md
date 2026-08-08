@@ -9,7 +9,7 @@ To ensure the safety, security, and integrity of this open-source project, stric
 ## 🔒 Security & Push Controls
 
 1. **Direct Pushes Restricted**: Direct pushes to `main` or protected feature branches are disabled. All changes must be submitted via **Pull Requests (PRs)**.
-2. **Code Owner Approval Required**: Every Pull Request requires explicit review and approval from the repository maintainer (`@rj423513-create`) before merging.
+2. **Code Owner Approval Required**: Every Pull Request requires explicit review and approval from the repository maintainer (`@RudraPatel217`) before merging.
 3. **Automated CI Security Checks**: All PRs automatically trigger GitHub Actions security workflows. PRs with failing security tests, secret leaks, or vulnerabilities will be automatically blocked.
 
 ---

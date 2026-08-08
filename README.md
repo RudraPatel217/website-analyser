@@ -180,7 +180,7 @@ Access the Streamlit Dashboard at `http://localhost:8501`. Both Streamlit and th
 #### Installation Steps
 1.  **Clone the Repository:**
     ```bash
-    git clone https://github.com/rj423513-create/website-analyser.git
+    git clone https://github.com/RudraPatel217/website-analyser.git
     cd website-analyser
     ```
 
