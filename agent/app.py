@@ -67,7 +67,7 @@ with st.container(border=True):
                 "GTmetrix API v2.0 (Premium & Authorized)"
             ],
             index=default_source_index,
-            help="Select the engine used to capture visual screenshots of your website homepage. Microlink Cloud API works automatically online without extra software."
+            help="Select the engine used to capture visual screenshots of your website homepage. Microlink Cloud API works automatically online without extra software or API keys."
         )
     with col_c1:
         max_pages = st.slider(
@@ -421,61 +421,64 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
 
         st.markdown("<h3 style='color: #22d3ee; margin-top: 2rem;'>AI SEO Actions & Step-by-Step Fixes</h3>", unsafe_allow_html=True)
         
-        # Trust & Verification Guarantee Banner
-        st.markdown("""
-        <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(34, 211, 238, 0.3); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
-            <h5 style="color: #22d3ee; margin-top: 0; font-size: 1rem; font-weight: 700;">Verified Analysis & Data Accuracy Guarantee</h5>
-            <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 0; line-height: 1.5;">
-                These action items are generated directly from real-time live page analysis, W3C HTML specifications, and search engine optimization standards. Every recommendation is 100% verified against your active website code.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-
         recs = generate_ai_seo_recommendations(df_all_pages, df_all_issues, df_all_audit)
         
-        rec_html = '<div class="glass-card" style="padding: 1.5rem !important;">'
-        for r in recs:
-            sev = r["severity"].lower()
-            if sev == "critical":
-                color_style = "border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
-                sev_badge = '<span style="color: #ef4444; font-weight: 800;">[CRITICAL]</span>'
-            elif sev == "high":
-                color_style = "border-left: 4px solid #f97316; background: rgba(249, 115, 22, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
-                sev_badge = '<span style="color: #f97316; font-weight: 800;">[HIGH]</span>'
-            elif sev == "medium":
-                color_style = "border-left: 4px solid #eab308; background: rgba(234, 179, 8, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
-                sev_badge = '<span style="color: #eab308; font-weight: 800;">[MEDIUM]</span>'
-            else:
-                color_style = "border-left: 4px solid #22c55e; background: rgba(34, 197, 94, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
-                sev_badge = '<span style="color: #22c55e; font-weight: 800;">[LOW]</span>'
-            
-            item_html = (
-                f'<div style="{color_style}">'
-                f'<div style="font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; color: #f1f5f9;">{sev_badge} {r["title"]}</div>'
-                f'<div style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 6px;">{r["description"]}</div>'
-                f'<div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 4px;"><strong>Impact:</strong> {r["impact"]}</div>'
-                f'<div style="color: #22d3ee; font-size: 0.85rem; font-weight: 600;"><strong>Action:</strong> {r["action_item"]}</div>'
-                f'</div>'
-            )
-            rec_html += item_html
-        rec_html += '</div>'
-        st.markdown(rec_html, unsafe_allow_html=True)
+        # CONDITIONAL RECOMMENDATIONS: If 100% healthy or zero issues, don't display unnecessary recommendation items!
+        if not recs or (df_all_issues.empty and len(recs) <= 1):
+            st.markdown("""
+            <div style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; border-radius: 12px; padding: 1.5rem; margin: 1rem 0;">
+                <h4 style="color: #34d399; margin-top: 0; font-size: 1.15rem; font-weight: 700;">
+                    100% Optimal SEO Status
+                </h4>
+                <p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 0;">
+                    Your website pages fully comply with SEO best practices! Title tags, meta descriptions, canonical structures, and internal links are properly optimized. No action items required.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            # Trust & Verification Guarantee Banner
+            st.markdown("""
+            <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(34, 211, 238, 0.3); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
+                <h5 style="color: #22d3ee; margin-top: 0; font-size: 1rem; font-weight: 700;">Verified Analysis & Data Accuracy Guarantee</h5>
+                <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 0; line-height: 1.5;">
+                    These action items are generated directly from real-time live page analysis, W3C HTML specifications, and search engine optimization standards. Every recommendation is 100% verified against your active website code.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+
+            rec_html = '<div class="glass-card" style="padding: 1.5rem !important;">'
+            for r in recs:
+                sev = r["severity"].lower()
+                if sev == "critical":
+                    color_style = "border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
+                    sev_badge = '<span style="color: #ef4444; font-weight: 800;">[CRITICAL]</span>'
+                elif sev == "high":
+                    color_style = "border-left: 4px solid #f97316; background: rgba(249, 115, 22, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
+                    sev_badge = '<span style="color: #f97316; font-weight: 800;">[HIGH]</span>'
+                elif sev == "medium":
+                    color_style = "border-left: 4px solid #eab308; background: rgba(234, 179, 8, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
+                    sev_badge = '<span style="color: #eab308; font-weight: 800;">[MEDIUM]</span>'
+                else:
+                    color_style = "border-left: 4px solid #22c55e; background: rgba(34, 197, 94, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
+                    sev_badge = '<span style="color: #22c55e; font-weight: 800;">[LOW]</span>'
+                
+                item_html = (
+                    f'<div style="{color_style}">'
+                    f'<div style="font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; color: #f1f5f9;">{sev_badge} {r["title"]}</div>'
+                    f'<div style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 6px;">{r["description"]}</div>'
+                    f'<div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 4px;"><strong>Impact:</strong> {r["impact"]}</div>'
+                    f'<div style="color: #22d3ee; font-size: 0.85rem; font-weight: 600;"><strong>Action:</strong> {r["action_item"]}</div>'
+                    f'</div>'
+                )
+                rec_html += item_html
+            rec_html += '</div>'
+            st.markdown(rec_html, unsafe_allow_html=True)
 
     with tab6:
         st.markdown("<h3 style='color: #22d3ee; margin-top: 0;'>Cybersecurity & Risk Scorecard</h3>", unsafe_allow_html=True)
         st.markdown("""
         <div style="background: rgba(30, 41, 59, 0.4); border-left: 4px solid #22d3ee; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.95rem; color: #cbd5e1;">
             <strong>What is the Security Scorecard?</strong> This section checks if your website uses valid SSL encryption, has active security headers to block hackers, and verifies that your domain is free from malware or phishing risks.
-        </div>
-        """, unsafe_allow_html=True)
-
-        # Trust & Verification Guarantee Banner for Security Score
-        st.markdown("""
-        <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
-            <h5 style="color: #34d399; margin-top: 0; font-size: 1rem; font-weight: 700;">Verified Security Standard & Trusted Source</h5>
-            <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 0; line-height: 1.5;">
-                This security grade is computed directly from live target server response headers, RFC 2818 SSL certificate validation, and official OWASP Top 10 web security compliance specifications. All test results are 100% objective and verified directly from server handshakes.
-            </p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -491,6 +494,31 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
             selected_domain = clean_domains[0]
 
         res = next(r for r in all_cyber_results if r["domain"] == selected_domain)
+
+        # Trust & Verification Guarantee Banner for Security Score
+        st.markdown("""
+        <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
+            <h5 style="color: #34d399; margin-top: 0; font-size: 1rem; font-weight: 700;">Verified Security Standard & Trusted Source</h5>
+            <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 0; line-height: 1.5;">
+                This security grade is computed directly from live target server response headers, RFC 2818 SSL certificate validation, and official OWASP Top 10 web security compliance specifications. All test results are 100% objective and verified directly from server handshakes.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # Transparent Scoring Formula Breakdown Expander
+        with st.expander("Security Score Calculation Basis & Mathematical Formula", expanded=False):
+            st.markdown("""
+            <div style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.6;">
+                <h5 style="color: #22d3ee; margin-top: 0;">How is your Security Score calculated?</h5>
+                <p>The Global Security Compliance Score (0–100%) is calculated by evaluating four independent core security pillars (25% weight each):</p>
+                <ul>
+                    <li><strong>1. SSL/TLS Certificate Validation (25% Weight):</strong> Verifies active HTTPS encryption, CA trust chain validation, and TLS 1.2/1.3 handshake protocols.</li>
+                    <li><strong>2. HTTP Security Headers (25% Weight):</strong> Audits 6 critical browser defense headers (Strict-Transport-Security, Content-Security-Policy, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, and Permissions-Policy).</li>
+                    <li><strong>3. Phishing & Brand Protection (25% Weight):</strong> Checks domain age, algorithmic entropy, brand impersonation risks, and high-risk top-level domain extensions (TLDs).</li>
+                    <li><strong>4. Malware & Code Safety (25% Weight):</strong> Scans frontend HTML for hidden drive-by iframes, script obfuscation (`eval`, `unescape`), exposed secret credentials, and insecure form endpoints.</li>
+                </ul>
+            </div>
+            """, unsafe_allow_html=True)
 
         # Top Metric Cards
         col_m1, col_m2, col_m3 = st.columns(3)
@@ -584,11 +612,28 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
 
         # Section 4: Vulnerability Remediation Plan
         st.markdown("<h3 style='color: #22d3ee; margin-top: 2rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.5rem;'>Vulnerability Remediation Plan</h3>", unsafe_allow_html=True)
-        rec_html = '<div class="glass-card" style="padding: 1.5rem !important;">'
-        for idx_rec, rec in enumerate(res["recommendations"]):
-            rec_html += f'<div style="background: rgba(15, 23, 42, 0.5); border-left: 4px solid #0284c7; border-radius: 8px; padding: 12px; margin: 8px 0; color: #e0f2fe; font-size: 0.95rem;"><strong>Action Item {idx_rec + 1}:</strong> {rec}</div>'
-        rec_html += '</div>'
-        st.markdown(rec_html, unsafe_allow_html=True)
+        
+        recs_list = res["recommendations"]
+        is_perfect = (res["global_score"] == 100) or (len(recs_list) == 1 and "No active vulnerabilities found" in recs_list[0])
+
+        # CONDITIONAL SECURITY RECOMMENDATIONS: If score is 100% or 0 active vulnerabilities, display success box instead of unnecessary remediation items!
+        if is_perfect:
+            st.markdown("""
+            <div style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; border-radius: 12px; padding: 1.5rem; margin: 1rem 0;">
+                <h4 style="color: #34d399; margin-top: 0; font-size: 1.15rem; font-weight: 700;">
+                    100% Optimal Security Compliance
+                </h4>
+                <p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 0;">
+                    Congratulations! Your target domain fully satisfies all security requirements. SSL encryption is active, all 6 HTTP security headers are enabled, and zero malware or phishing risks were detected. No remediation items required.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            rec_html = '<div class="glass-card" style="padding: 1.5rem !important;">'
+            for idx_rec, rec in enumerate(recs_list):
+                rec_html += f'<div style="background: rgba(15, 23, 42, 0.5); border-left: 4px solid #0284c7; border-radius: 8px; padding: 12px; margin: 8px 0; color: #e0f2fe; font-size: 0.95rem;"><strong>Action Item {idx_rec + 1}:</strong> {rec}</div>'
+            rec_html += '</div>'
+            st.markdown(rec_html, unsafe_allow_html=True)
 
     # Save and output the unified Excel report
     st.markdown("<div style='margin-top: 2rem;'></div>", unsafe_allow_html=True)
