@@ -33,6 +33,43 @@ from backend import (
     install_and_start_puppeteer_service
 )
 
+def is_owner_or_app_url(domain_str):
+    """
+    Detects if target domain matches the application's host URL or the owner's personal domain.
+    """
+    d = domain_str.lower().strip().replace("https://", "").replace("http://", "").split("/")[0].split(":")[0]
+    protected_patterns = [
+        "website-analyser",
+        "streamlit.app",
+        "jeenweb.com",
+        "jeenweb"
+    ]
+    return any(p in d for p in protected_patterns)
+
+def render_easter_egg(domain):
+    """
+    Displays a humorous Easter egg card when someone attempts to scan the app or owner domain.
+    """
+    st.markdown(f"""
+    <div style="
+        background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%);
+        border: 2px solid #c084fc;
+        border-radius: 20px;
+        padding: 2.5rem;
+        text-align: center;
+        margin: 1.5rem 0;
+        box-shadow: 0 10px 30px rgba(192, 132, 252, 0.25);
+    ">
+        <div style="font-size: 4.5rem; margin-bottom: 0.75rem;">😎 🤪 🤖</div>
+        <h2 style="color: #f472b6; font-size: 2rem; font-weight: 800; margin-top: 0; margin-bottom: 0.5rem;">
+            Nice try! But I'm smarter than you!
+        </h2>
+        <p style="color: #e2e8f0; font-size: 1.1rem; max-width: 650px; margin: 0 auto; line-height: 1.6;">
+            You can't audit the Master Agent or its protected host domain (<strong>{domain}</strong>)! This system is protected against self-scanning. Please enter a different target website to analyze.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
 st.set_page_config(page_title="SEO Domain Intelligence Agent", layout="wide")
 
 # Inject global style and header
@@ -47,7 +84,7 @@ with st.container(border=True):
     
     domains_input = st.text_area(
         "Target Website URLs (enter one domain per line):",
-        value="https://jeenweb.com",
+        value="https://example.com",
         height=100,
         help="Type or paste the web addresses of the websites you want to analyze (for example: https://example.com). You can audit multiple websites at once by placing each URL on a new line."
     )
@@ -115,11 +152,17 @@ service_active, _ = check_service_health()
 if domains_input.strip() and not st.session_state.get("audit_results"):
     st.markdown("### Homepage Previews")
 
+    # Check for Easter Egg trigger
+    easter_egg_domains = [d.strip() for d in domains_input.split('\n') if d.strip() and is_owner_or_app_url(d.strip())]
+    if easter_egg_domains:
+        for eg_domain in easter_egg_domains:
+            render_easter_egg(eg_domain)
+
     # CASE 1: Service is ALREADY running on port 3000 -> Render preview directly
-    if service_active:
+    elif service_active:
         for domain in domains_input.split('\n'):
             domain = domain.strip()
-            if domain:
+            if domain and not is_owner_or_app_url(domain):
                 try:
                     # SSRF Protection Check
                     is_safe, ssrf_msg = is_safe_public_domain(domain)
@@ -175,148 +218,156 @@ if run_analysis:
     if not domains:
         st.error("Please enter at least one target website URL.")
     else:
-        progress_bar = st.progress(0)
+        # Check if user entered protected owner/app domain
+        protected_domains = [d for d in domains if is_owner_or_app_url(d)]
+        if protected_domains:
+            for p_dom in protected_domains:
+                render_easter_egg(p_dom)
+            domains = [d for d in domains if not is_owner_or_app_url(d)]
 
-        # Determine simulation sleep time
-        if scan_speed == "Accelerated Simulation (~5min/website)":
-            sleep_time = 0.05
-        else:
-            sleep_time = 0.2
+        if domains:
+            progress_bar = st.progress(0)
 
-        all_domain_info = []
-        all_pages = []
-        all_issues = []
-        all_audit = []
-        all_cyber_results = []
+            # Determine simulation sleep time
+            if scan_speed == "Accelerated Simulation (~5min/website)":
+                sleep_time = 0.05
+            else:
+                sleep_time = 0.2
 
-        for idx, domain in enumerate(domains):
-            is_safe, ssrf_msg = is_safe_public_domain(domain)
-            if not is_safe:
-                st.error(f"Security Block ({domain}): {ssrf_msg}")
-                continue
+            all_domain_info = []
+            all_pages = []
+            all_issues = []
+            all_audit = []
+            all_cyber_results = []
 
-            # Dynamic scanning simulation
-            logs = [
-                "Initializing Intelligent Domain Agent...",
-                "Configuring secure handshake protocols...",
-                "Querying public WHOIS registry databases...",
-                "Analyzing domain registrar and name server propagation...",
-                "Locating and verifying DNS Mail Exchange (MX) records...",
-                "Requesting target robots.txt file...",
-                "Parsing crawl permissions from robots.txt...",
-                "Locating domain sitemap.xml structure...",
-                "Validating SSL certificate and encryption handshake...",
-                "Establishing crawl connections...",
-                "Analyzing document structure and headers...",
-                "Evaluating title tags and meta descriptions...",
-                "Analyzing internal/external hypermedia links...",
-                "Inspecting image assets and alt tags...",
-                "Simulating page load times and Core Web Vitals...",
-                "Extracting HTTP Security Headers compliance policies...",
-                "Scanning landing page HTML for code injection patterns...",
-                "Analyzing script node entropy and hidden iframe alerts...",
-                "Running brand spoofing and typo-squatting heuristics...",
-                "Compiling complete risk assessment report..."
-            ]
+            for idx, domain in enumerate(domains):
+                is_safe, ssrf_msg = is_safe_public_domain(domain)
+                if not is_safe:
+                    st.error(f"Security Block ({domain}): {ssrf_msg}")
+                    continue
 
-            for p in range(0, 101, 1):
-                log_idx = min(p // (100 // len(logs)), len(logs) - 1)
-                current_log = logs[log_idx]
+                # Dynamic scanning simulation
+                logs = [
+                    "Initializing Intelligent Domain Agent...",
+                    "Configuring secure handshake protocols...",
+                    "Querying public WHOIS registry databases...",
+                    "Analyzing domain registrar and name server propagation...",
+                    "Locating and verifying DNS Mail Exchange (MX) records...",
+                    "Requesting target robots.txt file...",
+                    "Parsing crawl permissions from robots.txt...",
+                    "Locating domain sitemap.xml structure...",
+                    "Validating SSL certificate and encryption handshake...",
+                    "Establishing crawl connections...",
+                    "Analyzing document structure and headers...",
+                    "Evaluating title tags and meta descriptions...",
+                    "Analyzing internal/external hypermedia links...",
+                    "Inspecting image assets and alt tags...",
+                    "Simulating page load times and Core Web Vitals...",
+                    "Extracting HTTP Security Headers compliance policies...",
+                    "Scanning landing page HTML for code injection patterns...",
+                    "Analyzing script node entropy and hidden iframe alerts...",
+                    "Running brand spoofing and typo-squatting heuristics...",
+                    "Compiling complete risk assessment report..."
+                ]
 
-                render_scan_progress(scan_placeholder, domain, current_log, p)
-                if sleep_time > 0:
-                    time.sleep(sleep_time)
+                for p in range(0, 101, 1):
+                    log_idx = min(p // (100 // len(logs)), len(logs) - 1)
+                    current_log = logs[log_idx]
 
-            def make_live_callback():
-                count = [0]
+                    render_scan_progress(scan_placeholder, domain, current_log, p)
+                    if sleep_time > 0:
+                        time.sleep(sleep_time)
 
-                def live_callback(url, status, load_time, title):
-                    count[0] += 1
-                    crawl_count_placeholder.markdown(f"""
-                    <div style="background: rgba(30, 41, 59, 0.45); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem;">
-                        <h4 style="margin: 0; color: #22d3ee;">Active Crawling: {domain}</h4>
-                        <p style="margin: 5px 0 0 0; color: #cbd5e1;">Pages Audited: <strong style="color: #22d3ee;">{count[0]} / {max_pages}</strong></p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                    crawl_log_placeholder.markdown(f"""
-                    <div class="recommendation-item" style="border-left-color: #475569; margin: 0.25rem 0;">
-                        <strong>Status:</strong> <code>{status}</code> | <strong>Load Time:</strong> {load_time}s | <strong>URL:</strong> <a href="{url}" target="_blank" style="color: #22d3ee; text-decoration: none;">{url}</a>
-                        <br/><span style="font-size: 0.85rem; color: #94a3b8;"><strong>Page Title:</strong> {title[:100]}</span>
-                    </div>
-                    """, unsafe_allow_html=True)
-                return live_callback
+                def make_live_callback():
+                    count = [0]
 
-            # Run Domain lookup (WHOIS and DNS)
-            domain_info = get_domain_info(domain)
-            df_domain = pd.DataFrame([domain_info])
-            creation_str = domain_info.get("Creation_Date", "N/A")
+                    def live_callback(url, status, load_time, title):
+                        count[0] += 1
+                        crawl_count_placeholder.markdown(f"""
+                        <div style="background: rgba(30, 41, 59, 0.45); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem;">
+                            <h4 style="margin: 0; color: #22d3ee;">Active Crawling: {domain}</h4>
+                            <p style="margin: 5px 0 0 0; color: #cbd5e1;">Pages Audited: <strong style="color: #22d3ee;">{count[0]} / {max_pages}</strong></p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        crawl_log_placeholder.markdown(f"""
+                        <div class="recommendation-item" style="border-left-color: #475569; margin: 0.25rem 0;">
+                            <strong>Status:</strong> <code>{status}</code> | <strong>Load Time:</strong> {load_time}s | <strong>URL:</strong> <a href="{url}" target="_blank" style="color: #22d3ee; text-decoration: none;">{url}</a>
+                            <br/><span style="font-size: 0.85rem; color: #94a3b8;"><strong>Page Title:</strong> {title[:100]}</span>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    return live_callback
 
-            # Run SEO Crawl
-            df_pages, df_issues, df_audit = crawl_page(
-                domain, max_pages, live_callback=make_live_callback())
+                # Run Domain lookup (WHOIS and DNS)
+                domain_info = get_domain_info(domain)
+                df_domain = pd.DataFrame([domain_info])
+                creation_str = domain_info.get("Creation_Date", "N/A")
 
-            # Clean up the crawl placeholder UI
-            crawl_count_placeholder.empty()
-            crawl_log_placeholder.empty()
+                # Run SEO Crawl
+                df_pages, df_issues, df_audit = crawl_page(
+                    domain, max_pages, live_callback=make_live_callback())
 
-            if not df_issues.empty:
-                df_issues['Domain'] = domain
-            if not df_audit.empty:
-                df_audit['Domain'] = domain
+                # Clean up the crawl placeholder UI
+                crawl_count_placeholder.empty()
+                crawl_log_placeholder.empty()
 
-            all_domain_info.append(df_domain)
-            all_pages.append(df_pages)
-            all_issues.append(df_issues)
-            all_audit.append(df_audit)
+                if not df_issues.empty:
+                    df_issues['Domain'] = domain
+                if not df_audit.empty:
+                    df_audit['Domain'] = domain
 
-            # Run Cybersecurity Scanning
-            clean_domain = domain.replace("https://", "").replace("http://", "").rstrip("/").split("/")[0]
-            original_url = f"https://{clean_domain}" if domain.startswith("https://") else f"http://{clean_domain}"
-            
-            html_content = ""
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-            }
-            try:
-                resp = requests.get(original_url, timeout=8, headers=headers, allow_redirects=True, verify=False)
-                html_content = resp.text
-            except Exception:
+                all_domain_info.append(df_domain)
+                all_pages.append(df_pages)
+                all_issues.append(df_issues)
+                all_audit.append(df_audit)
+
+                # Run Cybersecurity Scanning
+                clean_domain = domain.replace("https://", "").replace("http://", "").rstrip("/").split("/")[0]
+                original_url = f"https://{clean_domain}" if domain.startswith("https://") else f"http://{clean_domain}"
+                
+                html_content = ""
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                }
                 try:
-                    fallback_url = f"http://{clean_domain}" if original_url.startswith("https://") else f"https://{clean_domain}"
-                    resp = requests.get(fallback_url, timeout=8, headers=headers, allow_redirects=True, verify=False)
+                    resp = requests.get(original_url, timeout=8, headers=headers, allow_redirects=True, verify=False)
                     html_content = resp.text
-                    original_url = fallback_url
                 except Exception:
-                    pass
-            
-            cyber_res = run_cyber_scan(clean_domain, original_url, html_content, creation_str)
-            all_cyber_results.append(cyber_res)
+                    try:
+                        fallback_url = f"http://{clean_domain}" if original_url.startswith("https://") else f"https://{clean_domain}"
+                        resp = requests.get(fallback_url, timeout=8, headers=headers, allow_redirects=True, verify=False)
+                        html_content = resp.text
+                        original_url = fallback_url
+                    except Exception:
+                        pass
+                
+                cyber_res = run_cyber_scan(clean_domain, original_url, html_content, creation_str)
+                all_cyber_results.append(cyber_res)
 
-            progress_bar.progress((idx + 1) / len(domains))
+                progress_bar.progress((idx + 1) / len(domains))
 
-        scan_placeholder.empty()
-        progress_bar.empty()
+            scan_placeholder.empty()
+            progress_bar.empty()
 
-        df_all_domain = pd.concat(all_domain_info, ignore_index=True)
-        df_all_pages = pd.concat(all_pages, ignore_index=True)
-        df_all_issues = pd.concat(all_issues, ignore_index=True)
-        df_all_audit = pd.concat(all_audit, ignore_index=True)
+            df_all_domain = pd.concat(all_domain_info, ignore_index=True)
+            df_all_pages = pd.concat(all_pages, ignore_index=True)
+            df_all_issues = pd.concat(all_issues, ignore_index=True)
+            df_all_audit = pd.concat(all_audit, ignore_index=True)
 
-        # Store in session state for persistent rendering across user tab switches and scroll domain selection
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M")
-        filename = f"Unified_Domain_Intelligence_Report_{timestamp}.xlsx"
-        generate_unified_report(df_all_domain, df_all_pages, df_all_issues, df_all_audit, all_cyber_results, filename)
+            # Store in session state for persistent rendering across user tab switches and scroll domain selection
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+            filename = f"Unified_Domain_Intelligence_Report_{timestamp}.xlsx"
+            generate_unified_report(df_all_domain, df_all_pages, df_all_issues, df_all_audit, all_cyber_results, filename)
 
-        st.session_state["audit_results"] = {
-            "df_all_domain": df_all_domain,
-            "df_all_pages": df_all_pages,
-            "df_all_issues": df_all_issues,
-            "df_all_audit": df_all_audit,
-            "all_cyber_results": all_cyber_results,
-            "domains": domains,
-            "filename": filename
-        }
-        st.rerun()
+            st.session_state["audit_results"] = {
+                "df_all_domain": df_all_domain,
+                "df_all_pages": df_all_pages,
+                "df_all_issues": df_all_issues,
+                "df_all_audit": df_all_audit,
+                "all_cyber_results": all_cyber_results,
+                "domains": domains,
+                "filename": filename
+            }
+            st.rerun()
 
 # ===================== DISPLAY PERSISTENT RESULTS =====================
 if "audit_results" in st.session_state and st.session_state["audit_results"]:
