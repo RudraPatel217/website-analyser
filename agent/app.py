@@ -562,20 +562,66 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
         </div>
         """, unsafe_allow_html=True)
 
+        # Calculate individual pillar score contributions (25 pts max per pillar)
+        ssl_pts = 25.0 if res['ssl_info']['valid'] else 0.0
+        header_pts = round((res.get('headers_score', 0) / 100.0) * 25.0, 1)
+        phish_pts = round(((100.0 - res.get('phishing_score', 0)) / 100.0) * 25.0, 1)
+        malware_pts = round(((100.0 - res.get('malware_score', 0)) / 100.0) * 25.0, 1)
+
         # Transparent Scoring Formula Breakdown Expander
-        with st.expander("Security Score Calculation Basis & Mathematical Formula", expanded=False):
-            st.markdown("""
-            <div style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.6;">
-                <h5 style="color: #22d3ee; margin-top: 0;">How is your Security Score calculated?</h5>
-                <p>The Global Security Compliance Score (0–100%) is calculated by evaluating four independent core security pillars (25% weight each):</p>
-                <ul>
-                    <li><strong>1. SSL/TLS Certificate Validation (25% Weight):</strong> Verifies active HTTPS encryption, CA trust chain validation, and TLS 1.2/1.3 handshake protocols.</li>
-                    <li><strong>2. HTTP Security Headers (25% Weight):</strong> Audits 6 critical browser defense headers (Strict-Transport-Security, Content-Security-Policy, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, and Permissions-Policy).</li>
-                    <li><strong>3. Phishing & Brand Protection (25% Weight):</strong> Checks domain age, algorithmic entropy, brand impersonation risks, and high-risk top-level domain extensions (TLDs).</li>
-                    <li><strong>4. Malware & Code Safety (25% Weight):</strong> Scans frontend HTML for hidden drive-by iframes, script obfuscation (`eval`, `unescape`), exposed secret credentials, and insecure form endpoints.</li>
-                </ul>
+        with st.expander("🔍 Security Score Calculation Basis & 4-Pillar Points Breakdown", expanded=True):
+            st.markdown(f"""
+            <div style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6;">
+                <h4 style="color: #22d3ee; margin-top: 0; font-size: 1.1rem; font-weight: 700;">
+                    How is the {res['domain']} Security Score ({res['global_score']}%) Calculated?
+                </h4>
+                <p>
+                    The Global Security Compliance Score is evaluated across <strong>4 independent core security pillars</strong>, each weighted equally at <strong>25% (25 Points Max)</strong> for a total possible score of <strong>100 Points (100%)</strong>:
+                </p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; background: rgba(15, 23, 42, 0.6); border-radius: 8px; overflow: hidden;">
+                    <thead>
+                        <tr style="background: rgba(34, 211, 238, 0.15); color: #22d3ee; text-align: left;">
+                            <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">Security Pillar</th>
+                            <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">Weight</th>
+                            <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">Points Scored</th>
+                            <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">Evaluation Basis & Criteria</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 10px; font-weight: 600; color: #f1f5f9;">1. SSL/TLS Certificate</td>
+                            <td style="padding: 10px; color: #94a3b8;">25%</td>
+                            <td style="padding: 10px; font-weight: 700; color: {'#34d399' if ssl_pts == 25 else '#f87171'};">{ssl_pts} / 25 pts</td>
+                            <td style="padding: 10px; color: #cbd5e1;">Checks HTTPS encryption, CA trust chain validation, and valid certificate expiration window.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 10px; font-weight: 600; color: #f1f5f9;">2. HTTP Security Headers</td>
+                            <td style="padding: 10px; color: #94a3b8;">25%</td>
+                            <td style="padding: 10px; font-weight: 700; color: {'#34d399' if header_pts > 20 else '#fbbf24'};">{header_pts} / 25 pts</td>
+                            <td style="padding: 10px; color: #cbd5e1;">Audits 6 defense headers (HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy).</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 10px; font-weight: 600; color: #f1f5f9;">3. Phishing & Brand Protection</td>
+                            <td style="padding: 10px; color: #94a3b8;">25%</td>
+                            <td style="padding: 10px; font-weight: 700; color: {'#34d399' if phish_pts > 20 else '#f87171'};">{phish_pts} / 25 pts</td>
+                            <td style="padding: 10px; color: #cbd5e1;">Evaluates WHOIS domain age, string entropy, brand impersonation risks, and high-risk top-level domain extensions.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; font-weight: 600; color: #f1f5f9;">4. Malware & Code Safety</td>
+                            <td style="padding: 10px; color: #94a3b8;">25%</td>
+                            <td style="padding: 10px; font-weight: 700; color: {'#34d399' if malware_pts > 20 else '#f87171'};">{malware_pts} / 25 pts</td>
+                            <td style="padding: 10px; color: #cbd5e1;">Scans frontend HTML for hidden drive-by iframes, script obfuscation (`eval`), exposed API secrets, and unencrypted HTTP form actions.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p style="margin-bottom: 0; font-size: 0.9rem; color: #94a3b8;">
+                    <strong>Mathematical Formula:</strong> <code style="color: #22d3ee;">Global Score = SSL Pts ({ssl_pts}) + Headers Pts ({header_pts}) + Phishing Pts ({phish_pts}) + Malware Pts ({malware_pts}) = {res['global_score']}%</code>
+                </p>
             </div>
             """, unsafe_allow_html=True)
+
 
         # Top Metric Cards
         col_m1, col_m2, col_m3 = st.columns(3)
