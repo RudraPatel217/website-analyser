@@ -84,9 +84,9 @@ with st.container(border=True):
     
     domains_input = st.text_area(
         "Target Website URLs (enter one domain per line):",
-        value="https://example.com",
+        value="https://jeenweb.com",
         height=100,
-        help="Type or paste the web addresses of the websites you want to analyze (for example: https://example.com). You can audit multiple websites at once by placing each URL on a new line."
+        help="Type or paste the web addresses of the websites you want to analyze (for example: https://jeenweb.com). You can audit multiple websites at once by placing each URL on a new line."
     )
     
     service_healthy, _ = check_service_health()
@@ -152,17 +152,12 @@ service_active, _ = check_service_health()
 if domains_input.strip() and not st.session_state.get("audit_results"):
     st.markdown("### Homepage Previews")
 
-    # Check for Easter Egg trigger
-    easter_egg_domains = [d.strip() for d in domains_input.split('\n') if d.strip() and is_owner_or_app_url(d.strip())]
-    if easter_egg_domains:
-        for eg_domain in easter_egg_domains:
-            render_easter_egg(eg_domain)
+    requires_local_service = "Local Puppeteer Service" in screenshot_source
 
-    # CASE 1: Service is ALREADY running on port 3000 -> Render preview directly
-    elif service_active:
+    if not requires_local_service or service_active or st.session_state.get("skip_puppeteer_preview", False):
         for domain in domains_input.split('\n'):
             domain = domain.strip()
-            if domain and not is_owner_or_app_url(domain):
+            if domain:
                 try:
                     # SSRF Protection Check
                     is_safe, ssrf_msg = is_safe_public_domain(domain)
@@ -170,16 +165,32 @@ if domains_input.strip() and not st.session_state.get("audit_results"):
                         st.error(f"Security Block ({domain}): {ssrf_msg}")
                         continue
 
-                    screenshot_url = f"http://localhost:3000/screenshot?url={quote(domain)}"
-                    render_browser_preview(domain, screenshot_url)
+                    clean = domain.replace("https://", "").replace("http://", "").rstrip("/").split("/")[0]
+                    encoded = quote(f"https://{clean}")
+
+                    fallback_mshot = f"https://s0.wp.com/mshots/v1/{encoded}?w=1280&h=800"
+                    fallback_microlink = f"https://api.microlink.io/?url={encoded}&screenshot=true&meta=false&embed=screenshot.url"
+
+                    if "Local Puppeteer" in screenshot_source and service_active:
+                        primary_url = f"http://localhost:3000/screenshot?url={quote(clean)}"
+                        fallback_url = fallback_mshot
+                    elif "Microlink" in screenshot_source:
+                        primary_url = fallback_microlink
+                        fallback_url = fallback_mshot
+                    elif "WordPress mShot" in screenshot_source:
+                        primary_url = fallback_mshot
+                        fallback_url = fallback_microlink
+                    elif "Thum.io" in screenshot_source:
+                        primary_url = f"https://image.thum.io/get/width/1280/crop/800/https://{clean}"
+                        fallback_url = fallback_mshot
+                    else:
+                        primary_url = fallback_mshot
+                        fallback_url = fallback_microlink
+
+                    render_browser_preview(domain, primary_url, fallback_url=fallback_url)
                 except Exception as e:
                     st.warning(f"Could not preview {domain}: {str(e)}")
 
-    # CASE 2: Service is NOT running, but user selected "No, Skip Website Preview"
-    elif st.session_state.get("skip_puppeteer_preview", False):
-        st.info("Website visual preview is currently skipped. All SEO crawling, WHOIS, DNS, Excel export, and Security diagnostics remain 100% active.")
-
-    # CASE 3: Service is NOT running -> Ask user permission
     else:
         st.markdown("""
         <div style="background: rgba(30, 41, 59, 0.7); border-left: 4px solid #22d3ee; border-radius: 12px; padding: 1.5rem; margin: 1rem 0;">
@@ -187,8 +198,8 @@ if domains_input.strip() and not st.session_state.get("audit_results"):
                 Local Puppeteer Screenshot Service Required
             </h4>
             <p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 1rem; line-height: 1.5;">
-                The Puppeteer screenshot service is currently not running on port 3000. 
-                Would you like to automatically install dependencies and start the screenshot service on your computer?
+                You selected <strong>Local Puppeteer Service</strong>, which is currently not running on port 3000. 
+                Would you like to automatically start the local screenshot service on your computer, or switch to a free Cloud API engine?
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -207,9 +218,10 @@ if domains_input.strip() and not st.session_state.get("audit_results"):
                         st.error(msg)
 
         with col_perm2:
-            if st.button("No, Skip Website Preview", use_container_width=True):
+            if st.button("No, Use Cloud Fallback Preview", use_container_width=True):
                 st.session_state["skip_puppeteer_preview"] = True
                 st.rerun()
+
 
 # ===================== TRIGGER ANALYSIS =====================
 if run_analysis:
@@ -218,15 +230,9 @@ if run_analysis:
     if not domains:
         st.error("Please enter at least one target website URL.")
     else:
-        # Check if user entered protected owner/app domain
-        protected_domains = [d for d in domains if is_owner_or_app_url(d)]
-        if protected_domains:
-            for p_dom in protected_domains:
-                render_easter_egg(p_dom)
-            domains = [d for d in domains if not is_owner_or_app_url(d)]
-
         if domains:
             progress_bar = st.progress(0)
+
 
             # Determine simulation sleep time
             if scan_speed == "Accelerated Simulation (~5min/website)":

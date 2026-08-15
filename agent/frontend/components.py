@@ -46,7 +46,8 @@ def render_scan_progress(placeholder, domain, current_log, progress_percentage):
     """, unsafe_allow_html=True)
 
 
-def render_browser_preview(domain, screenshot_url):
+def render_browser_preview(domain, screenshot_url, fallback_url=None):
+    onerror_attr = f'onerror="if(this.src!=\'{fallback_url}\'){{this.src=\'{fallback_url}\';}}"' if fallback_url else ''
     st.markdown(f"""
     <div class="browser-frame">
         <div class="browser-header">
@@ -56,10 +57,11 @@ def render_browser_preview(domain, screenshot_url):
             <span class="browser-address">{domain}</span>
         </div>
         <div style="width: 100%; height: 550px; overflow-y: auto; background: #0f172a; position: relative;">
-            <img src="{screenshot_url}" style="width: 100%; height: auto; display: block;" />
+            <img src="{screenshot_url}" {onerror_attr} style="width: 100%; height: auto; display: block; min-height: 300px;" alt="Homepage Preview for {domain}" />
         </div>
     </div>
     """, unsafe_allow_html=True)
+
 
 
 def render_metric_cards(total_domains, total_issues, high_crit_issues):

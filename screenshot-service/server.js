@@ -6,24 +6,77 @@ const { URL } = require('url');
 
 const app = express();
 
-// Security: Enforce rate limiting to prevent DoS attacks on screenshot generator
+// Enable trust proxy for accurate IP identification
+app.set('trust proxy', true);
+
+// Security: Enforce rate limiting to prevent DoS attacks, while skipping local loopback
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute window
-  max: 30, // Limit each IP to 30 requests per windowMs
+  max: 60, // Limit each IP to 60 requests per minute
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => {
+    const ip = req.ip || req.connection.remoteAddress || '';
+    return ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1' || ip === 'localhost';
+  },
   message: { error: 'Too many screenshot requests from this IP, please try again after a minute.' }
 });
 
 app.use('/screenshot', limiter);
 
-// Concurrency Control: Max 3 concurrent Puppeteer browsers to prevent RAM depletion
+// Concurrency & Queue Control
 let activeBrowsers = 0;
 const MAX_CONCURRENT_BROWSERS = 3;
+const requestQueue = [];
+
+/**
+ * Process next request waiting in the concurrency queue
+ */
+function processQueue() {
+  if (activeBrowsers >= MAX_CONCURRENT_BROWSERS || requestQueue.length === 0) {
+    return;
+  }
+  const nextReq = requestQueue.shift();
+  if (nextReq) {
+    nextReq();
+  }
+}
+
+/**
+ * Acquire a browser slot (waits in queue if max concurrent is reached)
+ */
+function acquireSlot(timeoutMs = 15000) {
+  return new Promise((resolve, reject) => {
+    if (activeBrowsers < MAX_CONCURRENT_BROWSERS) {
+      activeBrowsers++;
+      return resolve();
+    }
+
+    const timer = setTimeout(() => {
+      const idx = requestQueue.indexOf(run);
+      if (idx !== -1) {
+        requestQueue.splice(idx, 1);
+      }
+      reject(new Error('Screenshot queue timeout. Maximum server capacity reached, please try again.'));
+    }, timeoutMs);
+
+    function run() {
+      clearTimeout(timer);
+      activeBrowsers++;
+      resolve();
+    }
+
+    requestQueue.push(run);
+  });
+}
+
+function releaseSlot() {
+  activeBrowsers = Math.max(0, activeBrowsers - 1);
+  processQueue();
+}
 
 /**
  * SSRF Validator: Ensures requested target is a public domain/IP.
- * Blocks requests targeting loopback addresses, local network IPs, and cloud metadata endpoints.
  */
 async function validateUrlSafety(inputUrl) {
   try {
@@ -58,61 +111,63 @@ async function validateUrlSafety(inputUrl) {
 }
 
 /**
- * Helper to test if an IPv4 address falls into RFC 1918 or loopback ranges
+ * Helper to test if an IPv4/IPv6 address falls into private/loopback ranges
  */
 function isPrivateIp(ip) {
   if (!ip || typeof ip !== 'string') return true;
   
-  // IPv6 Loopback / Local
   if (ip === '::1' || ip.startsWith('fe80:') || ip.startsWith('fc00:')) return true;
+  if (ip.startsWith('::ffff:')) {
+    ip = ip.replace('::ffff:', '');
+  }
   
   const parts = ip.split('.').map(Number);
   if (parts.length !== 4 || parts.some(isNaN)) return false;
   
   const [a, b] = parts;
   
-  // 127.0.0.0/8 (Loopback)
-  if (a === 127) return true;
-  // 10.0.0.0/8 (Private)
-  if (a === 10) return true;
-  // 172.16.0.0/12 (Private)
-  if (a === 172 && b >= 16 && b <= 31) return true;
-  // 192.168.0.0/16 (Private)
-  if (a === 192 && b === 168) return true;
-  // 169.254.0.0/16 (Link Local / Cloud Metadata)
-  if (a === 169 && b === 254) return true;
-  // 0.0.0.0/8
+  if (a === 127) return true; // Loopback
+  if (a === 10) return true;  // Private
+  if (a === 172 && b >= 16 && b <= 31) return true; // Private
+  if (a === 192 && b === 168) return true; // Private
+  if (a === 169 && b === 254) return true; // Link Local
   if (a === 0) return true;
   
   return false;
 }
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', activeBrowsers, maxConcurrent: MAX_CONCURRENT_BROWSERS });
+  res.json({
+    status: 'OK',
+    activeBrowsers,
+    queueLength: requestQueue.length,
+    maxConcurrent: MAX_CONCURRENT_BROWSERS
+  });
 });
 
 app.get('/screenshot', async (req, res) => {
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Cache-Control', 'public, max-age=300');
+
   let targetUrl = req.query.url;
   if (!targetUrl) return res.status(400).send('Missing required "url" parameter.');
 
-  // Prepend protocol if missing
   if (!/^https?:\/\//i.test(targetUrl)) {
     targetUrl = 'https://' + targetUrl;
   }
 
-  // Perform Security & SSRF Validation
   const safetyCheck = await validateUrlSafety(targetUrl);
   if (!safetyCheck.safe) {
     return res.status(403).send(`Security Error: ${safetyCheck.reason}`);
   }
 
-  // Concurrency Guard
-  if (activeBrowsers >= MAX_CONCURRENT_BROWSERS) {
-    return res.status(530).send('Screenshot service busy. Maximum concurrent browsers reached. Try again in a few seconds.');
+  try {
+    await acquireSlot(15000);
+  } catch (err) {
+    return res.status(503).send(err.message);
   }
 
-  activeBrowsers++;
-  let browser;
+  let browser = null;
   try {
     browser = await puppeteer.launch({
       headless: true,
@@ -120,54 +175,90 @@ app.get('/screenshot', async (req, res) => {
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--disable-software-rasterizer',
+        '--no-zygote',
         '--disable-file-downloads',
         '--no-first-run',
-        '--no-default-browser-check'
+        '--no-default-browser-check',
+        '--mute-audio',
+        '--disable-background-networking'
       ]
     });
 
     const page = await browser.newPage();
-    await page.setViewport({ width: 1280, height: 800 });
+    await page.setViewport({ width: 1280, height: 800, deviceScaleFactor: 1 });
 
-    // Block dangerous navigations / requests inside Puppeteer
+    // Request interception for speed optimization & security
     await page.setRequestInterception(true);
-    page.on('request', (req) => {
-      const reqUrl = req.url();
+    page.on('request', (request) => {
+      const reqUrl = request.url();
+      const resourceType = request.resourceType();
+
       if (reqUrl.startsWith('file://') || reqUrl.startsWith('data:text/html')) {
-        req.abort();
-      } else {
-        req.continue();
+        return request.abort();
       }
+
+      // Block heavy media to dramatically boost screenshot render speeds
+      if (['media', 'websocket', 'other'].includes(resourceType)) {
+        return request.abort();
+      }
+
+      request.continue();
     });
 
-    // Set viewport and goto with strict timeout
-    await page.goto(safetyCheck.url, {
-      waitUntil: 'networkidle2',
-      timeout: 25000
-    });
+    let navSuccess = false;
+    let navUrl = safetyCheck.url;
 
+    // Primary navigation attempt with timeout protection
+    try {
+      await page.goto(navUrl, {
+        waitUntil: 'domcontentloaded',
+        timeout: 15000
+      });
+      navSuccess = true;
+    } catch (navErr) {
+      console.warn(`Primary navigation warning for ${navUrl}: ${navErr.message}`);
+      
+      // Fallback: If HTTPS failed or timed out, attempt HTTP fallback if applicable
+      if (navUrl.startsWith('https://')) {
+        const httpUrl = navUrl.replace('https://', 'http://');
+        try {
+          await page.goto(httpUrl, { waitUntil: 'domcontentloaded', timeout: 12000 });
+          navSuccess = true;
+        } catch (httpErr) {
+          console.warn(`HTTP fallback navigation failed for ${httpUrl}: ${httpErr.message}`);
+        }
+      }
+    }
+
+    // Small delay to allow CSS animations and image renders to settle
+    await new Promise(r => setTimeout(r, 1200));
+
+    // Capture screenshot even if networkidle wasn't completely reached (partial render fallback)
     const screenshot = await page.screenshot({
-      fullPage: false, // Desktop viewport render for optimal performance
+      fullPage: false,
       type: 'png'
     });
 
     res.set('Content-Type', 'image/png');
-    res.send(screenshot);
+    return res.send(screenshot);
 
   } catch (error) {
     console.error(`Error taking screenshot for ${targetUrl}:`, error.message);
-    res.status(500).send('Screenshot capture error: ' + error.message);
+    return res.status(500).send('Screenshot capture error: ' + error.message);
   } finally {
-    activeBrowsers = Math.max(0, activeBrowsers - 1);
+    releaseSlot();
     if (browser) {
       try {
         await browser.close();
       } catch (e) {
-        // Ignore close error
+        // Ignore browser close exception
       }
     }
   }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🔒 Secure Screenshot service running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🔒 Robust Screenshot service running on port ${PORT}`));
+

@@ -1,6 +1,7 @@
 # 🌐 Domain Intelligence Agent & SEO Auditor
 
-[![Streamlit App](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=Streamlit&logoColor=white)](https://streamlit.io/)
+[![Live Streamlit App](https://img.shields.io/badge/Live_App-website--analyser.streamlit.app-FF4B4B?style=for-the-badge&logo=Streamlit&logoColor=white)](https://website-analyser.streamlit.app/)
+
 [![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![Puppeteer](https://img.shields.io/badge/Puppeteer-40B5A4?style=for-the-badge&logo=Puppeteer&logoColor=white)](https://pptr.dev/)
 [![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
