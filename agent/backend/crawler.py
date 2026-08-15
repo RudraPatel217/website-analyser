@@ -24,10 +24,14 @@ def crawl_page(base_url, max_pages=25, live_callback=None):
     issues = []
     pages_data = []
     audit_data = []
+    if not base_url.startswith("http://") and not base_url.startswith("https://"):
+        base_url = "https://" + base_url
+
     to_crawl = [base_url]
     
     base_parsed = urlparse(base_url)
     base_domain = base_parsed.netloc.lower().replace("www.", "")
+
 
     while to_crawl and len(visited) < max_pages:
         current = to_crawl.pop(0)

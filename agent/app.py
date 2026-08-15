@@ -33,6 +33,43 @@ from backend import (
     install_and_start_puppeteer_service
 )
 
+def is_owner_or_app_url(domain_str):
+    """
+    Detects if target domain matches the application's host URL or the owner's personal domain.
+    """
+    d = domain_str.lower().strip().replace("https://", "").replace("http://", "").split("/")[0].split(":")[0]
+    protected_patterns = [
+        "website-analyser",
+        "streamlit.app",
+        "jeenweb.com",
+        "jeenweb"
+    ]
+    return any(p in d for p in protected_patterns)
+
+def render_easter_egg(domain):
+    """
+    Displays a humorous Easter egg card when someone attempts to scan the app or owner domain.
+    """
+    st.markdown(f"""
+    <div style="
+        background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%);
+        border: 2px solid #c084fc;
+        border-radius: 20px;
+        padding: 2.5rem;
+        text-align: center;
+        margin: 1.5rem 0;
+        box-shadow: 0 10px 30px rgba(192, 132, 252, 0.25);
+    ">
+        <div style="font-size: 4.5rem; margin-bottom: 0.75rem;">😎 🤪 🤖</div>
+        <h2 style="color: #f472b6; font-size: 2rem; font-weight: 800; margin-top: 0; margin-bottom: 0.5rem;">
+            Nice try! But I'm smarter than you!
+        </h2>
+        <p style="color: #e2e8f0; font-size: 1.1rem; max-width: 650px; margin: 0 auto; line-height: 1.6;">
+            You can't audit the Master Agent or its protected host domain (<strong>{domain}</strong>)! This system is protected against self-scanning. Please enter a different target website to analyze.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
 st.set_page_config(page_title="SEO Domain Intelligence Agent", layout="wide")
 
 # Inject global style and header
@@ -49,7 +86,7 @@ with st.container(border=True):
         "Target Website URLs (enter one domain per line):",
         value="https://jeenweb.com",
         height=100,
-        help="Type or paste the web addresses of the websites you want to analyze (for example: https://example.com). You can audit multiple websites at once by placing each URL on a new line."
+        help="Type or paste the web addresses of the websites you want to analyze (for example: https://jeenweb.com). You can audit multiple websites at once by placing each URL on a new line."
     )
     
     service_healthy, _ = check_service_health()
@@ -67,7 +104,7 @@ with st.container(border=True):
                 "GTmetrix API v2.0 (Premium & Authorized)"
             ],
             index=default_source_index,
-            help="Select the engine used to capture visual screenshots of your website homepage. Microlink Cloud API works automatically online without extra software."
+            help="Select the engine used to capture visual screenshots of your website homepage. Microlink Cloud API works automatically online without extra software or API keys."
         )
     with col_c1:
         max_pages = st.slider(
@@ -115,8 +152,9 @@ service_active, _ = check_service_health()
 if domains_input.strip() and not st.session_state.get("audit_results"):
     st.markdown("### Homepage Previews")
 
-    # CASE 1: Service is ALREADY running on port 3000 -> Render preview directly
-    if service_active:
+    requires_local_service = "Local Puppeteer Service" in screenshot_source
+
+    if not requires_local_service or service_active or st.session_state.get("skip_puppeteer_preview", False):
         for domain in domains_input.split('\n'):
             domain = domain.strip()
             if domain:
@@ -127,16 +165,32 @@ if domains_input.strip() and not st.session_state.get("audit_results"):
                         st.error(f"Security Block ({domain}): {ssrf_msg}")
                         continue
 
-                    screenshot_url = f"http://localhost:3000/screenshot?url={quote(domain)}"
-                    render_browser_preview(domain, screenshot_url)
+                    clean = domain.replace("https://", "").replace("http://", "").rstrip("/").split("/")[0]
+                    encoded = quote(f"https://{clean}")
+
+                    fallback_mshot = f"https://s0.wp.com/mshots/v1/{encoded}?w=1280&h=800"
+                    fallback_microlink = f"https://api.microlink.io/?url={encoded}&screenshot=true&meta=false&embed=screenshot.url"
+
+                    if "Local Puppeteer" in screenshot_source and service_active:
+                        primary_url = f"http://localhost:3000/screenshot?url={quote(clean)}"
+                        fallback_url = fallback_mshot
+                    elif "Microlink" in screenshot_source:
+                        primary_url = fallback_microlink
+                        fallback_url = fallback_mshot
+                    elif "WordPress mShot" in screenshot_source:
+                        primary_url = fallback_mshot
+                        fallback_url = fallback_microlink
+                    elif "Thum.io" in screenshot_source:
+                        primary_url = f"https://image.thum.io/get/width/1280/crop/800/https://{clean}"
+                        fallback_url = fallback_mshot
+                    else:
+                        primary_url = fallback_mshot
+                        fallback_url = fallback_microlink
+
+                    render_browser_preview(domain, primary_url, fallback_url=fallback_url)
                 except Exception as e:
                     st.warning(f"Could not preview {domain}: {str(e)}")
 
-    # CASE 2: Service is NOT running, but user selected "No, Skip Website Preview"
-    elif st.session_state.get("skip_puppeteer_preview", False):
-        st.info("Website visual preview is currently skipped. All SEO crawling, WHOIS, DNS, Excel export, and Security diagnostics remain 100% active.")
-
-    # CASE 3: Service is NOT running -> Ask user permission
     else:
         st.markdown("""
         <div style="background: rgba(30, 41, 59, 0.7); border-left: 4px solid #22d3ee; border-radius: 12px; padding: 1.5rem; margin: 1rem 0;">
@@ -144,8 +198,8 @@ if domains_input.strip() and not st.session_state.get("audit_results"):
                 Local Puppeteer Screenshot Service Required
             </h4>
             <p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 1rem; line-height: 1.5;">
-                The Puppeteer screenshot service is currently not running on port 3000. 
-                Would you like to automatically install dependencies and start the screenshot service on your computer?
+                You selected <strong>Local Puppeteer Service</strong>, which is currently not running on port 3000. 
+                Would you like to automatically start the local screenshot service on your computer, or switch to a free Cloud API engine?
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -164,9 +218,10 @@ if domains_input.strip() and not st.session_state.get("audit_results"):
                         st.error(msg)
 
         with col_perm2:
-            if st.button("No, Skip Website Preview", use_container_width=True):
+            if st.button("No, Use Cloud Fallback Preview", use_container_width=True):
                 st.session_state["skip_puppeteer_preview"] = True
                 st.rerun()
+
 
 # ===================== TRIGGER ANALYSIS =====================
 if run_analysis:
@@ -175,148 +230,150 @@ if run_analysis:
     if not domains:
         st.error("Please enter at least one target website URL.")
     else:
-        progress_bar = st.progress(0)
+        if domains:
+            progress_bar = st.progress(0)
 
-        # Determine simulation sleep time
-        if scan_speed == "Accelerated Simulation (~5min/website)":
-            sleep_time = 0.05
-        else:
-            sleep_time = 0.2
 
-        all_domain_info = []
-        all_pages = []
-        all_issues = []
-        all_audit = []
-        all_cyber_results = []
+            # Determine simulation sleep time
+            if scan_speed == "Accelerated Simulation (~5min/website)":
+                sleep_time = 0.05
+            else:
+                sleep_time = 0.2
 
-        for idx, domain in enumerate(domains):
-            is_safe, ssrf_msg = is_safe_public_domain(domain)
-            if not is_safe:
-                st.error(f"Security Block ({domain}): {ssrf_msg}")
-                continue
+            all_domain_info = []
+            all_pages = []
+            all_issues = []
+            all_audit = []
+            all_cyber_results = []
 
-            # Dynamic scanning simulation
-            logs = [
-                "Initializing Intelligent Domain Agent...",
-                "Configuring secure handshake protocols...",
-                "Querying public WHOIS registry databases...",
-                "Analyzing domain registrar and name server propagation...",
-                "Locating and verifying DNS Mail Exchange (MX) records...",
-                "Requesting target robots.txt file...",
-                "Parsing crawl permissions from robots.txt...",
-                "Locating domain sitemap.xml structure...",
-                "Validating SSL certificate and encryption handshake...",
-                "Establishing crawl connections...",
-                "Analyzing document structure and headers...",
-                "Evaluating title tags and meta descriptions...",
-                "Analyzing internal/external hypermedia links...",
-                "Inspecting image assets and alt tags...",
-                "Simulating page load times and Core Web Vitals...",
-                "Extracting HTTP Security Headers compliance policies...",
-                "Scanning landing page HTML for code injection patterns...",
-                "Analyzing script node entropy and hidden iframe alerts...",
-                "Running brand spoofing and typo-squatting heuristics...",
-                "Compiling complete risk assessment report..."
-            ]
+            for idx, domain in enumerate(domains):
+                is_safe, ssrf_msg = is_safe_public_domain(domain)
+                if not is_safe:
+                    st.error(f"Security Block ({domain}): {ssrf_msg}")
+                    continue
 
-            for p in range(0, 101, 1):
-                log_idx = min(p // (100 // len(logs)), len(logs) - 1)
-                current_log = logs[log_idx]
+                # Dynamic scanning simulation
+                logs = [
+                    "Initializing Intelligent Domain Agent...",
+                    "Configuring secure handshake protocols...",
+                    "Querying public WHOIS registry databases...",
+                    "Analyzing domain registrar and name server propagation...",
+                    "Locating and verifying DNS Mail Exchange (MX) records...",
+                    "Requesting target robots.txt file...",
+                    "Parsing crawl permissions from robots.txt...",
+                    "Locating domain sitemap.xml structure...",
+                    "Validating SSL certificate and encryption handshake...",
+                    "Establishing crawl connections...",
+                    "Analyzing document structure and headers...",
+                    "Evaluating title tags and meta descriptions...",
+                    "Analyzing internal/external hypermedia links...",
+                    "Inspecting image assets and alt tags...",
+                    "Simulating page load times and Core Web Vitals...",
+                    "Extracting HTTP Security Headers compliance policies...",
+                    "Scanning landing page HTML for code injection patterns...",
+                    "Analyzing script node entropy and hidden iframe alerts...",
+                    "Running brand spoofing and typo-squatting heuristics...",
+                    "Compiling complete risk assessment report..."
+                ]
 
-                render_scan_progress(scan_placeholder, domain, current_log, p)
-                if sleep_time > 0:
-                    time.sleep(sleep_time)
+                for p in range(0, 101, 1):
+                    log_idx = min(p // (100 // len(logs)), len(logs) - 1)
+                    current_log = logs[log_idx]
 
-            def make_live_callback():
-                count = [0]
+                    render_scan_progress(scan_placeholder, domain, current_log, p)
+                    if sleep_time > 0:
+                        time.sleep(sleep_time)
 
-                def live_callback(url, status, load_time, title):
-                    count[0] += 1
-                    crawl_count_placeholder.markdown(f"""
-                    <div style="background: rgba(30, 41, 59, 0.45); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem;">
-                        <h4 style="margin: 0; color: #22d3ee;">Active Crawling: {domain}</h4>
-                        <p style="margin: 5px 0 0 0; color: #cbd5e1;">Pages Audited: <strong style="color: #22d3ee;">{count[0]} / {max_pages}</strong></p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                    crawl_log_placeholder.markdown(f"""
-                    <div class="recommendation-item" style="border-left-color: #475569; margin: 0.25rem 0;">
-                        <strong>Status:</strong> <code>{status}</code> | <strong>Load Time:</strong> {load_time}s | <strong>URL:</strong> <a href="{url}" target="_blank" style="color: #22d3ee; text-decoration: none;">{url}</a>
-                        <br/><span style="font-size: 0.85rem; color: #94a3b8;"><strong>Page Title:</strong> {title[:100]}</span>
-                    </div>
-                    """, unsafe_allow_html=True)
-                return live_callback
+                def make_live_callback():
+                    count = [0]
 
-            # Run Domain lookup (WHOIS and DNS)
-            domain_info = get_domain_info(domain)
-            df_domain = pd.DataFrame([domain_info])
-            creation_str = domain_info.get("Creation_Date", "N/A")
+                    def live_callback(url, status, load_time, title):
+                        count[0] += 1
+                        crawl_count_placeholder.markdown(f"""
+                        <div style="background: rgba(30, 41, 59, 0.45); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem;">
+                            <h4 style="margin: 0; color: #22d3ee;">Active Crawling: {domain}</h4>
+                            <p style="margin: 5px 0 0 0; color: #cbd5e1;">Pages Audited: <strong style="color: #22d3ee;">{count[0]} / {max_pages}</strong></p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        crawl_log_placeholder.markdown(f"""
+                        <div class="recommendation-item" style="border-left-color: #475569; margin: 0.25rem 0;">
+                            <strong>Status:</strong> <code>{status}</code> | <strong>Load Time:</strong> {load_time}s | <strong>URL:</strong> <a href="{url}" target="_blank" style="color: #22d3ee; text-decoration: none;">{url}</a>
+                            <br/><span style="font-size: 0.85rem; color: #94a3b8;"><strong>Page Title:</strong> {title[:100]}</span>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    return live_callback
 
-            # Run SEO Crawl
-            df_pages, df_issues, df_audit = crawl_page(
-                domain, max_pages, live_callback=make_live_callback())
+                # Run Domain lookup (WHOIS and DNS)
+                domain_info = get_domain_info(domain)
+                df_domain = pd.DataFrame([domain_info])
+                creation_str = domain_info.get("Creation_Date", "N/A")
 
-            # Clean up the crawl placeholder UI
-            crawl_count_placeholder.empty()
-            crawl_log_placeholder.empty()
+                # Run SEO Crawl
+                df_pages, df_issues, df_audit = crawl_page(
+                    domain, max_pages, live_callback=make_live_callback())
 
-            if not df_issues.empty:
-                df_issues['Domain'] = domain
-            if not df_audit.empty:
-                df_audit['Domain'] = domain
+                # Clean up the crawl placeholder UI
+                crawl_count_placeholder.empty()
+                crawl_log_placeholder.empty()
 
-            all_domain_info.append(df_domain)
-            all_pages.append(df_pages)
-            all_issues.append(df_issues)
-            all_audit.append(df_audit)
+                if not df_issues.empty:
+                    df_issues['Domain'] = domain
+                if not df_audit.empty:
+                    df_audit['Domain'] = domain
 
-            # Run Cybersecurity Scanning
-            clean_domain = domain.replace("https://", "").replace("http://", "").rstrip("/").split("/")[0]
-            original_url = f"https://{clean_domain}" if domain.startswith("https://") else f"http://{clean_domain}"
-            
-            html_content = ""
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-            }
-            try:
-                resp = requests.get(original_url, timeout=8, headers=headers, allow_redirects=True, verify=False)
-                html_content = resp.text
-            except Exception:
+                all_domain_info.append(df_domain)
+                all_pages.append(df_pages)
+                all_issues.append(df_issues)
+                all_audit.append(df_audit)
+
+                # Run Cybersecurity Scanning
+                clean_domain = domain.replace("https://", "").replace("http://", "").rstrip("/").split("/")[0]
+                original_url = f"https://{clean_domain}" if domain.startswith("https://") else f"http://{clean_domain}"
+                
+                html_content = ""
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                }
                 try:
-                    fallback_url = f"http://{clean_domain}" if original_url.startswith("https://") else f"https://{clean_domain}"
-                    resp = requests.get(fallback_url, timeout=8, headers=headers, allow_redirects=True, verify=False)
+                    resp = requests.get(original_url, timeout=8, headers=headers, allow_redirects=True, verify=False)
                     html_content = resp.text
-                    original_url = fallback_url
                 except Exception:
-                    pass
-            
-            cyber_res = run_cyber_scan(clean_domain, original_url, html_content, creation_str)
-            all_cyber_results.append(cyber_res)
+                    try:
+                        fallback_url = f"http://{clean_domain}" if original_url.startswith("https://") else f"https://{clean_domain}"
+                        resp = requests.get(fallback_url, timeout=8, headers=headers, allow_redirects=True, verify=False)
+                        html_content = resp.text
+                        original_url = fallback_url
+                    except Exception:
+                        pass
+                
+                cyber_res = run_cyber_scan(clean_domain, original_url, html_content, creation_str)
+                all_cyber_results.append(cyber_res)
 
-            progress_bar.progress((idx + 1) / len(domains))
+                progress_bar.progress((idx + 1) / len(domains))
 
-        scan_placeholder.empty()
-        progress_bar.empty()
+            scan_placeholder.empty()
+            progress_bar.empty()
 
-        df_all_domain = pd.concat(all_domain_info, ignore_index=True)
-        df_all_pages = pd.concat(all_pages, ignore_index=True)
-        df_all_issues = pd.concat(all_issues, ignore_index=True)
-        df_all_audit = pd.concat(all_audit, ignore_index=True)
+            df_all_domain = pd.concat(all_domain_info, ignore_index=True)
+            df_all_pages = pd.concat(all_pages, ignore_index=True)
+            df_all_issues = pd.concat(all_issues, ignore_index=True)
+            df_all_audit = pd.concat(all_audit, ignore_index=True)
 
-        # Store in session state for persistent rendering across user tab switches and scroll domain selection
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M")
-        filename = f"Unified_Domain_Intelligence_Report_{timestamp}.xlsx"
-        generate_unified_report(df_all_domain, df_all_pages, df_all_issues, df_all_audit, all_cyber_results, filename)
+            # Store in session state for persistent rendering across user tab switches and scroll domain selection
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+            filename = f"Unified_Domain_Intelligence_Report_{timestamp}.xlsx"
+            generate_unified_report(df_all_domain, df_all_pages, df_all_issues, df_all_audit, all_cyber_results, filename)
 
-        st.session_state["audit_results"] = {
-            "df_all_domain": df_all_domain,
-            "df_all_pages": df_all_pages,
-            "df_all_issues": df_all_issues,
-            "df_all_audit": df_all_audit,
-            "all_cyber_results": all_cyber_results,
-            "domains": domains,
-            "filename": filename
-        }
-        st.rerun()
+            st.session_state["audit_results"] = {
+                "df_all_domain": df_all_domain,
+                "df_all_pages": df_all_pages,
+                "df_all_issues": df_all_issues,
+                "df_all_audit": df_all_audit,
+                "all_cyber_results": all_cyber_results,
+                "domains": domains,
+                "filename": filename
+            }
+            st.rerun()
 
 # ===================== DISPLAY PERSISTENT RESULTS =====================
 if "audit_results" in st.session_state and st.session_state["audit_results"]:
@@ -421,61 +478,64 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
 
         st.markdown("<h3 style='color: #22d3ee; margin-top: 2rem;'>AI SEO Actions & Step-by-Step Fixes</h3>", unsafe_allow_html=True)
         
-        # Trust & Verification Guarantee Banner
-        st.markdown("""
-        <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(34, 211, 238, 0.3); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
-            <h5 style="color: #22d3ee; margin-top: 0; font-size: 1rem; font-weight: 700;">Verified Analysis & Data Accuracy Guarantee</h5>
-            <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 0; line-height: 1.5;">
-                These action items are generated directly from real-time live page analysis, W3C HTML specifications, and search engine optimization standards. Every recommendation is 100% verified against your active website code.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-
         recs = generate_ai_seo_recommendations(df_all_pages, df_all_issues, df_all_audit)
         
-        rec_html = '<div class="glass-card" style="padding: 1.5rem !important;">'
-        for r in recs:
-            sev = r["severity"].lower()
-            if sev == "critical":
-                color_style = "border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
-                sev_badge = '<span style="color: #ef4444; font-weight: 800;">[CRITICAL]</span>'
-            elif sev == "high":
-                color_style = "border-left: 4px solid #f97316; background: rgba(249, 115, 22, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
-                sev_badge = '<span style="color: #f97316; font-weight: 800;">[HIGH]</span>'
-            elif sev == "medium":
-                color_style = "border-left: 4px solid #eab308; background: rgba(234, 179, 8, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
-                sev_badge = '<span style="color: #eab308; font-weight: 800;">[MEDIUM]</span>'
-            else:
-                color_style = "border-left: 4px solid #22c55e; background: rgba(34, 197, 94, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
-                sev_badge = '<span style="color: #22c55e; font-weight: 800;">[LOW]</span>'
-            
-            item_html = (
-                f'<div style="{color_style}">'
-                f'<div style="font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; color: #f1f5f9;">{sev_badge} {r["title"]}</div>'
-                f'<div style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 6px;">{r["description"]}</div>'
-                f'<div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 4px;"><strong>Impact:</strong> {r["impact"]}</div>'
-                f'<div style="color: #22d3ee; font-size: 0.85rem; font-weight: 600;"><strong>Action:</strong> {r["action_item"]}</div>'
-                f'</div>'
-            )
-            rec_html += item_html
-        rec_html += '</div>'
-        st.markdown(rec_html, unsafe_allow_html=True)
+        # CONDITIONAL RECOMMENDATIONS: If 100% healthy or zero issues, don't display unnecessary recommendation items!
+        if not recs or (df_all_issues.empty and len(recs) <= 1):
+            st.markdown("""
+            <div style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; border-radius: 12px; padding: 1.5rem; margin: 1rem 0;">
+                <h4 style="color: #34d399; margin-top: 0; font-size: 1.15rem; font-weight: 700;">
+                    100% Optimal SEO Status
+                </h4>
+                <p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 0;">
+                    Your website pages fully comply with SEO best practices! Title tags, meta descriptions, canonical structures, and internal links are properly optimized. No action items required.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            # Trust & Verification Guarantee Banner
+            st.markdown("""
+            <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(34, 211, 238, 0.3); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
+                <h5 style="color: #22d3ee; margin-top: 0; font-size: 1rem; font-weight: 700;">Verified Analysis & Data Accuracy Guarantee</h5>
+                <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 0; line-height: 1.5;">
+                    These action items are generated directly from real-time live page analysis, W3C HTML specifications, and search engine optimization standards. Every recommendation is 100% verified against your active website code.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+
+            rec_html = '<div class="glass-card" style="padding: 1.5rem !important;">'
+            for r in recs:
+                sev = r["severity"].lower()
+                if sev == "critical":
+                    color_style = "border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
+                    sev_badge = '<span style="color: #ef4444; font-weight: 800;">[CRITICAL]</span>'
+                elif sev == "high":
+                    color_style = "border-left: 4px solid #f97316; background: rgba(249, 115, 22, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
+                    sev_badge = '<span style="color: #f97316; font-weight: 800;">[HIGH]</span>'
+                elif sev == "medium":
+                    color_style = "border-left: 4px solid #eab308; background: rgba(234, 179, 8, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
+                    sev_badge = '<span style="color: #eab308; font-weight: 800;">[MEDIUM]</span>'
+                else:
+                    color_style = "border-left: 4px solid #22c55e; background: rgba(34, 197, 94, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
+                    sev_badge = '<span style="color: #22c55e; font-weight: 800;">[LOW]</span>'
+                
+                item_html = (
+                    f'<div style="{color_style}">'
+                    f'<div style="font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; color: #f1f5f9;">{sev_badge} {r["title"]}</div>'
+                    f'<div style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 6px;">{r["description"]}</div>'
+                    f'<div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 4px;"><strong>Impact:</strong> {r["impact"]}</div>'
+                    f'<div style="color: #22d3ee; font-size: 0.85rem; font-weight: 600;"><strong>Action:</strong> {r["action_item"]}</div>'
+                    f'</div>'
+                )
+                rec_html += item_html
+            rec_html += '</div>'
+            st.markdown(rec_html, unsafe_allow_html=True)
 
     with tab6:
         st.markdown("<h3 style='color: #22d3ee; margin-top: 0;'>Cybersecurity & Risk Scorecard</h3>", unsafe_allow_html=True)
         st.markdown("""
         <div style="background: rgba(30, 41, 59, 0.4); border-left: 4px solid #22d3ee; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.95rem; color: #cbd5e1;">
             <strong>What is the Security Scorecard?</strong> This section checks if your website uses valid SSL encryption, has active security headers to block hackers, and verifies that your domain is free from malware or phishing risks.
-        </div>
-        """, unsafe_allow_html=True)
-
-        # Trust & Verification Guarantee Banner for Security Score
-        st.markdown("""
-        <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
-            <h5 style="color: #34d399; margin-top: 0; font-size: 1rem; font-weight: 700;">Verified Security Standard & Trusted Source</h5>
-            <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 0; line-height: 1.5;">
-                This security grade is computed directly from live target server response headers, RFC 2818 SSL certificate validation, and official OWASP Top 10 web security compliance specifications. All test results are 100% objective and verified directly from server handshakes.
-            </p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -491,6 +551,77 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
             selected_domain = clean_domains[0]
 
         res = next(r for r in all_cyber_results if r["domain"] == selected_domain)
+
+        # Trust & Verification Guarantee Banner for Security Score
+        st.markdown("""
+        <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
+            <h5 style="color: #34d399; margin-top: 0; font-size: 1rem; font-weight: 700;">Verified Security Standard & Trusted Source</h5>
+            <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 0; line-height: 1.5;">
+                This security grade is computed directly from live target server response headers, RFC 2818 SSL certificate validation, and official OWASP Top 10 web security compliance specifications. All test results are 100% objective and verified directly from server handshakes.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # Calculate individual pillar score contributions (25 pts max per pillar)
+        ssl_pts = 25.0 if res['ssl_info']['valid'] else 0.0
+        header_pts = round((res.get('headers_score', 0) / 100.0) * 25.0, 1)
+        phish_pts = round(((100.0 - res.get('phishing_score', 0)) / 100.0) * 25.0, 1)
+        malware_pts = round(((100.0 - res.get('malware_score', 0)) / 100.0) * 25.0, 1)
+
+        # Transparent Scoring Formula Breakdown Expander
+        with st.expander("🔍 Security Score Calculation Basis & 4-Pillar Points Breakdown", expanded=True):
+            st.markdown(f"""
+            <div style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6;">
+                <h4 style="color: #22d3ee; margin-top: 0; font-size: 1.1rem; font-weight: 700;">
+                    How is the {res['domain']} Security Score ({res['global_score']}%) Calculated?
+                </h4>
+                <p>
+                    The Global Security Compliance Score is evaluated across <strong>4 independent core security pillars</strong>, each weighted equally at <strong>25% (25 Points Max)</strong> for a total possible score of <strong>100 Points (100%)</strong>:
+                </p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; background: rgba(15, 23, 42, 0.6); border-radius: 8px; overflow: hidden;">
+                    <thead>
+                        <tr style="background: rgba(34, 211, 238, 0.15); color: #22d3ee; text-align: left;">
+                            <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">Security Pillar</th>
+                            <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">Weight</th>
+                            <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">Points Scored</th>
+                            <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">Evaluation Basis & Criteria</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 10px; font-weight: 600; color: #f1f5f9;">1. SSL/TLS Certificate</td>
+                            <td style="padding: 10px; color: #94a3b8;">25%</td>
+                            <td style="padding: 10px; font-weight: 700; color: {'#34d399' if ssl_pts == 25 else '#f87171'};">{ssl_pts} / 25 pts</td>
+                            <td style="padding: 10px; color: #cbd5e1;">Checks HTTPS encryption, CA trust chain validation, and valid certificate expiration window.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 10px; font-weight: 600; color: #f1f5f9;">2. HTTP Security Headers</td>
+                            <td style="padding: 10px; color: #94a3b8;">25%</td>
+                            <td style="padding: 10px; font-weight: 700; color: {'#34d399' if header_pts > 20 else '#fbbf24'};">{header_pts} / 25 pts</td>
+                            <td style="padding: 10px; color: #cbd5e1;">Audits 6 defense headers (HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy).</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 10px; font-weight: 600; color: #f1f5f9;">3. Phishing & Brand Protection</td>
+                            <td style="padding: 10px; color: #94a3b8;">25%</td>
+                            <td style="padding: 10px; font-weight: 700; color: {'#34d399' if phish_pts > 20 else '#f87171'};">{phish_pts} / 25 pts</td>
+                            <td style="padding: 10px; color: #cbd5e1;">Evaluates WHOIS domain age, string entropy, brand impersonation risks, and high-risk top-level domain extensions.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; font-weight: 600; color: #f1f5f9;">4. Malware & Code Safety</td>
+                            <td style="padding: 10px; color: #94a3b8;">25%</td>
+                            <td style="padding: 10px; font-weight: 700; color: {'#34d399' if malware_pts > 20 else '#f87171'};">{malware_pts} / 25 pts</td>
+                            <td style="padding: 10px; color: #cbd5e1;">Scans frontend HTML for hidden drive-by iframes, script obfuscation (`eval`), exposed API secrets, and unencrypted HTTP form actions.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p style="margin-bottom: 0; font-size: 0.9rem; color: #94a3b8;">
+                    <strong>Mathematical Formula:</strong> <code style="color: #22d3ee;">Global Score = SSL Pts ({ssl_pts}) + Headers Pts ({header_pts}) + Phishing Pts ({phish_pts}) + Malware Pts ({malware_pts}) = {res['global_score']}%</code>
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+
 
         # Top Metric Cards
         col_m1, col_m2, col_m3 = st.columns(3)
@@ -584,11 +715,28 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
 
         # Section 4: Vulnerability Remediation Plan
         st.markdown("<h3 style='color: #22d3ee; margin-top: 2rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.5rem;'>Vulnerability Remediation Plan</h3>", unsafe_allow_html=True)
-        rec_html = '<div class="glass-card" style="padding: 1.5rem !important;">'
-        for idx_rec, rec in enumerate(res["recommendations"]):
-            rec_html += f'<div style="background: rgba(15, 23, 42, 0.5); border-left: 4px solid #0284c7; border-radius: 8px; padding: 12px; margin: 8px 0; color: #e0f2fe; font-size: 0.95rem;"><strong>Action Item {idx_rec + 1}:</strong> {rec}</div>'
-        rec_html += '</div>'
-        st.markdown(rec_html, unsafe_allow_html=True)
+        
+        recs_list = res["recommendations"]
+        is_perfect = (res["global_score"] == 100) or (len(recs_list) == 1 and "No active vulnerabilities found" in recs_list[0])
+
+        # CONDITIONAL SECURITY RECOMMENDATIONS: If score is 100% or 0 active vulnerabilities, display success box instead of unnecessary remediation items!
+        if is_perfect:
+            st.markdown("""
+            <div style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; border-radius: 12px; padding: 1.5rem; margin: 1rem 0;">
+                <h4 style="color: #34d399; margin-top: 0; font-size: 1.15rem; font-weight: 700;">
+                    100% Optimal Security Compliance
+                </h4>
+                <p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 0;">
+                    Congratulations! Your target domain fully satisfies all security requirements. SSL encryption is active, all 6 HTTP security headers are enabled, and zero malware or phishing risks were detected. No remediation items required.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            rec_html = '<div class="glass-card" style="padding: 1.5rem !important;">'
+            for idx_rec, rec in enumerate(recs_list):
+                rec_html += f'<div style="background: rgba(15, 23, 42, 0.5); border-left: 4px solid #0284c7; border-radius: 8px; padding: 12px; margin: 8px 0; color: #e0f2fe; font-size: 0.95rem;"><strong>Action Item {idx_rec + 1}:</strong> {rec}</div>'
+            rec_html += '</div>'
+            st.markdown(rec_html, unsafe_allow_html=True)
 
     # Save and output the unified Excel report
     st.markdown("<div style='margin-top: 2rem;'></div>", unsafe_allow_html=True)

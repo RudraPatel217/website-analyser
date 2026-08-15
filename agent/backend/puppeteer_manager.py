@@ -74,25 +74,23 @@ def install_and_start_puppeteer_service(progress_callback=None):
         except Exception as e:
             return False, f"Failed to execute npm install: {str(e)}"
 
-    # 4. Launch 'node server.js' as a detached background process
+    # 4. Launch 'node server.js' as a background process
     if progress_callback:
         progress_callback("Starting Puppeteer Express screenshot service on port 3000...")
 
-    node_cmd = "node.exe" if sys.platform == "win32" else "node"
+    node_bin = shutil.which("node") or shutil.which("node.exe") or "node"
     server_script = os.path.join(service_dir, "server.js")
 
     try:
-        # Spawn detached process
         if sys.platform == "win32":
             subprocess.Popen(
-                [node_cmd, server_script],
+                [node_bin, server_script],
                 cwd=service_dir,
-                creationflags=subprocess.CREATE_NEW_CONSOLE | subprocess.DETACHED_PROCESS,
-                shell=True
+                creationflags=subprocess.CREATE_NO_WINDOW
             )
         else:
             subprocess.Popen(
-                [node_cmd, server_script],
+                [node_bin, server_script],
                 cwd=service_dir,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
@@ -101,11 +99,12 @@ def install_and_start_puppeteer_service(progress_callback=None):
     except Exception as e:
         return False, f"Failed to start node server.js: {str(e)}"
 
-    # 5. Poll health endpoint for up to 12 seconds until online
-    for attempt in range(12):
+    # 5. Poll health endpoint for up to 20 seconds until online
+    for attempt in range(20):
         time.sleep(1)
         healthy, _ = check_service_health()
         if healthy:
             return True, "Puppeteer service successfully installed and started on port 3000!"
 
-    return False, "Started Puppeteer service process, but health check timed out on port 3000. Please check if another process is using port 3000."
+    return False, "Started Puppeteer service process, but health check timed out on port 3000. Please check if port 3000 is blocked or occupied by another application."
+
