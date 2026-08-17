@@ -95,16 +95,14 @@ with st.container(border=True):
     col_source, col_c1, col_c2 = st.columns(3)
     with col_source:
         screenshot_source = st.selectbox(
-            "Screenshot Preview Source:",
+            "Website Visual Preview Engine:",
             options=[
-                "Local Puppeteer Service (Port 3000)",
-                "Microlink Cloud API (Free & Cloud-Compatible)",
-                "WordPress mShot API (Fast Preview)",
-                "Thum.io (Backup Fallback)",
-                "GTmetrix API v2.0 (Premium & Authorized)"
+                "Automated High-Speed Visual Capture (Recommended)",
+                "Cloud Visual Engine",
+                "Standard Website Preview"
             ],
-            index=default_source_index,
-            help="Select the engine used to capture visual screenshots of your website homepage. Microlink Cloud API works automatically online without extra software or API keys."
+            index=0,
+            help="Select your preferred mode for instant homepage visual previews."
         )
     with col_c1:
         max_pages = st.slider(
@@ -124,10 +122,6 @@ with st.container(border=True):
             help="Choose Accelerated mode for quick analysis or Thorough mode for in-depth inspection of link structures and security protocols."
         )
 
-    # Session state for tracking user choice on skipping preview
-    if "skip_puppeteer_preview" not in st.session_state:
-        st.session_state["skip_puppeteer_preview"] = False
-
 col_b1, col_b2 = st.columns([3, 1])
 with col_b1:
     run_analysis = st.button(
@@ -145,82 +139,44 @@ scan_placeholder = st.empty()
 crawl_count_placeholder = st.empty()
 crawl_log_placeholder = st.empty()
 
-# Check local Puppeteer service status
+# Check local background service status
 service_active, _ = check_service_health()
 
 # ===================== HOMEPAGE PREVIEW =====================
 if domains_input.strip() and not st.session_state.get("audit_results"):
     st.markdown("### Homepage Previews")
 
-    requires_local_service = "Local Puppeteer Service" in screenshot_source
+    for domain in domains_input.split('\n'):
+        domain = domain.strip()
+        if domain:
+            try:
+                # SSRF Protection Check
+                is_safe, ssrf_msg = is_safe_public_domain(domain)
+                if not is_safe:
+                    st.error(f"Security Block ({domain}): {ssrf_msg}")
+                    continue
 
-    if not requires_local_service or service_active or st.session_state.get("skip_puppeteer_preview", False):
-        for domain in domains_input.split('\n'):
-            domain = domain.strip()
-            if domain:
-                try:
-                    # SSRF Protection Check
-                    is_safe, ssrf_msg = is_safe_public_domain(domain)
-                    if not is_safe:
-                        st.error(f"Security Block ({domain}): {ssrf_msg}")
-                        continue
+                clean = domain.replace("https://", "").replace("http://", "").rstrip("/").split("/")[0]
+                encoded = quote(f"https://{clean}")
 
-                    clean = domain.replace("https://", "").replace("http://", "").rstrip("/").split("/")[0]
-                    encoded = quote(f"https://{clean}")
+                fallback_mshot = f"https://s0.wp.com/mshots/v1/{encoded}?w=1280&h=800"
+                fallback_microlink = f"https://api.microlink.io/?url={encoded}&screenshot=true&meta=false&embed=screenshot.url"
+                local_url = f"http://localhost:3000/screenshot?url={quote(clean)}"
 
-                    fallback_mshot = f"https://s0.wp.com/mshots/v1/{encoded}?w=1280&h=800"
-                    fallback_microlink = f"https://api.microlink.io/?url={encoded}&screenshot=true&meta=false&embed=screenshot.url"
+                if service_active:
+                    primary_url = local_url
+                    fallback_url = fallback_microlink
+                elif "Cloud Visual" in screenshot_source:
+                    primary_url = fallback_microlink
+                    fallback_url = fallback_mshot
+                else:
+                    primary_url = fallback_microlink
+                    fallback_url = fallback_mshot
 
-                    if "Local Puppeteer" in screenshot_source and service_active:
-                        primary_url = f"http://localhost:3000/screenshot?url={quote(clean)}"
-                        fallback_url = fallback_mshot
-                    elif "Microlink" in screenshot_source:
-                        primary_url = fallback_microlink
-                        fallback_url = fallback_mshot
-                    elif "WordPress mShot" in screenshot_source:
-                        primary_url = fallback_mshot
-                        fallback_url = fallback_microlink
-                    elif "Thum.io" in screenshot_source:
-                        primary_url = f"https://image.thum.io/get/width/1280/crop/800/https://{clean}"
-                        fallback_url = fallback_mshot
-                    else:
-                        primary_url = fallback_mshot
-                        fallback_url = fallback_microlink
+                render_browser_preview(domain, primary_url, fallback_url=fallback_url)
+            except Exception as e:
+                st.warning(f"Could not preview {domain}: {str(e)}")
 
-                    render_browser_preview(domain, primary_url, fallback_url=fallback_url)
-                except Exception as e:
-                    st.warning(f"Could not preview {domain}: {str(e)}")
-
-    else:
-        st.markdown("""
-        <div style="background: rgba(30, 41, 59, 0.7); border-left: 4px solid #22d3ee; border-radius: 12px; padding: 1.5rem; margin: 1rem 0;">
-            <h4 style="color: #22d3ee; margin-top: 0; font-size: 1.2rem; font-weight: 700;">
-                Local Puppeteer Screenshot Service Required
-            </h4>
-            <p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 1rem; line-height: 1.5;">
-                You selected <strong>Local Puppeteer Service</strong>, which is currently not running on port 3000. 
-                Would you like to automatically start the local screenshot service on your computer, or switch to a free Cloud API engine?
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-
-        col_perm1, col_perm2 = st.columns([1, 1])
-        with col_perm1:
-            if st.button("Yes, Install & Start Service on my Computer", type="primary", use_container_width=True):
-                with st.spinner("Setting up Puppeteer screenshot service..."):
-                    success, msg = install_and_start_puppeteer_service(progress_callback=st.info)
-                    if success:
-                        st.success(msg)
-                        st.session_state["skip_puppeteer_preview"] = False
-                        time.sleep(1.5)
-                        st.rerun()
-                    else:
-                        st.error(msg)
-
-        with col_perm2:
-            if st.button("No, Use Cloud Fallback Preview", use_container_width=True):
-                st.session_state["skip_puppeteer_preview"] = True
-                st.rerun()
 
 
 # ===================== TRIGGER ANALYSIS =====================

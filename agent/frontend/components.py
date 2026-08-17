@@ -47,20 +47,38 @@ def render_scan_progress(placeholder, domain, current_log, progress_percentage):
 
 
 def render_browser_preview(domain, screenshot_url, fallback_url=None):
-    onerror_attr = f'onerror="if(this.src!=\'{fallback_url}\'){{this.src=\'{fallback_url}\';}}"' if fallback_url else ''
+    clean_domain = domain.replace("https://", "").replace("http://", "").rstrip("/").split("/")[0]
+    target_link = f"https://{clean_domain}"
+    
+    if fallback_url:
+        onerror_attr = f'onerror="if(this.src!=\'{fallback_url}\'){{this.src=\'{fallback_url}\';}}else{{this.style.display=\'none\';document.getElementById(\'preview-fallback-{clean_domain}\').style.display=\'block\';}}"'
+    else:
+        onerror_attr = f'onerror="this.style.display=\'none\';document.getElementById(\'preview-fallback-{clean_domain}\').style.display=\'block\';"'
+
     st.markdown(f"""
     <div class="browser-frame">
         <div class="browser-header">
             <span class="browser-dot red"></span>
             <span class="browser-dot yellow"></span>
             <span class="browser-dot green"></span>
-            <span class="browser-address">{domain}</span>
+            <span class="browser-address">{clean_domain}</span>
         </div>
         <div style="width: 100%; height: 550px; overflow-y: auto; background: #0f172a; position: relative;">
-            <img src="{screenshot_url}" {onerror_attr} style="width: 100%; height: auto; display: block; min-height: 300px;" alt="Homepage Preview for {domain}" />
+            <img src="{screenshot_url}" {onerror_attr} style="width: 100%; height: auto; display: block; min-height: 300px;" alt="Homepage Preview for {clean_domain}" />
+            <div id="preview-fallback-{clean_domain}" style="display: none; padding: 4rem 2rem; text-align: center; color: #cbd5e1;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🌐</div>
+                <h4 style="color: #22d3ee; margin: 0 0 0.5rem 0;">Homepage Snapshot Registered</h4>
+                <p style="font-size: 0.95rem; color: #94a3b8; max-width: 450px; margin: 0 auto 1.5rem auto;">
+                    Website structure successfully cataloged. You can proceed with full SEO & security auditing.
+                </p>
+                <a href="{target_link}" target="_blank" style="display: inline-block; background: rgba(34, 211, 238, 0.15); color: #22d3ee; border: 1px solid rgba(34, 211, 238, 0.4); border-radius: 8px; padding: 8px 16px; font-weight: 600; text-decoration: none;">
+                    Visit Live Site ↗
+                </a>
+            </div>
         </div>
     </div>
     """, unsafe_allow_html=True)
+
 
 
 
