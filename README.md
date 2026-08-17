@@ -13,9 +13,7 @@ An enterprise-grade, multi-website SEO Auditor and Domain Intelligence Tool. Thi
 
 ## 🔗 Official Live Application & Demo
 
-You can use the fully deployed web application directly in your browser without any manual setup or installation:
-
-> 🚀 **Official Application URL:** [https://website-analyser.streamlit.app/](https://website-analyser.streamlit.app/)
+You can use the fully deployed web application directly in your browser without any manual setup
 
 ---
 
