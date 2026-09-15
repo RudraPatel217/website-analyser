@@ -3,6 +3,27 @@ const puppeteer = require('puppeteer');
 const rateLimit = require('express-rate-limit');
 const dns = require('dns').promises;
 const { URL } = require('url');
+const fs = require('fs');
+
+function findChromeExecutable() {
+  const candidates = [
+    process.env.CHROME_BIN,
+    process.env.PUPPETEER_EXECUTABLE_PATH,
+    'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+    'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+    'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+    'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
+    '/usr/bin/google-chrome',
+    '/usr/bin/chromium-browser',
+    '/usr/bin/chromium'
+  ];
+  for (const c of candidates) {
+    if (c && fs.existsSync(c)) {
+      return c;
+    }
+  }
+  return undefined;
+}
 
 const app = express();
 
@@ -169,7 +190,8 @@ app.get('/screenshot', async (req, res) => {
 
   let browser = null;
   try {
-    browser = await puppeteer.launch({
+    const chromePath = findChromeExecutable();
+    const launchOptions = {
       headless: true,
       args: [
         '--no-sandbox',
@@ -184,7 +206,11 @@ app.get('/screenshot', async (req, res) => {
         '--mute-audio',
         '--disable-background-networking'
       ]
-    });
+    };
+    if (chromePath) {
+      launchOptions.executablePath = chromePath;
+    }
+    browser = await puppeteer.launch(launchOptions);
 
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 800, deviceScaleFactor: 1 });

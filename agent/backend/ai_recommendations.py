@@ -81,7 +81,7 @@ def generate_ai_seo_recommendations(df_pages, df_issues, df_audit):
     # 6. Crawl issues (from df_issues)
     if df_issues is not None and not df_issues.empty:
         # Title length issues
-        title_issues = df_issues[df_issues["Issue Name"] == "Title Length Issue"]
+        title_issues = df_issues[df_issues["Issue Name"].isin(["Title Length Issue", "Title Tag Problem"])]
         if not title_issues.empty:
             recs.append({
                 "category": "On-Page SEO",

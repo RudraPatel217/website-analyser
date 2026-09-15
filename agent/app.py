@@ -72,14 +72,30 @@ def render_easter_egg(domain):
 
 st.set_page_config(page_title="SEO Domain Intelligence Agent", layout="wide")
 
-# Inject global style and header
-inject_premium_styles()
-inject_header_element()
+if "theme_mode" not in st.session_state:
+    st.session_state["theme_mode"] = "dark"
+
+theme_mode = st.session_state["theme_mode"]
+is_dark = (theme_mode == "dark")
+
+# Inject global style and header with active theme
+inject_premium_styles(theme_mode)
+
+col_top_space, col_top_toggle = st.columns([6, 1])
+with col_top_toggle:
+    toggle_icon = "☀️ White Mode" if is_dark else "🌙 Dark Mode"
+    if st.button(toggle_icon, key="theme_toggle_btn", use_container_width=True, help="Toggle between Dark and White/Light mode"):
+        st.session_state["theme_mode"] = "light" if is_dark else "dark"
+        st.rerun()
+
+inject_header_element(theme_mode)
 
 # Input Panel configured inside native bordered container
 with st.container(border=True):
+    header_color = "#22d3ee" if is_dark else "#1d4ed8"
+    border_color = "rgba(255,255,255,0.08)" if is_dark else "#e2e8f0"
     st.markdown(
-        "<h3 style='margin-top: 0; color: #22d3ee; font-weight: 700; font-size: 1.3rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.75rem; margin-bottom: 1rem;'>Website Audit Setup</h3>",
+        f"<h3 style='margin-top: 0; color: {header_color}; font-weight: 700; font-size: 1.3rem; border-bottom: 1px solid {border_color}; padding-bottom: 0.75rem; margin-bottom: 1rem;'>Website Audit Setup</h3>",
         unsafe_allow_html=True)
     
     domains_input = st.text_area(
@@ -163,17 +179,17 @@ if domains_input.strip() and not st.session_state.get("audit_results"):
                 fallback_microlink = f"https://api.microlink.io/?url={encoded}&screenshot=true&meta=false&embed=screenshot.url"
                 local_url = f"http://localhost:3000/screenshot?url={quote(clean)}"
 
-                if service_active:
-                    primary_url = local_url
-                    fallback_url = fallback_microlink
-                elif "Cloud Visual" in screenshot_source:
+                if "Cloud Visual" in screenshot_source or "Automated" in screenshot_source:
                     primary_url = fallback_microlink
                     fallback_url = fallback_mshot
+                elif service_active:
+                    primary_url = local_url
+                    fallback_url = fallback_microlink
                 else:
                     primary_url = fallback_microlink
                     fallback_url = fallback_mshot
 
-                render_browser_preview(domain, primary_url, fallback_url=fallback_url)
+                render_browser_preview(domain, primary_url, fallback_url=fallback_url, theme_mode=theme_mode)
             except Exception as e:
                 st.warning(f"Could not preview {domain}: {str(e)}")
 
@@ -364,7 +380,7 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
         high_crit_count = len(df_all_issues[df_all_issues.get('Severity', pd.Series()).isin(
             ['High', 'Critical'])]) if not df_all_issues.empty else 0
 
-        render_metric_cards(len(domains), len(df_all_issues), high_crit_count)
+        render_metric_cards(len(domains), len(df_all_issues), high_crit_count, theme_mode=theme_mode)
 
         st.markdown("<h3 style='color: #22d3ee; margin-top: 2rem;'>Cybersecurity Score Summary</h3>", unsafe_allow_html=True)
         sec_summary_rows = []
@@ -696,7 +712,7 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
 
     # Save and output the unified Excel report
     st.markdown("<div style='margin-top: 2rem;'></div>", unsafe_allow_html=True)
-    render_download_section()
+    render_download_section(theme_mode=theme_mode)
 
     if os.path.exists(filename):
         with open(filename, "rb") as file:
@@ -709,7 +725,7 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
             )
 
 else:
-    render_ready_to_scan()
+    render_ready_to_scan(theme_mode=theme_mode)
 
 # Render footer on all pages
-inject_footer_element()
+inject_footer_element(theme_mode=theme_mode)

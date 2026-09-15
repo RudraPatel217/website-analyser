@@ -6,6 +6,7 @@ import re
 from urllib.parse import urlparse
 from datetime import datetime, timezone
 from bs4 import BeautifulSoup
+from dateutil import parser as date_parser
 import urllib3
 
 # Disable warning messages for unverified HTTPS requests
@@ -78,7 +79,16 @@ def get_ssl_details(hostname):
                                         organization = v if isinstance(v, str) else str(v)
                     
                     if isinstance(expire_str, str):
-                        expire_date = datetime.strptime(expire_str, '%b %d %H:%M:%S %Y %Z')
+                        try:
+                            expire_date = date_parser.parse(expire_str)
+                            if expire_date.tzinfo:
+                                expire_date = expire_date.astimezone(timezone.utc).replace(tzinfo=None)
+                        except Exception:
+                            try:
+                                expire_date = datetime.strptime(expire_str, '%b %d %H:%M:%S %Y %Z')
+                            except Exception:
+                                expire_date = datetime.now()
+                        
                         days_left = (expire_date - datetime.now(timezone.utc).replace(tzinfo=None)).days
                         return {
                             "valid": True,
