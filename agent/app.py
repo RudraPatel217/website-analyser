@@ -35,37 +35,39 @@ from backend import (
 
 def is_owner_or_app_url(domain_str):
     """
-    Detects if target domain matches the application's host URL or the owner's personal domain.
+    Detects if target domain matches the application's host URL or self-scan attempts.
     """
     d = domain_str.lower().strip().replace("https://", "").replace("http://", "").split("/")[0].split(":")[0]
     protected_patterns = [
+        "website-analyser-rudra.streamlit.app",
         "website-analyser",
-        "streamlit.app",
-        "jeenweb.com",
-        "jeenweb"
+        "streamlit.app"
     ]
     return any(p in d for p in protected_patterns)
 
 def render_easter_egg(domain):
     """
-    Displays a humorous Easter egg card when someone attempts to scan the app or owner domain.
+    Displays hilarious Easter egg card when someone attempts to scan the app or owner domain.
     """
     st.markdown(f"""
     <div style="
-        background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%);
-        border: 2px solid #c084fc;
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%);
+        border: 2px dashed #f59e0b;
         border-radius: 20px;
-        padding: 2.5rem;
+        padding: 2.5rem 1.5rem;
         text-align: center;
         margin: 1.5rem 0;
-        box-shadow: 0 10px 30px rgba(192, 132, 252, 0.25);
+        box-shadow: 0 10px 30px rgba(245, 158, 11, 0.2);
     ">
-        <div style="font-size: 4.5rem; margin-bottom: 0.75rem;">😎 🤪 🤖</div>
-        <h2 style="color: #f472b6; font-size: 2rem; font-weight: 800; margin-top: 0; margin-bottom: 0.5rem;">
-            Nice try! But I'm smarter than you!
+        <div style="font-size: 5rem; margin-bottom: 0.5rem;">🤫 😂 🗿 👀 💀</div>
+        <h2 style="color: #fbbf24; font-size: 2.2rem; font-weight: 800; margin-top: 0; margin-bottom: 0.5rem; letter-spacing: 0.5px;">
+            Bakchodi Nahi Mittr! 🚫😂
         </h2>
-        <p style="color: #e2e8f0; font-size: 1.1rem; max-width: 650px; margin: 0 auto; line-height: 1.6;">
-            You can't audit the Master Agent or its protected host domain (<strong>{domain}</strong>)! This system is protected against self-scanning. Please enter a different target website to analyze.
+        <p style="color: #f1f5f9; font-size: 1.15rem; max-width: 650px; margin: 0.5rem auto; line-height: 1.6; font-weight: 600;">
+            Apne hi app ka audit karoge kya bhai? 😜 Kuch aur website daalo test karne ke liye!
+        </p>
+        <p style="color: #94a3b8; font-size: 0.95rem; margin-top: 0.5rem; margin-bottom: 0;">
+            Target: <code style="color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 2px 8px; border-radius: 4px;">{domain}</code> is protected against self-auditing.
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -162,6 +164,10 @@ if domains_input.strip() and not st.session_state.get("audit_results"):
     for domain in domains_input.split('\n'):
         domain = domain.strip()
         if domain:
+            if is_owner_or_app_url(domain):
+                render_easter_egg(domain)
+                continue
+
             try:
                 # SSRF Protection Check
                 is_safe, ssrf_msg = is_safe_public_domain(domain)
@@ -172,7 +178,7 @@ if domains_input.strip() and not st.session_state.get("audit_results"):
                 clean = domain.replace("https://", "").replace("http://", "").rstrip("/").split("/")[0]
                 encoded = quote(f"https://{clean}")
 
-                fallback_mshot = f"https://s0.wp.com/mshots/v1/{encoded}?w=1280&h=800"
+                fallback_mshot = f"https://s0.wp.com/mshots/v1/{encoded}?w=900"
                 fallback_microlink = f"https://api.microlink.io/?url={encoded}&screenshot=true&meta=false&embed=screenshot.url"
 
                 primary_url = fallback_mshot
@@ -216,6 +222,10 @@ if run_analysis:
             all_cyber_results = []
 
             for idx, domain in enumerate(domains):
+                if is_owner_or_app_url(domain):
+                    render_easter_egg(domain)
+                    continue
+
                 is_safe, ssrf_msg = is_safe_public_domain(domain)
                 if not is_safe:
                     st.error(f"Security Block ({domain}): {ssrf_msg}")

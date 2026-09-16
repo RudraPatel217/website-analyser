@@ -59,9 +59,9 @@ def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode
     btn_border = "rgba(34, 211, 238, 0.4)" if is_dark else "#93c5fd"
 
     if fallback_url:
-        onerror_attr = f'onerror="if(!this.dataset.tried){{this.dataset.tried=\'1\';this.src=\'{fallback_url}\';}}else{{this.style.display=\'none\';var fb=document.getElementById(\'preview-fallback-{clean_domain}\');if(fb)fb.style.display=\'block\';}}"'
+        onerror_attr = f'onerror="if(!this.dataset.tried){{this.dataset.tried=\'1\';this.src=\'{fallback_url}\';}}else{{this.style.display=\'none\';var l=document.getElementById(\'preview-loader-{clean_domain}\');if(l)l.style.display=\'none\';var fb=document.getElementById(\'preview-fallback-{clean_domain}\');if(fb)fb.style.display=\'block\';}}"'
     else:
-        onerror_attr = f'onerror="this.style.display=\'none\';var fb=document.getElementById(\'preview-fallback-{clean_domain}\');if(fb)fb.style.display=\'block\';"'
+        onerror_attr = f'onerror="this.style.display=\'none\';var l=document.getElementById(\'preview-loader-{clean_domain}\');if(l)l.style.display=\'none\';var fb=document.getElementById(\'preview-fallback-{clean_domain}\');if(fb)fb.style.display=\'block\';"'
 
     st.markdown(f"""
     <div class="browser-frame">
@@ -72,8 +72,12 @@ def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode
             <span class="browser-address">{clean_domain}</span>
         </div>
         <div style="width: 100%; min-height: 380px; max-height: 550px; overflow-y: auto; background: {container_bg}; position: relative;">
-            <img src="{screenshot_url}" {onerror_attr} style="width: 100%; height: auto; display: block; min-height: 250px;" alt="Homepage Preview for {clean_domain}" />
-            <div id="preview-fallback-{clean_domain}" style="display: none; padding: 4rem 2rem; text-align: center;">
+            <div id="preview-loader-{clean_domain}" style="position: absolute; top: 0; left: 0; width: 100%; height: 380px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: {container_bg}; z-index: 1;">
+                <div style="width: 38px; height: 38px; border: 3px solid rgba(34, 211, 238, 0.2); border-top: 3px solid #22d3ee; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px;"></div>
+                <div style="color: {card_title_color}; font-size: 0.95rem; font-weight: 600; letter-spacing: 0.3px;">Capturing Live Visual Preview...</div>
+            </div>
+            <img src="{screenshot_url}" {onerror_attr} onload="var l=document.getElementById('preview-loader-{clean_domain}');if(l)l.style.display='none';" loading="eager" decoding="async" style="width: 100%; height: auto; display: block; min-height: 250px; position: relative; z-index: 2;" alt="Homepage Preview for {clean_domain}" />
+            <div id="preview-fallback-{clean_domain}" style="display: none; padding: 4rem 2rem; text-align: center; position: relative; z-index: 3;">
                 <div style="font-size: 3.2rem; margin-bottom: 1rem;">🌐</div>
                 <h4 style="color: {card_title_color}; margin: 0 0 0.5rem 0; font-size: 1.25rem; font-weight: 700;">Homepage Snapshot Registered</h4>
                 <p style="font-size: 0.95rem; color: {card_text_color}; max-width: 480px; margin: 0 auto 1.5rem auto; line-height: 1.6;">
