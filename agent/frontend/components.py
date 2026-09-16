@@ -1,6 +1,8 @@
 import streamlit as st
 
 def render_scan_progress(placeholder, domain, current_log, progress_percentage):
+    # Cap progress display at 99% while background crawling & auditing finalizes
+    display_percent = min(int(progress_percentage), 99)
     placeholder.markdown(f"""
     <div style="
         background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.8) 100%);
@@ -32,7 +34,7 @@ def render_scan_progress(placeholder, domain, current_log, progress_percentage):
         ">
             <div style="
                 height: 100%;
-                width: {progress_percentage}%;
+                width: {display_percent}%;
                 background: linear-gradient(90deg, #22d3ee 0%, #3b82f6 50%, #6366f1 100%);
                 border-radius: 6px;
                 box-shadow: 0 0 15px rgba(34, 211, 238, 0.6);
@@ -40,7 +42,7 @@ def render_scan_progress(placeholder, domain, current_log, progress_percentage):
             "></div>
         </div>
         <div style="color: #f1f5f9; font-size: 1.1rem; font-weight: 700;">
-            Crawl Engine Progress: <span style="color: #22d3ee;">{progress_percentage}%</span>
+            Crawl Engine Progress: <span style="color: #22d3ee;">{display_percent}%</span>
         </div>
     </div>
     """, unsafe_allow_html=True)

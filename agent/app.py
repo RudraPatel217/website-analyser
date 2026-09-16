@@ -283,7 +283,7 @@ if run_analysis:
                     "Compiling complete risk assessment report..."
                 ]
 
-                for p in range(0, 101, 1):
+                for p in range(0, 100, 1):
                     log_idx = min(p // (100 // len(logs)), len(logs) - 1)
                     current_log = logs[log_idx]
 
