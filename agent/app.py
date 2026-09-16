@@ -69,6 +69,37 @@ def render_easter_egg(domain):
     </div>
     """, unsafe_allow_html=True)
 
+def render_preview_meme(domain):
+    """
+    Displays a hilarious meme GIF in the preview section when auditing the app itself.
+    """
+    st.markdown(f"""
+    <div style="
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%);
+        border: 2px solid rgba(245, 158, 11, 0.4);
+        border-radius: 20px;
+        padding: 2rem 1.5rem;
+        text-align: center;
+        margin: 1.5rem 0;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    ">
+        <h3 style="color: #fbbf24; font-size: 1.6rem; font-weight: 800; margin-top: 0; margin-bottom: 0.75rem;">
+            🕷️ Spider-Man Pointing at Spider-Man Moment! 🕷️
+        </h3>
+        <p style="color: #94a3b8; font-size: 1rem; margin-bottom: 1.25rem;">
+            When you try to audit the website analyzer using the website analyzer itself...
+        </p>
+        <div style="display: flex; justify-content: center; margin-bottom: 1rem;">
+            <img src="https://media.giphy.com/media/l36kUemp4vITTX4PC/giphy.gif" 
+                 alt="Spider-Man pointing meme" 
+                 style="max-width: 460px; width: 100%; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.1);" />
+        </div>
+        <p style="color: #cbd5e1; font-size: 0.95rem; font-style: italic; margin-bottom: 0;">
+            "Wait... are you scanning me or am I scanning you?" 🤔😂
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
 st.set_page_config(page_title="SEO Domain Intelligence Agent", layout="wide")
 
 if "theme_mode" not in st.session_state:
@@ -162,7 +193,7 @@ if domains_input.strip() and not st.session_state.get("audit_results"):
         domain = domain.strip()
         if domain:
             if is_owner_or_app_url(domain):
-                render_easter_egg(domain)
+                render_preview_meme(domain)
                 continue
 
             try:
