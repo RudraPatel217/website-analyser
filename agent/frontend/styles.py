@@ -269,7 +269,22 @@ def inject_premium_styles(theme_mode="dark"):
         div[data-testid="stDataFrame"] {
             border: 1px solid rgba(255, 255, 255, 0.08) !important;
             border-radius: 12px !important;
-            overflow: hidden !important;
+            overflow: auto !important;
+        }
+
+        /* Prevent Glide Data Grid sticky/detached overlays on double-click */
+        .gdg-bubble,
+        [class*="bubble"],
+        [class*="gdg-bubble"],
+        .dvn-edit-overlay,
+        [class*="dvn-edit-overlay"],
+        .glideDataGrid-edit-overlay,
+        div[data-testid="stDataFrame"] div[class*="portal"],
+        div[data-testid="stDataFrame"] div[class*="bubble"] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
         }
         """
     else:
@@ -549,8 +564,23 @@ def inject_premium_styles(theme_mode="dark"):
             border: 1px solid #e2e8f0 !important;
             border-radius: 12px !important;
             background: #ffffff !important;
-            overflow: hidden !important;
+            overflow: auto !important;
             box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+        }
+
+        /* Prevent Glide Data Grid sticky/detached overlays on double-click */
+        .gdg-bubble,
+        [class*="bubble"],
+        [class*="gdg-bubble"],
+        .dvn-edit-overlay,
+        [class*="dvn-edit-overlay"],
+        .glideDataGrid-edit-overlay,
+        div[data-testid="stDataFrame"] div[class*="portal"],
+        div[data-testid="stDataFrame"] div[class*="bubble"] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
         }
 
         div[data-testid="stExpander"] {

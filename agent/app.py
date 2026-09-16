@@ -155,9 +155,6 @@ scan_placeholder = st.empty()
 crawl_count_placeholder = st.empty()
 crawl_log_placeholder = st.empty()
 
-# Check local background service status
-service_active, _ = check_service_health()
-
 # ===================== HOMEPAGE PREVIEW =====================
 if domains_input.strip() and not st.session_state.get("audit_results"):
     st.markdown("### Homepage Previews")
@@ -177,17 +174,9 @@ if domains_input.strip() and not st.session_state.get("audit_results"):
 
                 fallback_mshot = f"https://s0.wp.com/mshots/v1/{encoded}?w=1280&h=800"
                 fallback_microlink = f"https://api.microlink.io/?url={encoded}&screenshot=true&meta=false&embed=screenshot.url"
-                local_url = f"http://localhost:3000/screenshot?url={quote(clean)}"
 
-                if "Cloud Visual" in screenshot_source or "Automated" in screenshot_source:
-                    primary_url = fallback_microlink
-                    fallback_url = fallback_mshot
-                elif service_active:
-                    primary_url = local_url
-                    fallback_url = fallback_microlink
-                else:
-                    primary_url = fallback_microlink
-                    fallback_url = fallback_mshot
+                primary_url = fallback_microlink
+                fallback_url = fallback_mshot
 
                 render_browser_preview(domain, primary_url, fallback_url=fallback_url, theme_mode=theme_mode)
             except Exception as e:
@@ -202,6 +191,14 @@ if run_analysis:
     if not domains:
         st.error("Please enter at least one target website URL.")
     else:
+        # Anti-Bot Rate Limiting & Cooldown Protection
+        now = time.time()
+        last_scan = st.session_state.get("last_scan_timestamp", 0)
+        cooldown = 5
+        if now - last_scan < cooldown:
+            st.warning(f"🛡️ **Bot Protection & Anti-Flood:** Please wait {int(cooldown - (now - last_scan))}s before launching another multi-website scan.")
+            st.stop()
+        st.session_state["last_scan_timestamp"] = now
         if domains:
             progress_bar = st.progress(0)
 
@@ -393,7 +390,7 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
                 "SSL Validated": "Yes" if r["ssl_info"]["valid"] else "No / Untrusted",
                 "Load Time (sec)": r["load_time"]
             })
-        st.dataframe(pd.DataFrame(sec_summary_rows), use_container_width=True)
+        st.dataframe(pd.DataFrame(sec_summary_rows), use_container_width=True, hide_index=True)
 
         if not df_all_pages.empty and 'Status' in df_all_pages.columns:
             st.markdown("<h3 style='color: #22d3ee; margin-top: 2rem;'>HTTP Status Code Distribution</h3>", unsafe_allow_html=True)
@@ -409,7 +406,7 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
             <strong>What is Domain Info?</strong> Domain Info shows official domain registration records, including who registered the domain, when it was created, when it expires, and which DNS nameservers route visitor traffic.
         </div>
         """, unsafe_allow_html=True)
-        st.dataframe(df_all_domain, use_container_width=True)
+        st.dataframe(df_all_domain, use_container_width=True, hide_index=True)
 
     with tab3:
         st.markdown("<h3 style='color: #22d3ee; margin-top: 0;'>Crawled Web Page Catalog</h3>", unsafe_allow_html=True)
@@ -418,7 +415,7 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
             <strong>What are Crawled Pages?</strong> This table lists every individual webpage discovered on your site during the audit, along with page titles, HTTP response codes (such as 200 OK or 404 Not Found), and link counts.
         </div>
         """, unsafe_allow_html=True)
-        st.dataframe(df_all_pages, use_container_width=True)
+        st.dataframe(df_all_pages, use_container_width=True, hide_index=True)
 
     with tab4:
         st.markdown("<h3 style='color: #22d3ee; margin-top: 0;'>Identified SEO Issues & Vulnerabilities</h3>", unsafe_allow_html=True)
@@ -428,7 +425,7 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
         </div>
         """, unsafe_allow_html=True)
         if not df_all_issues.empty:
-            st.dataframe(df_all_issues, use_container_width=True)
+            st.dataframe(df_all_issues, use_container_width=True, hide_index=True)
         else:
             st.info("No critical SEO issues found on the analyzed pages.")
 
@@ -440,7 +437,7 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
         </div>
         """, unsafe_allow_html=True)
         if not df_all_audit.empty:
-            st.dataframe(df_all_audit, use_container_width=True)
+            st.dataframe(df_all_audit, use_container_width=True, hide_index=True)
 
             if 'Load_Time_sec' in df_all_audit.columns:
                 st.markdown("<h3 style='color: #22d3ee; margin-top: 2rem;'>Page Load Time by URL (seconds)</h3>", unsafe_allow_html=True)
@@ -534,65 +531,6 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
         </div>
         """, unsafe_allow_html=True)
 
-        # Calculate individual pillar score contributions (25 pts max per pillar)
-        ssl_pts = 25.0 if res['ssl_info']['valid'] else 0.0
-        header_pts = round((res.get('headers_score', 0) / 100.0) * 25.0, 1)
-        phish_pts = round(((100.0 - res.get('phishing_score', 0)) / 100.0) * 25.0, 1)
-        malware_pts = round(((100.0 - res.get('malware_score', 0)) / 100.0) * 25.0, 1)
-
-        # Transparent Scoring Formula Breakdown Expander
-        with st.expander("🔍 Security Score Calculation Basis & 4-Pillar Points Breakdown", expanded=True):
-            st.markdown(f"""
-            <div style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6;">
-                <h4 style="color: #22d3ee; margin-top: 0; font-size: 1.1rem; font-weight: 700;">
-                    How is the {res['domain']} Security Score ({res['global_score']}%) Calculated?
-                </h4>
-                <p>
-                    The Global Security Compliance Score is evaluated across <strong>4 independent core security pillars</strong>, each weighted equally at <strong>25% (25 Points Max)</strong> for a total possible score of <strong>100 Points (100%)</strong>:
-                </p>
-
-                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; background: rgba(15, 23, 42, 0.6); border-radius: 8px; overflow: hidden;">
-                    <thead>
-                        <tr style="background: rgba(34, 211, 238, 0.15); color: #22d3ee; text-align: left;">
-                            <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">Security Pillar</th>
-                            <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">Weight</th>
-                            <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">Points Scored</th>
-                            <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">Evaluation Basis & Criteria</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                            <td style="padding: 10px; font-weight: 600; color: #f1f5f9;">1. SSL/TLS Certificate</td>
-                            <td style="padding: 10px; color: #94a3b8;">25%</td>
-                            <td style="padding: 10px; font-weight: 700; color: {'#34d399' if ssl_pts == 25 else '#f87171'};">{ssl_pts} / 25 pts</td>
-                            <td style="padding: 10px; color: #cbd5e1;">Checks HTTPS encryption, CA trust chain validation, and valid certificate expiration window.</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                            <td style="padding: 10px; font-weight: 600; color: #f1f5f9;">2. HTTP Security Headers</td>
-                            <td style="padding: 10px; color: #94a3b8;">25%</td>
-                            <td style="padding: 10px; font-weight: 700; color: {'#34d399' if header_pts > 20 else '#fbbf24'};">{header_pts} / 25 pts</td>
-                            <td style="padding: 10px; color: #cbd5e1;">Audits 6 defense headers (HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy).</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                            <td style="padding: 10px; font-weight: 600; color: #f1f5f9;">3. Phishing & Brand Protection</td>
-                            <td style="padding: 10px; color: #94a3b8;">25%</td>
-                            <td style="padding: 10px; font-weight: 700; color: {'#34d399' if phish_pts > 20 else '#f87171'};">{phish_pts} / 25 pts</td>
-                            <td style="padding: 10px; color: #cbd5e1;">Evaluates WHOIS domain age, string entropy, brand impersonation risks, and high-risk top-level domain extensions.</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; font-weight: 600; color: #f1f5f9;">4. Malware & Code Safety</td>
-                            <td style="padding: 10px; color: #94a3b8;">25%</td>
-                            <td style="padding: 10px; font-weight: 700; color: {'#34d399' if malware_pts > 20 else '#f87171'};">{malware_pts} / 25 pts</td>
-                            <td style="padding: 10px; color: #cbd5e1;">Scans frontend HTML for hidden drive-by iframes, script obfuscation (`eval`), exposed API secrets, and unencrypted HTTP form actions.</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <p style="margin-bottom: 0; font-size: 0.9rem; color: #94a3b8;">
-                    <strong>Mathematical Formula:</strong> <code style="color: #22d3ee;">Global Score = SSL Pts ({ssl_pts}) + Headers Pts ({header_pts}) + Phishing Pts ({phish_pts}) + Malware Pts ({malware_pts}) = {res['global_score']}%</code>
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
 
 
         # Top Metric Cards
@@ -637,7 +575,7 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
                 "Expiration Date": r["ssl_info"]["expiry_date"],
                 "Days Remaining": r["ssl_info"]["days_left"] if r["ssl_info"]["days_left"] >= 0 else "N/A"
             })
-        st.dataframe(pd.DataFrame(ssl_rows), use_container_width=True)
+        st.dataframe(pd.DataFrame(ssl_rows), use_container_width=True, hide_index=True)
 
         # Section 2: Security Headers Audit
         st.markdown("<h3 style='color: #22d3ee; margin-top: 2rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.5rem;'>HTTP Security Headers Audit</h3>", unsafe_allow_html=True)
@@ -648,7 +586,7 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
         """, unsafe_allow_html=True)
         df_headers = pd.DataFrame(res["header_findings"])[["header", "status", "value", "severity", "desc"]]
         df_headers.columns = ["Security Header", "Compliance Status", "Header Value", "Severity Level", "Policy Description"]
-        st.dataframe(df_headers, use_container_width=True)
+        st.dataframe(df_headers, use_container_width=True, hide_index=True)
 
         # Section 3: Threat & Risk Heuristics
         st.markdown("<h3 style='color: #22d3ee; margin-top: 2rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.5rem;'>Threat & Risk Analysis</h3>", unsafe_allow_html=True)
