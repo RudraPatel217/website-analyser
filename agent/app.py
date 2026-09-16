@@ -63,11 +63,8 @@ def render_easter_egg(domain):
         <h2 style="color: #fbbf24; font-size: 2.2rem; font-weight: 800; margin-top: 0; margin-bottom: 0.5rem; letter-spacing: 0.5px;">
             Bakchodi Nahi Mittr! 🚫😂
         </h2>
-        <p style="color: #f1f5f9; font-size: 1.15rem; max-width: 650px; margin: 0.5rem auto; line-height: 1.6; font-weight: 600;">
+        <p style="color: #f1f5f9; font-size: 1.15rem; max-width: 650px; margin: 0.5rem auto 0 auto; line-height: 1.6; font-weight: 600;">
             Apne hi app ka audit karoge kya bhai? 😜 Kuch aur website daalo test karne ke liye!
-        </p>
-        <p style="color: #94a3b8; font-size: 0.95rem; margin-top: 0.5rem; margin-bottom: 0;">
-            Target: <code style="color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 2px 8px; border-radius: 4px;">{domain}</code> is protected against self-auditing.
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -333,26 +330,30 @@ if run_analysis:
             scan_placeholder.empty()
             progress_bar.empty()
 
-            df_all_domain = pd.concat(all_domain_info, ignore_index=True)
-            df_all_pages = pd.concat(all_pages, ignore_index=True)
-            df_all_issues = pd.concat(all_issues, ignore_index=True)
-            df_all_audit = pd.concat(all_audit, ignore_index=True)
+            if not all_domain_info:
+                # All domains were skipped (e.g. Easter egg or blocked)
+                st.session_state["audit_results"] = None
+            else:
+                df_all_domain = pd.concat(all_domain_info, ignore_index=True) if all_domain_info else pd.DataFrame()
+                df_all_pages = pd.concat(all_pages, ignore_index=True) if all_pages else pd.DataFrame()
+                df_all_issues = pd.concat(all_issues, ignore_index=True) if all_issues else pd.DataFrame()
+                df_all_audit = pd.concat(all_audit, ignore_index=True) if all_audit else pd.DataFrame()
 
-            # Store in session state for persistent rendering across user tab switches and scroll domain selection
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M")
-            filename = f"Unified_Domain_Intelligence_Report_{timestamp}.xlsx"
-            generate_unified_report(df_all_domain, df_all_pages, df_all_issues, df_all_audit, all_cyber_results, filename)
+                # Store in session state for persistent rendering across user tab switches and scroll domain selection
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+                filename = f"Unified_Domain_Intelligence_Report_{timestamp}.xlsx"
+                generate_unified_report(df_all_domain, df_all_pages, df_all_issues, df_all_audit, all_cyber_results, filename)
 
-            st.session_state["audit_results"] = {
-                "df_all_domain": df_all_domain,
-                "df_all_pages": df_all_pages,
-                "df_all_issues": df_all_issues,
-                "df_all_audit": df_all_audit,
-                "all_cyber_results": all_cyber_results,
-                "domains": domains,
-                "filename": filename
-            }
-            st.rerun()
+                st.session_state["audit_results"] = {
+                    "df_all_domain": df_all_domain,
+                    "df_all_pages": df_all_pages,
+                    "df_all_issues": df_all_issues,
+                    "df_all_audit": df_all_audit,
+                    "all_cyber_results": all_cyber_results,
+                    "domains": domains,
+                    "filename": filename
+                }
+                st.rerun()
 
 # ===================== DISPLAY PERSISTENT RESULTS =====================
 if "audit_results" in st.session_state and st.session_state["audit_results"]:
