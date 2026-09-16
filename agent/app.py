@@ -175,8 +175,8 @@ if domains_input.strip() and not st.session_state.get("audit_results"):
                 fallback_mshot = f"https://s0.wp.com/mshots/v1/{encoded}?w=1280&h=800"
                 fallback_microlink = f"https://api.microlink.io/?url={encoded}&screenshot=true&meta=false&embed=screenshot.url"
 
-                primary_url = fallback_microlink
-                fallback_url = fallback_mshot
+                primary_url = fallback_mshot
+                fallback_url = fallback_microlink
 
                 render_browser_preview(domain, primary_url, fallback_url=fallback_url, theme_mode=theme_mode)
             except Exception as e:
