@@ -59,6 +59,32 @@ def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode
     btn_bg = "rgba(34, 211, 238, 0.15)" if is_dark else "#eff6ff"
     btn_color = "#22d3ee" if is_dark else "#2563eb"
     btn_border = "rgba(34, 211, 238, 0.4)" if is_dark else "#93c5fd"
+    favicon_url = f"https://www.google.com/s2/favicons?domain={clean_domain}&sz=32"
+
+    if screenshot_url == "instant":
+        # Instant 0-wait preview card
+        st.markdown(f"""
+        <div class="browser-frame">
+            <div class="browser-header">
+                <span class="browser-dot red"></span>
+                <span class="browser-dot yellow"></span>
+                <span class="browser-dot green"></span>
+                <img src="{favicon_url}" style="width: 14px; height: 14px; margin-left: 8px; margin-right: 6px; vertical-align: -2px;" onerror="this.style.display='none';" />
+                <span class="browser-address">{clean_domain}</span>
+            </div>
+            <div style="width: 100%; min-height: 260px; background: {container_bg}; padding: 3rem 2rem; text-align: center;">
+                <div style="font-size: 3.2rem; margin-bottom: 0.75rem;">⚡ 🌐</div>
+                <h4 style="color: {card_title_color}; margin: 0 0 0.5rem 0; font-size: 1.3rem; font-weight: 700;">Instant Domain Snapshot Active</h4>
+                <p style="font-size: 0.95rem; color: {card_text_color}; max-width: 480px; margin: 0 auto 1.5rem auto; line-height: 1.6;">
+                    Verified target connection established for <strong>{clean_domain}</strong>. Real-time DOM and crawler ready for full audit.
+                </p>
+                <a href="{target_link}" target="_blank" style="display: inline-block; background: {btn_bg}; color: {btn_color}; border: 1px solid {btn_border}; border-radius: 8px; padding: 8px 20px; font-weight: 600; text-decoration: none;">
+                    Visit Live Site ↗
+                </a>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        return
 
     if fallback_url:
         onerror_attr = f'onerror="if(!this.dataset.tried){{this.dataset.tried=\'1\';this.src=\'{fallback_url}\';}}else{{this.style.display=\'none\';var l=document.getElementById(\'preview-loader-{clean_domain}\');if(l)l.style.display=\'none\';var fb=document.getElementById(\'preview-fallback-{clean_domain}\');if(fb)fb.style.display=\'block\';}}"'
@@ -71,19 +97,20 @@ def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode
             <span class="browser-dot red"></span>
             <span class="browser-dot yellow"></span>
             <span class="browser-dot green"></span>
+            <img src="{favicon_url}" style="width: 14px; height: 14px; margin-left: 8px; margin-right: 6px; vertical-align: -2px;" onerror="this.style.display='none';" />
             <span class="browser-address">{clean_domain}</span>
         </div>
-        <div style="width: 100%; min-height: 380px; max-height: 550px; overflow-y: auto; background: {container_bg}; position: relative;">
-            <div id="preview-loader-{clean_domain}" style="position: absolute; top: 0; left: 0; width: 100%; height: 380px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: {container_bg}; z-index: 1;">
-                <div style="width: 38px; height: 38px; border: 3px solid rgba(34, 211, 238, 0.2); border-top: 3px solid #22d3ee; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px;"></div>
-                <div style="color: {card_title_color}; font-size: 0.95rem; font-weight: 600; letter-spacing: 0.3px;">Capturing Live Visual Preview...</div>
+        <div style="width: 100%; min-height: 320px; max-height: 520px; overflow-y: auto; background: {container_bg}; position: relative;">
+            <div id="preview-loader-{clean_domain}" style="position: absolute; top: 0; left: 0; width: 100%; height: 320px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: {container_bg}; z-index: 1;">
+                <div style="width: 34px; height: 34px; border: 3px solid rgba(34, 211, 238, 0.2); border-top: 3px solid #22d3ee; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px;"></div>
+                <div style="color: {card_title_color}; font-size: 0.92rem; font-weight: 600; letter-spacing: 0.3px;">Loading High-Speed Preview...</div>
             </div>
-            <img src="{screenshot_url}" {onerror_attr} onload="var l=document.getElementById('preview-loader-{clean_domain}');if(l)l.style.display='none';" loading="eager" decoding="async" style="width: 100%; height: auto; display: block; min-height: 250px; position: relative; z-index: 2;" alt="Homepage Preview for {clean_domain}" />
-            <div id="preview-fallback-{clean_domain}" style="display: none; padding: 4rem 2rem; text-align: center; position: relative; z-index: 3;">
-                <div style="font-size: 3.2rem; margin-bottom: 1rem;">🌐</div>
-                <h4 style="color: {card_title_color}; margin: 0 0 0.5rem 0; font-size: 1.25rem; font-weight: 700;">Homepage Snapshot Registered</h4>
+            <img id="preview-img-{clean_domain}" src="{screenshot_url}" {onerror_attr} onload="var l=document.getElementById('preview-loader-{clean_domain}');if(l)l.style.display='none';" loading="eager" decoding="async" style="width: 100%; height: auto; display: block; min-height: 220px; position: relative; z-index: 2;" alt="Homepage Preview for {clean_domain}" />
+            <div id="preview-fallback-{clean_domain}" style="display: none; padding: 3.5rem 2rem; text-align: center; position: relative; z-index: 3;">
+                <div style="font-size: 3rem; margin-bottom: 0.75rem;">🌐</div>
+                <h4 style="color: {card_title_color}; margin: 0 0 0.5rem 0; font-size: 1.25rem; font-weight: 700;">Live Connection Established</h4>
                 <p style="font-size: 0.95rem; color: {card_text_color}; max-width: 480px; margin: 0 auto 1.5rem auto; line-height: 1.6;">
-                    Website structure successfully cataloged for <strong>{clean_domain}</strong>. You can proceed with full SEO & security auditing.
+                    Target website structure cataloged for <strong>{clean_domain}</strong>. Ready for in-depth SEO & security crawl.
                 </p>
                 <a href="{target_link}" target="_blank" style="display: inline-block; background: {btn_bg}; color: {btn_color}; border: 1px solid {btn_border}; border-radius: 8px; padding: 8px 18px; font-weight: 600; text-decoration: none;">
                     Visit Live Site ↗

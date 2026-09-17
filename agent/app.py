@@ -206,11 +206,16 @@ if domains_input.strip() and not st.session_state.get("audit_results"):
                 clean = domain.replace("https://", "").replace("http://", "").rstrip("/").split("/")[0]
                 encoded = quote(f"https://{clean}")
 
-                fallback_mshot = f"https://s0.wp.com/mshots/v1/{encoded}?w=900"
-                fallback_microlink = f"https://api.microlink.io/?url={encoded}&screenshot=true&meta=false&embed=screenshot.url"
-
-                primary_url = fallback_mshot
-                fallback_url = fallback_microlink
+                if screenshot_source == "Standard Website Preview":
+                    primary_url = "instant"
+                    fallback_url = None
+                elif "Cloud Visual" in screenshot_source:
+                    primary_url = f"https://s0.wp.com/mshots/v1/{encoded}?w=800"
+                    fallback_url = f"https://api.microlink.io/?url={encoded}&screenshot=true&meta=false&embed=screenshot.url"
+                else:
+                    # Automated High-Speed Visual Capture: lightweight w=600 (62KB) for rapid loading
+                    primary_url = f"https://s0.wp.com/mshots/v1/{encoded}?w=600"
+                    fallback_url = f"https://api.microlink.io/?url={encoded}&screenshot=true&meta=false&embed=screenshot.url"
 
                 render_browser_preview(domain, primary_url, fallback_url=fallback_url, theme_mode=theme_mode)
             except Exception as e:
