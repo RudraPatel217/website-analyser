@@ -32,6 +32,13 @@ def crawl_page(base_url, max_pages=25, live_callback=None):
     base_parsed = urlparse(base_url)
     base_domain = base_parsed.netloc.lower().replace("www.", "")
 
+    # Path scoping: if user entered a specific subpath (e.g. /RudraPatel217, /user/repo, or /blog)
+    path_segments = [p for p in base_parsed.path.split('/') if p]
+    if path_segments and any(path_segments[0].endswith(ext) for ext in ['.html', '.htm', '.php', '.asp', '.aspx']):
+        path_scope = ''
+    else:
+        path_scope = '/' + path_segments[0] if path_segments else ''
+
 
     while to_crawl and len(visited) < max_pages:
         current = to_crawl.pop(0)
@@ -101,6 +108,11 @@ def crawl_page(base_url, max_pages=25, live_callback=None):
                     continue
 
                 if link_domain == base_domain and parsed_link.scheme in ('http', 'https'):
+                    # If target has a specific subpath scope, don't wander to platform root pages
+                    if path_scope and not parsed_link.path.startswith(path_scope):
+                        external_links += 1
+                        continue
+
                     internal_links += 1
                     
                     clean_url = full_url.split('#')[0]

@@ -51,12 +51,13 @@ def get_ssl_details(hostname):
 
     tls_version = "Unknown"
     cipher_name = "N/A"
+    clean_host = hostname.lower().strip().replace("https://", "").replace("http://", "").split("/")[0].split(":")[0]
     
     try:
         # Strict validation attempt
         context_strict = ssl.create_default_context()
-        with socket.create_connection((hostname, 443), timeout=6) as sock:
-            with context_strict.wrap_socket(sock, server_hostname=hostname) as ssock:
+        with socket.create_connection((clean_host, 443), timeout=6) as sock:
+            with context_strict.wrap_socket(sock, server_hostname=clean_host) as ssock:
                 cert = ssock.getpeercert()
                 tls_version = ssock.version() or "TLSv1.2+"
                 c_info = ssock.cipher()
@@ -218,7 +219,7 @@ def check_phishing_heuristics(domain, whois_creation_str="N/A"):
     reasons = []
     
     popular_brands = ["paypal", "google", "microsoft", "facebook", "netflix", "apple", "amazon", "instagram", "linkedin", "twitter", "bank", "secure", "login", "update", "verify"]
-    clean_domain = domain.lower()
+    clean_domain = domain.lower().strip().replace("https://", "").replace("http://", "").split("/")[0].split(":")[0]
     
     for brand in popular_brands:
         if brand in clean_domain:
@@ -348,7 +349,8 @@ def run_cyber_scan(domain, original_url, html_content, whois_creation_str="N/A")
     Runs an enterprise cybersecurity audit on target domain.
     """
     # SSRF Protection Check
-    is_safe, ssrf_msg = is_safe_public_domain(domain)
+    clean_host = domain.lower().strip().replace("https://", "").replace("http://", "").split("/")[0].split(":")[0]
+    is_safe, ssrf_msg = is_safe_public_domain(clean_host)
     if not is_safe:
         return {
             "domain": domain,
@@ -370,9 +372,9 @@ def run_cyber_scan(domain, original_url, html_content, whois_creation_str="N/A")
         }
 
     is_https = original_url.startswith("https://")
-    ssl_info = get_ssl_details(domain)
+    ssl_info = get_ssl_details(clean_host)
     header_findings, header_score, status_code, load_time, server_header = check_security_headers(original_url)
-    phish_score, phish_reasons = check_phishing_heuristics(domain, whois_creation_str)
+    phish_score, phish_reasons = check_phishing_heuristics(clean_host, whois_creation_str)
     malware_score, malware_reasons = check_malware_and_code_vulnerabilities(html_content, is_https)
     
     # Calculate global security compliance metric

@@ -203,8 +203,8 @@ if domains_input.strip() and not st.session_state.get("audit_results"):
                     st.error(f"Security Block ({domain}): {ssrf_msg}")
                     continue
 
-                clean = domain.replace("https://", "").replace("http://", "").rstrip("/").split("/")[0]
-                encoded = quote(f"https://{clean}")
+                target_url = domain if (domain.startswith("http://") or domain.startswith("https://")) else f"https://{domain}"
+                encoded = quote(target_url, safe="")
 
                 if screenshot_source == "Standard Website Preview":
                     primary_url = "instant"
@@ -340,25 +340,26 @@ if run_analysis:
 
                 # Run Cybersecurity Scanning
                 clean_domain = domain.replace("https://", "").replace("http://", "").rstrip("/").split("/")[0]
-                original_url = f"https://{clean_domain}" if domain.startswith("https://") else f"http://{clean_domain}"
+                target_url = domain if (domain.startswith("http://") or domain.startswith("https://")) else f"https://{domain}"
                 
                 html_content = ""
                 headers = {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
                 }
                 try:
-                    resp = requests.get(original_url, timeout=8, headers=headers, allow_redirects=True, verify=False)
+                    resp = requests.get(target_url, timeout=8, headers=headers, allow_redirects=True, verify=False)
                     html_content = resp.text
                 except Exception:
                     try:
-                        fallback_url = f"http://{clean_domain}" if original_url.startswith("https://") else f"https://{clean_domain}"
+                        fallback_scheme = "http://" if target_url.startswith("https://") else "https://"
+                        fallback_url = fallback_scheme + target_url.split("://", 1)[1]
                         resp = requests.get(fallback_url, timeout=8, headers=headers, allow_redirects=True, verify=False)
                         html_content = resp.text
-                        original_url = fallback_url
+                        target_url = fallback_url
                     except Exception:
                         pass
                 
-                cyber_res = run_cyber_scan(clean_domain, original_url, html_content, creation_str)
+                cyber_res = run_cyber_scan(domain, target_url, html_content, creation_str)
                 all_cyber_results.append(cyber_res)
 
                 progress_bar.progress((idx + 1) / len(domains))

@@ -49,8 +49,11 @@ def render_scan_progress(placeholder, domain, current_log, progress_percentage):
 
 
 def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode="dark"):
-    clean_domain = domain.replace("https://", "").replace("http://", "").rstrip("/").split("/")[0]
-    target_link = f"https://{clean_domain}"
+    import re
+    clean_host = domain.replace("https://", "").replace("http://", "").rstrip("/").split("/")[0].split(":")[0]
+    display_url = domain.replace("https://", "").replace("http://", "").rstrip("/")
+    target_link = domain if (domain.startswith("http://") or domain.startswith("https://")) else f"https://{domain}"
+    safe_id = re.sub(r'[^a-zA-Z0-9_-]', '_', domain)
     is_dark = (theme_mode == "dark")
     
     container_bg = "#0f172a" if is_dark else "#f8fafc"
@@ -59,7 +62,7 @@ def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode
     btn_bg = "rgba(34, 211, 238, 0.15)" if is_dark else "#eff6ff"
     btn_color = "#22d3ee" if is_dark else "#2563eb"
     btn_border = "rgba(34, 211, 238, 0.4)" if is_dark else "#93c5fd"
-    favicon_url = f"https://www.google.com/s2/favicons?domain={clean_domain}&sz=32"
+    favicon_url = f"https://www.google.com/s2/favicons?domain={clean_host}&sz=32"
 
     if screenshot_url == "instant":
         # Instant 0-wait preview card
@@ -70,13 +73,13 @@ def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode
                 <span class="browser-dot yellow"></span>
                 <span class="browser-dot green"></span>
                 <img src="{favicon_url}" style="width: 14px; height: 14px; margin-left: 8px; margin-right: 6px; vertical-align: -2px;" onerror="this.style.display='none';" />
-                <span class="browser-address">{clean_domain}</span>
+                <span class="browser-address">{display_url}</span>
             </div>
             <div style="width: 100%; min-height: 260px; background: {container_bg}; padding: 3rem 2rem; text-align: center;">
                 <div style="font-size: 3.2rem; margin-bottom: 0.75rem;">⚡ 🌐</div>
                 <h4 style="color: {card_title_color}; margin: 0 0 0.5rem 0; font-size: 1.3rem; font-weight: 700;">Instant Domain Snapshot Active</h4>
                 <p style="font-size: 0.95rem; color: {card_text_color}; max-width: 480px; margin: 0 auto 1.5rem auto; line-height: 1.6;">
-                    Verified target connection established for <strong>{clean_domain}</strong>. Real-time DOM and crawler ready for full audit.
+                    Verified target connection established for <strong>{display_url}</strong>. Real-time DOM and crawler ready for full audit.
                 </p>
                 <a href="{target_link}" target="_blank" style="display: inline-block; background: {btn_bg}; color: {btn_color}; border: 1px solid {btn_border}; border-radius: 8px; padding: 8px 20px; font-weight: 600; text-decoration: none;">
                     Visit Live Site ↗
@@ -87,9 +90,9 @@ def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode
         return
 
     if fallback_url:
-        onerror_attr = f'onerror="if(!this.dataset.tried){{this.dataset.tried=\'1\';this.src=\'{fallback_url}\';}}else{{this.style.display=\'none\';var l=document.getElementById(\'preview-loader-{clean_domain}\');if(l)l.style.display=\'none\';var fb=document.getElementById(\'preview-fallback-{clean_domain}\');if(fb)fb.style.display=\'block\';}}"'
+        onerror_attr = f'onerror="if(!this.dataset.tried){{this.dataset.tried=\'1\';this.src=\'{fallback_url}\';}}else{{this.style.display=\'none\';var l=document.getElementById(\'preview-loader-{safe_id}\');if(l)l.style.display=\'none\';var fb=document.getElementById(\'preview-fallback-{safe_id}\');if(fb)fb.style.display=\'block\';}}"'
     else:
-        onerror_attr = f'onerror="this.style.display=\'none\';var l=document.getElementById(\'preview-loader-{clean_domain}\');if(l)l.style.display=\'none\';var fb=document.getElementById(\'preview-fallback-{clean_domain}\');if(fb)fb.style.display=\'block\';"'
+        onerror_attr = f'onerror="this.style.display=\'none\';var l=document.getElementById(\'preview-loader-{safe_id}\');if(l)l.style.display=\'none\';var fb=document.getElementById(\'preview-fallback-{safe_id}\');if(fb)fb.style.display=\'block\';"'
 
     st.markdown(f"""
     <div class="browser-frame">
@@ -98,19 +101,19 @@ def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode
             <span class="browser-dot yellow"></span>
             <span class="browser-dot green"></span>
             <img src="{favicon_url}" style="width: 14px; height: 14px; margin-left: 8px; margin-right: 6px; vertical-align: -2px;" onerror="this.style.display='none';" />
-            <span class="browser-address">{clean_domain}</span>
+            <span class="browser-address">{display_url}</span>
         </div>
         <div style="width: 100%; min-height: 320px; max-height: 520px; overflow-y: auto; background: {container_bg}; position: relative;">
-            <div id="preview-loader-{clean_domain}" style="position: absolute; top: 0; left: 0; width: 100%; height: 320px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: {container_bg}; z-index: 1;">
+            <div id="preview-loader-{safe_id}" style="position: absolute; top: 0; left: 0; width: 100%; height: 320px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: {container_bg}; z-index: 1;">
                 <div style="width: 34px; height: 34px; border: 3px solid rgba(34, 211, 238, 0.2); border-top: 3px solid #22d3ee; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px;"></div>
                 <div style="color: {card_title_color}; font-size: 0.92rem; font-weight: 600; letter-spacing: 0.3px;">Loading High-Speed Preview...</div>
             </div>
-            <img id="preview-img-{clean_domain}" src="{screenshot_url}" {onerror_attr} onload="var l=document.getElementById('preview-loader-{clean_domain}');if(l)l.style.display='none';" loading="eager" decoding="async" style="width: 100%; height: auto; display: block; min-height: 220px; position: relative; z-index: 2;" alt="Homepage Preview for {clean_domain}" />
-            <div id="preview-fallback-{clean_domain}" style="display: none; padding: 3.5rem 2rem; text-align: center; position: relative; z-index: 3;">
+            <img id="preview-img-{safe_id}" src="{screenshot_url}" {onerror_attr} onload="var l=document.getElementById('preview-loader-{safe_id}');if(l)l.style.display='none';" loading="eager" decoding="async" style="width: 100%; height: auto; display: block; min-height: 220px; position: relative; z-index: 2;" alt="Visual Preview for {display_url}" />
+            <div id="preview-fallback-{safe_id}" style="display: none; padding: 3.5rem 2rem; text-align: center; position: relative; z-index: 3;">
                 <div style="font-size: 3rem; margin-bottom: 0.75rem;">🌐</div>
                 <h4 style="color: {card_title_color}; margin: 0 0 0.5rem 0; font-size: 1.25rem; font-weight: 700;">Live Connection Established</h4>
                 <p style="font-size: 0.95rem; color: {card_text_color}; max-width: 480px; margin: 0 auto 1.5rem auto; line-height: 1.6;">
-                    Target website structure cataloged for <strong>{clean_domain}</strong>. Ready for in-depth SEO & security crawl.
+                    Target website structure cataloged for <strong>{display_url}</strong>. Ready for in-depth SEO & security crawl.
                 </p>
                 <a href="{target_link}" target="_blank" style="display: inline-block; background: {btn_bg}; color: {btn_color}; border: 1px solid {btn_border}; border-radius: 8px; padding: 8px 18px; font-weight: 600; text-decoration: none;">
                     Visit Live Site ↗
