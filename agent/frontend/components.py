@@ -55,24 +55,20 @@ def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode
     target_link = domain if (domain.startswith("http://") or domain.startswith("https://")) else f"https://{domain}"
     safe_id = re.sub(r'[^a-zA-Z0-9_-]', '_', domain)
     
-    if theme_mode == "silver":
-        container_bg = "#ffffff"
-        card_title_color = "#0284c7"
-        card_text_color = "#475569"
-        btn_bg = "#eff6ff"
-        btn_color = "#0284c7"
-        btn_border = "#93c5fd"
-    elif theme_mode == "corporate":
+    if theme_mode == "obsidian":
+        container_bg = "#121212"
+        card_title_color = "#c084fc"
+        card_text_color = "#a5b4fc"
+        btn_bg = "rgba(139, 92, 246, 0.15)"
+        btn_color = "#c084fc"
+        btn_border = "rgba(139, 92, 246, 0.4)"
+    else:  # corporate (default)
         container_bg = "#0f172a"
         card_title_color = "#38bdf8"
         card_text_color = "#94a3b8"
         btn_bg = "rgba(59, 130, 246, 0.15)"
         btn_color = "#38bdf8"
         btn_border = "rgba(59, 130, 246, 0.4)"
-    else:  # obsidian
-        container_bg = "#121212"
-        card_title_color = "#c084fc"
-        card_text_color = "#a5b4fc"
         btn_bg = "rgba(139, 92, 246, 0.15)"
         btn_color = "#c084fc"
         btn_border = "rgba(139, 92, 246, 0.4)"
@@ -168,18 +164,14 @@ def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode
     """, unsafe_allow_html=True)
 
 
-def render_metric_cards(total_domains, total_issues, high_crit_issues, theme_mode="obsidian"):
-    if theme_mode == "silver":
-        c1_color = "#0284c7"
-        c2_color = "#4f46e5"
-        c3_color = "#dc2626"
-    elif theme_mode == "corporate":
-        c1_color = "#38bdf8"
-        c2_color = "#818cf8"
-        c3_color = "#f87171"
-    else:  # obsidian
+def render_metric_cards(total_domains, total_issues, high_crit_issues, theme_mode="corporate"):
+    if theme_mode == "obsidian":
         c1_color = "#c084fc"
         c2_color = "#38bdf8"
+        c3_color = "#f87171"
+    else:  # corporate
+        c1_color = "#38bdf8"
+        c2_color = "#818cf8"
         c3_color = "#f87171"
 
     col1, col2, col3 = st.columns(3)
@@ -208,19 +200,15 @@ def render_metric_cards(total_domains, total_issues, high_crit_issues, theme_mod
         """, unsafe_allow_html=True)
 
 
-def render_ready_to_scan(theme_mode="obsidian"):
-    if theme_mode == "silver":
-        title_color = "#0284c7"
-        desc_color = "#475569"
-        border_color = "#cbd5e1"
-    elif theme_mode == "corporate":
-        title_color = "#38bdf8"
-        desc_color = "#94a3b8"
-        border_color = "rgba(59, 130, 246, 0.35)"
-    else:  # obsidian
+def render_ready_to_scan(theme_mode="corporate"):
+    if theme_mode == "obsidian":
         title_color = "#c084fc"
         desc_color = "#a5b4fc"
         border_color = "rgba(139, 92, 246, 0.35)"
+    else:  # corporate
+        title_color = "#38bdf8"
+        desc_color = "#94a3b8"
+        border_color = "rgba(59, 130, 246, 0.35)"
 
     st.markdown(f"""
     <div class="glass-card" style="text-align: center; padding: 3rem !important; border: 1px dashed {border_color}; margin-top: 2rem;">
@@ -232,19 +220,15 @@ def render_ready_to_scan(theme_mode="obsidian"):
     """, unsafe_allow_html=True)
 
 
-def render_download_section(theme_mode="obsidian"):
-    if theme_mode == "silver":
-        title_color = "#0284c7"
-        desc_color = "#475569"
-        border_color = "#93c5fd"
-    elif theme_mode == "corporate":
-        title_color = "#38bdf8"
-        desc_color = "#94a3b8"
-        border_color = "rgba(59, 130, 246, 0.4)"
-    else:  # obsidian
+def render_download_section(theme_mode="corporate"):
+    if theme_mode == "obsidian":
         title_color = "#c084fc"
         desc_color = "#a5b4fc"
         border_color = "rgba(139, 92, 246, 0.4)"
+    else:  # corporate
+        title_color = "#38bdf8"
+        desc_color = "#94a3b8"
+        border_color = "rgba(59, 130, 246, 0.4)"
 
     st.markdown(f"""
     <div class="glass-card" style="text-align: center; border: 1px dashed {border_color}; margin-bottom: 1rem;">

@@ -1,13 +1,8 @@
 import streamlit as st
 
-def inject_premium_styles(theme_mode="obsidian"):
-    # Normalize legacy modes
-    if theme_mode in ["light", "silver", "minimalist"]:
-        active_mode = "silver"
-    elif theme_mode in ["corporate", "corporate_trust"]:
-        active_mode = "corporate"
-    else:
-        active_mode = "obsidian"
+def inject_premium_styles(theme_mode="corporate"):
+    # Enforce pure Dark Mode themes only
+    active_mode = "obsidian" if theme_mode == "obsidian" else "corporate"
 
     # ================= 1. OBSIDIAN DARK MODE (Midnight & Purple) =================
     theme_obsidian_css = """
@@ -91,7 +86,7 @@ def inject_premium_styles(theme_mode="obsidian"):
         div[data-baseweb="textarea"],
         div[data-baseweb="input"],
         div[data-baseweb="select"] > div {
-            background-color: rgba(18, 18, 18, 0.85) !important;
+            background-color: rgba(18, 18, 18, 0.95) !important;
             border: 1.5px solid rgba(139, 92, 246, 0.35) !important;
             border-radius: 12px !important;
             color: #e2e8f0 !important;
@@ -147,15 +142,12 @@ def inject_premium_styles(theme_mode="obsidian"):
             -webkit-text-fill-color: #ffffff !important;
             font-weight: 700 !important;
         }
-        div.st-key-theme_btn_corporate button,
-        div.st-key-theme_btn_silver button {
+        div.st-key-theme_btn_corporate button {
             background: rgba(30, 27, 75, 0.5) !important;
             border: 1px solid rgba(139, 92, 246, 0.3) !important;
         }
         div.st-key-theme_btn_corporate button p,
-        div.st-key-theme_btn_corporate button span,
-        div.st-key-theme_btn_silver button p,
-        div.st-key-theme_btn_silver button span {
+        div.st-key-theme_btn_corporate button span {
             color: #cbd5e1 !important;
             -webkit-text-fill-color: #cbd5e1 !important;
         }
@@ -326,7 +318,7 @@ def inject_premium_styles(theme_mode="obsidian"):
         div[data-baseweb="textarea"],
         div[data-baseweb="input"],
         div[data-baseweb="select"] > div {
-            background-color: rgba(15, 23, 42, 0.85) !important;
+            background-color: rgba(15, 23, 42, 0.92) !important;
             border: 1.5px solid rgba(59, 130, 246, 0.35) !important;
             border-radius: 12px !important;
             color: #f8fafc !important;
@@ -382,15 +374,12 @@ def inject_premium_styles(theme_mode="obsidian"):
             -webkit-text-fill-color: #ffffff !important;
             font-weight: 700 !important;
         }
-        div.st-key-theme_btn_obsidian button,
-        div.st-key-theme_btn_silver button {
+        div.st-key-theme_btn_obsidian button {
             background: rgba(30, 41, 59, 0.6) !important;
             border: 1px solid rgba(59, 130, 246, 0.3) !important;
         }
         div.st-key-theme_btn_obsidian button p,
-        div.st-key-theme_btn_obsidian button span,
-        div.st-key-theme_btn_silver button p,
-        div.st-key-theme_btn_silver button span {
+        div.st-key-theme_btn_obsidian button span {
             color: #cbd5e1 !important;
             -webkit-text-fill-color: #cbd5e1 !important;
         }
@@ -479,247 +468,7 @@ def inject_premium_styles(theme_mode="obsidian"):
         }
     """
 
-    # ================= 3. MODERN MINIMALIST (Frosted Silver) =================
-    theme_silver_css = """
-        /* Modern Minimalist - Soft White to Cool Icy Gray */
-        .stApp {
-            background: linear-gradient(to right bottom, #ffffff 0%, #f1f5f9 100%) !important;
-            color: #334155 !important;
-            min-height: 100vh;
-        }
-
-        h1 {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0284c7 100%) !important;
-            -webkit-background-clip: text !important;
-            -webkit-text-fill-color: transparent !important;
-            font-weight: 800 !important;
-            letter-spacing: -0.5px !important;
-        }
-        h2 { color: #0f172a !important; font-weight: 700 !important; }
-        h3, h4 { color: #0284c7 !important; font-weight: 700 !important; }
-        h5, h6 { color: #0f172a !important; }
-        label, p, li { color: #334155 !important; }
-
-        /* Pure White Cards with Soft Diffuse Shadow */
-        .glass-card, div[data-testid="stVerticalBlockBorderWrapper"] {
-            background: #ffffff !important;
-            border: 1px solid #e2e8f0 !important;
-            border-radius: 18px !important;
-            padding: 1.8rem !important;
-            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02) !important;
-            margin-bottom: 1.5rem !important;
-        }
-
-        /* Actionable recommendations lists */
-        .recommendation-item {
-            background: #ffffff !important;
-            border-left: 4px solid #0284c7 !important;
-            border-top: 1px solid #f1f5f9 !important;
-            border-right: 1px solid #f1f5f9 !important;
-            border-bottom: 1px solid #f1f5f9 !important;
-            border-radius: 10px !important;
-            padding: 1rem 1.25rem !important;
-            margin: 0.75rem 0 !important;
-            color: #1e293b !important;
-            font-size: 0.95rem !important;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03) !important;
-        }
-
-        /* Custom stats metrics */
-        .metric-card {
-            background: #ffffff !important;
-            border: 1px solid #e2e8f0 !important;
-            border-radius: 18px !important;
-            padding: 1.6rem !important;
-            text-align: center !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04) !important;
-            transition: transform 0.3s ease, border-color 0.3s ease !important;
-        }
-        .metric-card:hover {
-            transform: translateY(-3px) !important;
-            border-color: #0284c7 !important;
-            box-shadow: 0 8px 25px rgba(2, 132, 199, 0.12) !important;
-        }
-        .metric-label {
-            font-size: 0.85rem !important;
-            color: #64748b !important;
-            font-weight: 700 !important;
-            text-transform: uppercase !important;
-            letter-spacing: 1px !important;
-            margin-bottom: 0.5rem !important;
-        }
-        .metric-value {
-            font-size: 2.35rem !important;
-            font-weight: 800 !important;
-            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
-            -webkit-background-clip: text !important;
-            -webkit-text-fill-color: transparent !important;
-        }
-
-        /* Inputs & Textareas */
-        div[data-baseweb="textarea"],
-        div[data-baseweb="input"],
-        div[data-baseweb="select"] > div {
-            background-color: #ffffff !important;
-            border: 1.5px solid #cbd5e1 !important;
-            border-radius: 12px !important;
-            color: #0f172a !important;
-            transition: all 0.25s ease !important;
-        }
-        textarea, input {
-            color: #0f172a !important;
-            -webkit-text-fill-color: #0f172a !important;
-        }
-        div[data-baseweb="textarea"]:focus-within,
-        div[data-baseweb="input"]:focus-within,
-        div[data-baseweb="select"] > div:focus-within {
-            border-color: #0284c7 !important;
-            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
-        }
-
-        /* Trustworthy Ocean Blue Action Buttons */
-        div.stButton > button {
-            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
-            color: #ffffff !important;
-            border: none !important;
-            border-radius: 14px !important;
-            padding: 14px 28px !important;
-            font-size: 1.05rem !important;
-            font-weight: 700 !important;
-            box-shadow: 0 4px 18px rgba(2, 132, 199, 0.35) !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            width: 100% !important;
-            letter-spacing: 0.5px !important;
-        }
-        div.stButton > button p,
-        div.stButton > button span,
-        div.stButton > button div {
-            color: #ffffff !important;
-            -webkit-text-fill-color: #ffffff !important;
-            font-weight: 700 !important;
-        }
-        div.stButton > button:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 8px 25px rgba(2, 132, 199, 0.5) !important;
-            filter: brightness(1.05) !important;
-        }
-
-        /* Theme Segmented Buttons */
-        div.st-key-theme_btn_silver button {
-            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
-            border: 1.5px solid #0284c7 !important;
-            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3) !important;
-        }
-        div.st-key-theme_btn_silver button p,
-        div.st-key-theme_btn_silver button span {
-            color: #ffffff !important;
-            -webkit-text-fill-color: #ffffff !important;
-            font-weight: 700 !important;
-        }
-        div.st-key-theme_btn_obsidian button,
-        div.st-key-theme_btn_corporate button {
-            background: #ffffff !important;
-            border: 1px solid #cbd5e1 !important;
-        }
-        div.st-key-theme_btn_obsidian button p,
-        div.st-key-theme_btn_obsidian button span,
-        div.st-key-theme_btn_corporate button p,
-        div.st-key-theme_btn_corporate button span {
-            color: #475569 !important;
-            -webkit-text-fill-color: #475569 !important;
-        }
-
-        /* Secondary & Clear Scan Button */
-        div.st-key-clear_scan_btn button,
-        div[class*="st-key-clear_scan_btn"] button {
-            background: #ffffff !important;
-            border: 1px solid #fca5a5 !important;
-            color: #dc2626 !important;
-            border-radius: 12px !important;
-            padding: 12px 20px !important;
-        }
-        div.st-key-clear_scan_btn button p,
-        div.st-key-clear_scan_btn button span {
-            color: #dc2626 !important;
-            -webkit-text-fill-color: #dc2626 !important;
-        }
-
-        /* Download button */
-        div.stDownloadButton > button {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
-            color: #0f172a !important;
-            border: 1px solid #cbd5e1 !important;
-            border-radius: 12px !important;
-            padding: 12px 24px !important;
-            font-weight: 700 !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
-        }
-        div.stDownloadButton > button:hover {
-            border-color: #0284c7 !important;
-            box-shadow: 0 8px 20px rgba(2, 132, 199, 0.15) !important;
-        }
-
-        /* Browser Mockup Frame */
-        .browser-frame {
-            border: 1px solid #cbd5e1 !important;
-            border-radius: 14px !important;
-            background: #ffffff !important;
-            overflow: hidden !important;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06) !important;
-        }
-        .browser-header {
-            background: #f8fafc !important;
-            padding: 8px 14px !important;
-            display: flex !important;
-            align-items: center !important;
-            gap: 6px !important;
-            border-bottom: 1px solid #e2e8f0 !important;
-        }
-        .browser-address {
-            background: #ffffff !important;
-            color: #475569 !important;
-            border: 1px solid #e2e8f0 !important;
-            font-size: 0.78rem !important;
-            padding: 3px 12px !important;
-            border-radius: 6px !important;
-            margin-left: 10px !important;
-            flex-grow: 1 !important;
-            font-family: monospace !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-            white-space: nowrap !important;
-            min-width: 0 !important;
-        }
-
-        /* Popovers */
-        div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"] {
-            background-color: #ffffff !important;
-            border: 1px solid #cbd5e1 !important;
-            color: #0f172a !important;
-        }
-        div[data-baseweb="menu"] li:hover, div[role="option"]:hover, div[role="option"][aria-selected="true"] {
-            background-color: #f0f9ff !important;
-            color: #0284c7 !important;
-        }
-
-        div[data-testid="stDataFrame"] {
-            border: 1px solid #e2e8f0 !important;
-            border-radius: 12px !important;
-            background: #ffffff !important;
-        }
-        div[data-testid="stExpander"] {
-            background: #ffffff !important;
-            border: 1px solid #e2e8f0 !important;
-            border-radius: 12px !important;
-        }
-    """
-
-    if active_mode == "silver":
-        theme_css = theme_silver_css
-    elif active_mode == "corporate":
-        theme_css = theme_corporate_css
-    else:
-        theme_css = theme_obsidian_css
+    theme_css = theme_obsidian_css if active_mode == "obsidian" else theme_corporate_css
 
     base_css = """
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
@@ -776,11 +525,6 @@ def inject_premium_styles(theme_mode="obsidian"):
             -webkit-background-clip: text !important;
             -webkit-text-fill-color: transparent !important;
         }
-        .main-app-title.gradient-title-silver {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0284c7 100%) !important;
-            -webkit-background-clip: text !important;
-            -webkit-text-fill-color: transparent !important;
-        }
         .main-app-subtitle {
             font-size: 1.1rem !important;
             margin-bottom: 1.25rem !important;
@@ -790,21 +534,19 @@ def inject_premium_styles(theme_mode="obsidian"):
 
         /* Theme Segmented Button Common Styling */
         div.st-key-theme_btn_obsidian button,
-        div.st-key-theme_btn_corporate button,
-        div.st-key-theme_btn_silver button {
+        div.st-key-theme_btn_corporate button {
             border-radius: 9999px !important;
             min-height: 44px !important;
-            font-size: 0.88rem !important;
+            font-size: 0.92rem !important;
             font-weight: 700 !important;
-            padding: 8px 16px !important;
+            padding: 10px 20px !important;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
         }
         div.st-key-theme_btn_obsidian button:hover,
-        div.st-key-theme_btn_corporate button:hover,
-        div.st-key-theme_btn_silver button:hover {
+        div.st-key-theme_btn_corporate button:hover {
             transform: translateY(-2px) !important;
             filter: brightness(1.1) !important;
         }
@@ -886,10 +628,9 @@ def inject_premium_styles(theme_mode="obsidian"):
                 min-height: 46px !important;
             }
             div.st-key-theme_btn_obsidian button,
-            div.st-key-theme_btn_corporate button,
-            div.st-key-theme_btn_silver button {
-                font-size: 0.82rem !important;
-                padding: 8px 10px !important;
+            div.st-key-theme_btn_corporate button {
+                font-size: 0.84rem !important;
+                padding: 8px 12px !important;
                 min-height: 40px !important;
             }
             div[data-baseweb="tab-list"] {
@@ -951,16 +692,13 @@ def inject_premium_styles(theme_mode="obsidian"):
     st.markdown(f"<style>{base_css}\n{theme_css}</style>", unsafe_allow_html=True)
 
 
-def inject_header_element(theme_mode="obsidian"):
-    if theme_mode in ["silver", "light", "minimalist"]:
-        gradient_class = "gradient-title-silver"
-        sub_color = "#475569"
-    elif theme_mode in ["corporate", "corporate_trust"]:
-        gradient_class = "gradient-title-corporate"
-        sub_color = "#94a3b8"
-    else:
+def inject_header_element(theme_mode="corporate"):
+    if theme_mode == "obsidian":
         gradient_class = "gradient-title-obsidian"
         sub_color = "#a5b4fc"
+    else:
+        gradient_class = "gradient-title-corporate"
+        sub_color = "#94a3b8"
 
     st.markdown(f"""
     <div class="main-header-banner" style="text-align: center; margin-bottom: 0.5rem;">
@@ -974,16 +712,13 @@ def inject_header_element(theme_mode="obsidian"):
     """, unsafe_allow_html=True)
 
 
-def inject_footer_element(theme_mode="obsidian"):
-    if theme_mode in ["silver", "light", "minimalist"]:
-        border_color = "#e2e8f0"
-        text_color = "#64748b"
-    elif theme_mode in ["corporate", "corporate_trust"]:
-        border_color = "rgba(59, 130, 246, 0.2)"
-        text_color = "#94a3b8"
-    else:
+def inject_footer_element(theme_mode="corporate"):
+    if theme_mode == "obsidian":
         border_color = "rgba(139, 92, 246, 0.2)"
         text_color = "#a5b4fc"
+    else:
+        border_color = "rgba(59, 130, 246, 0.2)"
+        text_color = "#94a3b8"
 
     st.markdown(f"""
     <div style="

@@ -102,49 +102,33 @@ def render_preview_meme(domain):
 
 st.set_page_config(page_title="SEO Domain Intelligence Agent", layout="wide")
 
-if "theme_mode" not in st.session_state:
+if "theme_mode" not in st.session_state or st.session_state["theme_mode"] not in ["corporate", "obsidian"]:
     st.session_state["theme_mode"] = "corporate"
 
-# Normalize legacy dark/light values
-if st.session_state["theme_mode"] in ["dark"]:
-    st.session_state["theme_mode"] = "obsidian"
-elif st.session_state["theme_mode"] in ["light"]:
-    st.session_state["theme_mode"] = "silver"
-
 theme_mode = st.session_state["theme_mode"]
-is_dark = (theme_mode != "silver")
 
 # Inject global style and header with active theme
 inject_premium_styles(theme_mode)
 inject_header_element(theme_mode)
 
-# Render 3-Theme Segmented Bar
-col_t1, col_t2, col_t3 = st.columns(3)
+# Render 2-Theme Segmented Bar for Pure Dark Modes
+col_space_l, col_t1, col_t2, col_space_r = st.columns([1, 2, 2, 1])
 with col_t1:
     is_active = (theme_mode == "corporate")
-    label = "🏢 1. Corporate Trust ✓" if is_active else "Corporate Trust"
-    if st.button(label, key="theme_btn_corporate", use_container_width=True, help="Enterprise Deep Blues & Slate Theme"):
+    label = "🏢 Corporate Trust (Navy) ✓" if is_active else "🏢 Corporate Trust"
+    if st.button(label, key="theme_btn_corporate", use_container_width=True):
         st.session_state["theme_mode"] = "corporate"
         st.rerun()
 with col_t2:
-    is_active = (theme_mode == "silver")
-    label = "❄️ 2. Frosted Silver ✓" if is_active else "Modern Minimalist"
-    if st.button(label, key="theme_btn_silver", use_container_width=True, help="Clean Frosted Silver Minimalist Theme"):
-        st.session_state["theme_mode"] = "silver"
-        st.rerun()
-with col_t3:
     is_active = (theme_mode == "obsidian")
-    label = "🟣 3. Obsidian Mode ✓" if is_active else "Obsidian Dark"
-    if st.button(label, key="theme_btn_obsidian", use_container_width=True, help="Midnight Black & Purple Developer Theme"):
+    label = "🟣 Obsidian Midnight (Purple) ✓" if is_active else "🟣 Obsidian Midnight"
+    if st.button(label, key="theme_btn_obsidian", use_container_width=True):
         st.session_state["theme_mode"] = "obsidian"
         st.rerun()
 
 # Input Panel configured inside native bordered container
 with st.container(border=True):
-    if theme_mode == "silver":
-        header_color = "#0284c7"
-        border_color = "#e2e8f0"
-    elif theme_mode == "corporate":
+    if theme_mode == "corporate":
         header_color = "#38bdf8"
         border_color = "rgba(59, 130, 246, 0.25)"
     else:  # obsidian
