@@ -103,27 +103,54 @@ def render_preview_meme(domain):
 st.set_page_config(page_title="SEO Domain Intelligence Agent", layout="wide")
 
 if "theme_mode" not in st.session_state:
-    st.session_state["theme_mode"] = "dark"
+    st.session_state["theme_mode"] = "corporate"
+
+# Normalize legacy dark/light values
+if st.session_state["theme_mode"] in ["dark"]:
+    st.session_state["theme_mode"] = "obsidian"
+elif st.session_state["theme_mode"] in ["light"]:
+    st.session_state["theme_mode"] = "silver"
 
 theme_mode = st.session_state["theme_mode"]
-is_dark = (theme_mode == "dark")
+is_dark = (theme_mode != "silver")
 
 # Inject global style and header with active theme
 inject_premium_styles(theme_mode)
-
 inject_header_element(theme_mode)
 
-col_top_l, col_top_toggle, col_top_r = st.columns([1.2, 1.6, 1.2])
-with col_top_toggle:
-    toggle_icon = "✨ Switch to Light (Aurora) Mode" if is_dark else "🌙 Switch to Dark (Obsidian) Mode"
-    if st.button(toggle_icon, key="theme_toggle_btn", use_container_width=True, help="Toggle between Obsidian Dark and Aurora Gradient modes"):
-        st.session_state["theme_mode"] = "light" if is_dark else "dark"
+# Render 3-Theme Segmented Bar
+col_t1, col_t2, col_t3 = st.columns(3)
+with col_t1:
+    is_active = (theme_mode == "corporate")
+    label = "🏢 1. Corporate Trust ✓" if is_active else "Corporate Trust"
+    if st.button(label, key="theme_btn_corporate", use_container_width=True, help="Enterprise Deep Blues & Slate Theme"):
+        st.session_state["theme_mode"] = "corporate"
+        st.rerun()
+with col_t2:
+    is_active = (theme_mode == "silver")
+    label = "❄️ 2. Frosted Silver ✓" if is_active else "Modern Minimalist"
+    if st.button(label, key="theme_btn_silver", use_container_width=True, help="Clean Frosted Silver Minimalist Theme"):
+        st.session_state["theme_mode"] = "silver"
+        st.rerun()
+with col_t3:
+    is_active = (theme_mode == "obsidian")
+    label = "🟣 3. Obsidian Mode ✓" if is_active else "Obsidian Dark"
+    if st.button(label, key="theme_btn_obsidian", use_container_width=True, help="Midnight Black & Purple Developer Theme"):
+        st.session_state["theme_mode"] = "obsidian"
         st.rerun()
 
 # Input Panel configured inside native bordered container
 with st.container(border=True):
-    header_color = "#22d3ee" if is_dark else "#1d4ed8"
-    border_color = "rgba(255,255,255,0.08)" if is_dark else "#e2e8f0"
+    if theme_mode == "silver":
+        header_color = "#0284c7"
+        border_color = "#e2e8f0"
+    elif theme_mode == "corporate":
+        header_color = "#38bdf8"
+        border_color = "rgba(59, 130, 246, 0.25)"
+    else:  # obsidian
+        header_color = "#c084fc"
+        border_color = "rgba(139, 92, 246, 0.25)"
+
     st.markdown(
         f"<h3 style='margin-top: 0; color: {header_color}; font-weight: 700; font-size: 1.3rem; border-bottom: 1px solid {border_color}; padding-bottom: 0.75rem; margin-bottom: 1rem;'>Website Audit Setup</h3>",
         unsafe_allow_html=True)

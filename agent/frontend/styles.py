@@ -1,194 +1,123 @@
 import streamlit as st
 
-def inject_premium_styles(theme_mode="dark"):
-    is_dark = (theme_mode == "dark")
+def inject_premium_styles(theme_mode="obsidian"):
+    # Normalize legacy modes
+    if theme_mode in ["light", "silver", "minimalist"]:
+        active_mode = "silver"
+    elif theme_mode in ["corporate", "corporate_trust"]:
+        active_mode = "corporate"
+    else:
+        active_mode = "obsidian"
 
-    if is_dark:
-        theme_css = """
-        /* ================= DARK THEME STYLES ================= */
+    # ================= 1. OBSIDIAN DARK MODE (Midnight & Purple) =================
+    theme_obsidian_css = """
+        /* Obsidian Dark Mode - Midnight Black & Subtle Dark Violet */
         .stApp {
-            background: radial-gradient(at 0% 0%, rgba(34, 211, 238, 0.12) 0px, transparent 45%),
-                        radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 45%),
-                        radial-gradient(at 50% 100%, rgba(56, 189, 248, 0.08) 0px, transparent 50%),
-                        radial-gradient(circle at 50% 0%, #0c1220 0%, #060911 100%) !important;
-            color: #f1f5f9 !important;
+            background: linear-gradient(180deg, #121212 0%, #1e1b4b 100%) !important;
+            color: #e2e8f0 !important;
+            min-height: 100vh;
         }
 
         h1 {
-            background: linear-gradient(135deg, #f8fafc 0%, #38bdf8 50%, #818cf8 100%) !important;
+            background: linear-gradient(135deg, #f1f5f9 0%, #c084fc 50%, #38bdf8 100%) !important;
             -webkit-background-clip: text !important;
             -webkit-text-fill-color: transparent !important;
             font-weight: 800 !important;
             letter-spacing: -0.5px !important;
         }
         h2 { color: #f1f5f9 !important; font-weight: 700 !important; }
-        h3, h4 { color: #22d3ee !important; font-weight: 700 !important; }
-        h5, h6 { color: #f1f5f9 !important; }
+        h3, h4 { color: #c084fc !important; font-weight: 700 !important; }
+        h5, h6 { color: #e2e8f0 !important; }
         label, p, li { color: #cbd5e1 !important; }
 
         /* Glassmorphic layout card styling */
         .glass-card, div[data-testid="stVerticalBlockBorderWrapper"] {
-            background: rgba(15, 23, 42, 0.6) !important;
-            border: 1px solid rgba(255, 255, 255, 0.09) !important;
+            background: rgba(30, 27, 75, 0.45) !important;
+            border: 1px solid rgba(139, 92, 246, 0.25) !important;
             border-radius: 18px !important;
             padding: 1.8rem !important;
             backdrop-filter: blur(20px) !important;
             -webkit-backdrop-filter: blur(20px) !important;
-            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.04) inset !important;
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(139, 92, 246, 0.1) inset !important;
             margin-bottom: 1.5rem !important;
         }
 
         /* Actionable recommendations lists */
         .recommendation-item {
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.55) 0%, rgba(15, 23, 42, 0.6) 100%) !important;
-            border-left: 4px solid #38bdf8 !important;
+            background: linear-gradient(135deg, rgba(30, 27, 75, 0.6) 0%, rgba(18, 18, 18, 0.75) 100%) !important;
+            border-left: 4px solid #8b5cf6 !important;
             border-radius: 10px !important;
             padding: 1rem 1.25rem !important;
             margin: 0.75rem 0 !important;
-            color: #cbd5e1 !important;
+            color: #e2e8f0 !important;
             font-size: 0.95rem !important;
-            border-top: 1px solid rgba(255, 255, 255, 0.04) !important;
-            border-right: 1px solid rgba(255, 255, 255, 0.04) !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+            border-top: 1px solid rgba(139, 92, 246, 0.15) !important;
+            border-right: 1px solid rgba(139, 92, 246, 0.15) !important;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.15) !important;
         }
 
         /* Custom stats metrics */
         .metric-card {
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.85) 100%) !important;
-            border: 1px solid rgba(56, 189, 248, 0.25) !important;
+            background: linear-gradient(135deg, rgba(30, 27, 75, 0.75) 0%, rgba(18, 18, 18, 0.85) 100%) !important;
+            border: 1px solid rgba(139, 92, 246, 0.35) !important;
             border-radius: 18px !important;
             padding: 1.6rem !important;
             text-align: center !important;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.05) inset !important;
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45) !important;
+            transition: transform 0.3s ease, border-color 0.3s ease !important;
         }
         .metric-card:hover {
-            transform: translateY(-4px) !important;
-            border-color: rgba(34, 211, 238, 0.6) !important;
-            box-shadow: 0 16px 36px rgba(34, 211, 238, 0.2), 0 0 0 1px rgba(34, 211, 238, 0.3) inset !important;
+            transform: translateY(-3px) !important;
+            border-color: #a855f7 !important;
+            box-shadow: 0 12px 35px rgba(168, 85, 247, 0.25) !important;
         }
         .metric-label {
             font-size: 0.85rem !important;
-            color: #94a3b8 !important;
+            color: #a5b4fc !important;
             font-weight: 700 !important;
             text-transform: uppercase !important;
-            letter-spacing: 1.2px !important;
+            letter-spacing: 1px !important;
             margin-bottom: 0.5rem !important;
         }
         .metric-value {
             font-size: 2.35rem !important;
             font-weight: 800 !important;
-            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%) !important;
+            background: linear-gradient(135deg, #c084fc 0%, #38bdf8 100%) !important;
             -webkit-background-clip: text !important;
             -webkit-text-fill-color: transparent !important;
-            text-shadow: 0 0 20px rgba(56, 189, 248, 0.3) !important;
-        }
-            letter-spacing: 1px !important;
-            margin-bottom: 0.5rem !important;
-        }
-        .metric-value {
-            font-size: 2.25rem !important;
-            font-weight: 800 !important;
-            text-shadow: 0 0 15px rgba(34, 211, 238, 0.2) !important;
         }
 
-        /* Input textarea container styling */
+        /* Inputs & Textareas */
         div[data-baseweb="textarea"],
-        div[data-baseweb="base-input"],
-        div[data-testid="stTextAreaRootElement"],
-        div[data-testid="stTextArea"] > div {
-            background-color: rgba(15, 23, 42, 0.7) !important;
-            background: rgba(15, 23, 42, 0.7) !important;
-            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        div[data-baseweb="input"],
+        div[data-baseweb="select"] > div {
+            background-color: rgba(18, 18, 18, 0.85) !important;
+            border: 1.5px solid rgba(139, 92, 246, 0.35) !important;
             border-radius: 12px !important;
-            transition: all 0.3s ease !important;
+            color: #e2e8f0 !important;
+            transition: all 0.25s ease !important;
+        }
+        textarea, input {
+            color: #e2e8f0 !important;
+            -webkit-text-fill-color: #e2e8f0 !important;
         }
         div[data-baseweb="textarea"]:focus-within,
-        div[data-testid="stTextArea"] > div:focus-within {
-            border-color: #22d3ee !important;
-            box-shadow: 0 0 15px rgba(34, 211, 238, 0.2) !important;
-        }
-        div[data-testid="stTextArea"] textarea,
-        div[data-baseweb="textarea"] textarea,
-        textarea {
-            color: #f1f5f9 !important;
-            background-color: transparent !important;
-            -webkit-text-fill-color: #f1f5f9 !important;
-            font-size: 0.95rem !important;
+        div[data-baseweb="input"]:focus-within,
+        div[data-baseweb="select"] > div:focus-within {
+            border-color: #8b5cf6 !important;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25) !important;
         }
 
-        /* Select box styling */
-        div[data-baseweb="select"] > div,
-        div[data-testid="stSelectbox"] > div {
-            background-color: rgba(15, 23, 42, 0.7) !important;
-            border: 1px solid rgba(255, 255, 255, 0.12) !important;
-            border-radius: 10px !important;
-        }
-        div[data-baseweb="select"] span,
-        div[data-baseweb="select"] div {
-            color: #f1f5f9 !important;
-        }
-
-        /* Tab lists and buttons */
-        div[role="tablist"], div[data-baseweb="tab-list"] {
-            background-color: rgba(30, 41, 59, 0.4) !important;
-            border-radius: 12px !important;
-            padding: 6px !important;
-            border: 1px solid rgba(255, 255, 255, 0.08) !important;
-            margin-bottom: 1.5rem !important;
-        }
-        button[role="tab"], button[data-baseweb="tab"], div[data-baseweb="tab"] {
-            color: #94a3b8 !important;
-            font-weight: 600 !important;
-            padding: 10px 20px !important;
-            border-radius: 8px !important;
-            transition: all 0.2s ease !important;
-            border: none !important;
-            background: transparent !important;
-        }
-        button[role="tab"]:hover, button[data-baseweb="tab"]:hover, div[data-baseweb="tab"]:hover {
-            color: #22d3ee !important;
-            background-color: rgba(255, 255, 255, 0.05) !important;
-        }
-        button[role="tab"][aria-selected="true"], button[data-baseweb="tab"][aria-selected="true"], div[data-baseweb="tab"][aria-selected="true"] {
-            background-color: rgba(34, 211, 238, 0.18) !important;
-            color: #22d3ee !important;
-            border: 1px solid rgba(34, 211, 238, 0.3) !important;
-        }
-
-        /* Explanatory callout boxes */
-        .info-box {
-            background: rgba(30, 41, 59, 0.4) !important;
-            border-left: 4px solid #22d3ee !important;
-            padding: 1rem 1.25rem !important;
-            border-radius: 8px !important;
-            margin-bottom: 1.5rem !important;
-            font-size: 0.95rem !important;
-            color: #cbd5e1 !important;
-            line-height: 1.6 !important;
-        }
-        .info-box strong {
-            color: #22d3ee !important;
-        }
-
-        .guarantee-box {
-            background: rgba(15, 23, 42, 0.7) !important;
-            border: 1px solid rgba(34, 211, 238, 0.3) !important;
-            border-radius: 12px !important;
-            padding: 1.25rem !important;
-            margin-bottom: 1.5rem !important;
-        }
-
-        /* Buttons */
+        /* Primary Action Buttons */
         div.stButton > button {
-            background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #6366f1 100%) !important;
+            background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 50%, #06b6d4 100%) !important;
             color: #ffffff !important;
             border: none !important;
             border-radius: 14px !important;
             padding: 14px 28px !important;
-            font-size: 1.1rem !important;
+            font-size: 1.05rem !important;
             font-weight: 700 !important;
-            box-shadow: 0 4px 25px rgba(59, 130, 246, 0.35) !important;
+            box-shadow: 0 4px 22px rgba(139, 92, 246, 0.45) !important;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
             width: 100% !important;
             letter-spacing: 0.5px !important;
@@ -202,121 +131,318 @@ def inject_premium_styles(theme_mode="dark"):
         }
         div.stButton > button:hover {
             transform: translateY(-2px) !important;
-            box-shadow: 0 8px 30px rgba(59, 130, 246, 0.5) !important;
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.6) !important;
             filter: brightness(1.08) !important;
-            color: #ffffff !important;
         }
 
-        /* Theme toggle button specific styling */
-        div.st-key-theme_toggle_btn,
-        div[class*="st-key-theme_toggle_btn"] {
-            display: flex !important;
-            justify-content: center !important;
-            margin-bottom: 1.25rem !important;
+        /* Theme Segmented Buttons */
+        div.st-key-theme_btn_obsidian button {
+            background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%) !important;
+            border: 1.5px solid #c084fc !important;
+            box-shadow: 0 4px 16px rgba(139, 92, 246, 0.5) !important;
         }
-        div.st-key-theme_toggle_btn button,
-        div[class*="st-key-theme_toggle_btn"] button {
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
-            border: 1.5px solid rgba(56, 189, 248, 0.6) !important;
-            border-radius: 9999px !important;
-            color: #38bdf8 !important;
-            font-size: 0.95rem !important;
-            font-weight: 700 !important;
-            padding: 10px 24px !important;
-            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5), 0 0 12px rgba(56, 189, 248, 0.25) !important;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            width: 100% !important;
-            max-width: 400px !important;
-            margin: 0 auto !important;
-            min-height: 46px !important;
-        }
-        div.st-key-theme_toggle_btn button p,
-        div.st-key-theme_toggle_btn button span,
-        div.st-key-theme_toggle_btn button div {
-            color: #38bdf8 !important;
-            -webkit-text-fill-color: #38bdf8 !important;
-            font-weight: 700 !important;
-            font-size: 0.95rem !important;
-            letter-spacing: 0.3px !important;
-        }
-        div.st-key-theme_toggle_btn button:hover {
-            background: rgba(56, 189, 248, 0.2) !important;
-            border-color: #38bdf8 !important;
-            transform: translateY(-2px) !important;
-            box-shadow: 0 8px 24px rgba(56, 189, 248, 0.45) !important;
-        }
-        div.st-key-theme_toggle_btn button:hover p,
-        div.st-key-theme_toggle_btn button:hover span {
+        div.st-key-theme_btn_obsidian button p,
+        div.st-key-theme_btn_obsidian button span {
             color: #ffffff !important;
             -webkit-text-fill-color: #ffffff !important;
+            font-weight: 700 !important;
+        }
+        div.st-key-theme_btn_corporate button,
+        div.st-key-theme_btn_silver button {
+            background: rgba(30, 27, 75, 0.5) !important;
+            border: 1px solid rgba(139, 92, 246, 0.3) !important;
+        }
+        div.st-key-theme_btn_corporate button p,
+        div.st-key-theme_btn_corporate button span,
+        div.st-key-theme_btn_silver button p,
+        div.st-key-theme_btn_silver button span {
+            color: #cbd5e1 !important;
+            -webkit-text-fill-color: #cbd5e1 !important;
         }
 
-        /* Clear Scan / Secondary Buttons */
+        /* Secondary & Clear Scan Button */
         div.st-key-clear_scan_btn button,
-        div[class*="st-key-clear_scan_btn"] button,
-        button[data-testid="stBaseButton-secondary"]:not(.st-key-theme_toggle_btn button) {
-            background: rgba(30, 41, 59, 0.75) !important;
+        div[class*="st-key-clear_scan_btn"] button {
+            background: rgba(30, 27, 75, 0.75) !important;
             border: 1px solid rgba(239, 68, 68, 0.4) !important;
             color: #f87171 !important;
             border-radius: 12px !important;
             padding: 12px 20px !important;
-            font-weight: 600 !important;
-            font-size: 0.95rem !important;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
         }
         div.st-key-clear_scan_btn button p,
         div.st-key-clear_scan_btn button span {
             color: #f87171 !important;
             -webkit-text-fill-color: #f87171 !important;
         }
-        div.st-key-clear_scan_btn button:hover {
-            background: rgba(239, 68, 68, 0.15) !important;
-            border-color: #ef4444 !important;
-            transform: translateY(-1px) !important;
-        }
 
-        /* Download button redesign */
+        /* Download button */
         div.stDownloadButton > button {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+            background: linear-gradient(135deg, #1e1b4b 0%, #121212 100%) !important;
             color: white !important;
-            border: 1px solid rgba(255, 255, 255, 0.18) !important;
+            border: 1px solid rgba(139, 92, 246, 0.35) !important;
             border-radius: 12px !important;
             padding: 12px 24px !important;
             font-weight: 700 !important;
-            font-size: 1rem !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
-            transition: all 0.3s ease !important;
-            width: 100% !important;
-            letter-spacing: 0.5px !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
         }
         div.stDownloadButton > button:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 8px 25px rgba(34, 211, 238, 0.25) !important;
-            border-color: #22d3ee !important;
-            color: white !important;
+            border-color: #a855f7 !important;
+            box-shadow: 0 8px 25px rgba(168, 85, 247, 0.3) !important;
         }
 
-        /* Browser Mockup Frame Styles */
+        /* Browser Mockup Frame */
         .browser-frame {
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid rgba(139, 92, 246, 0.25) !important;
             border-radius: 14px !important;
-            background: rgba(15, 23, 42, 0.5) !important;
+            background: rgba(18, 18, 18, 0.8) !important;
             overflow: hidden !important;
-            margin-bottom: 1.5rem !important;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
-            backdrop-filter: blur(12px) !important;
-            -webkit-backdrop-filter: blur(12px) !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
         }
         .browser-header {
-            background: rgba(30, 41, 59, 0.8) !important;
+            background: rgba(30, 27, 75, 0.85) !important;
             padding: 8px 14px !important;
             display: flex !important;
             align-items: center !important;
             gap: 6px !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2) !important;
         }
         .browser-address {
-            background: rgba(15, 23, 42, 0.6) !important;
+            background: rgba(18, 18, 18, 0.7) !important;
+            color: #a5b4fc !important;
+            font-size: 0.78rem !important;
+            padding: 3px 12px !important;
+            border-radius: 6px !important;
+            margin-left: 10px !important;
+            flex-grow: 1 !important;
+            font-family: monospace !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+            min-width: 0 !important;
+        }
+
+        /* Popovers */
+        div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"] {
+            background-color: #181530 !important;
+            border: 1px solid rgba(139, 92, 246, 0.4) !important;
+            color: #e2e8f0 !important;
+        }
+        div[data-baseweb="menu"] li:hover, div[role="option"]:hover, div[role="option"][aria-selected="true"] {
+            background-color: rgba(139, 92, 246, 0.25) !important;
+            color: #ffffff !important;
+        }
+
+        div[data-testid="stDataFrame"] {
+            border: 1px solid rgba(139, 92, 246, 0.25) !important;
+            border-radius: 12px !important;
+            background: rgba(18, 18, 18, 0.6) !important;
+        }
+        div[data-testid="stExpander"] {
+            background: rgba(30, 27, 75, 0.4) !important;
+            border: 1px solid rgba(139, 92, 246, 0.2) !important;
+            border-radius: 12px !important;
+        }
+    """
+
+    # ================= 2. CORPORATE TRUST (Deep Blues & Slate) =================
+    theme_corporate_css = """
+        /* Corporate Trust - Deep Slate to Navy Blue */
+        .stApp {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+            color: #f8fafc !important;
+            min-height: 100vh;
+        }
+
+        h1 {
+            background: linear-gradient(135deg, #ffffff 0%, #60a5fa 50%, #818cf8 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            font-weight: 800 !important;
+            letter-spacing: -0.5px !important;
+        }
+        h2 { color: #f8fafc !important; font-weight: 700 !important; }
+        h3, h4 { color: #38bdf8 !important; font-weight: 700 !important; }
+        h5, h6 { color: #f8fafc !important; }
+        label, p, li { color: #cbd5e1 !important; }
+
+        /* Translucent Blue Cards */
+        .glass-card, div[data-testid="stVerticalBlockBorderWrapper"] {
+            background: rgba(30, 41, 59, 0.75) !important;
+            border: 1px solid rgba(59, 130, 246, 0.25) !important;
+            border-radius: 18px !important;
+            padding: 1.8rem !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45) !important;
+            margin-bottom: 1.5rem !important;
+        }
+
+        /* Actionable recommendations lists */
+        .recommendation-item {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.85) 100%) !important;
+            border-left: 4px solid #3b82f6 !important;
+            border-radius: 10px !important;
+            padding: 1rem 1.25rem !important;
+            margin: 0.75rem 0 !important;
+            color: #f8fafc !important;
+            font-size: 0.95rem !important;
+            border-top: 1px solid rgba(59, 130, 246, 0.15) !important;
+            border-right: 1px solid rgba(59, 130, 246, 0.15) !important;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.15) !important;
+        }
+
+        /* Custom stats metrics */
+        .metric-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.9) 100%) !important;
+            border: 1px solid rgba(59, 130, 246, 0.35) !important;
+            border-radius: 18px !important;
+            padding: 1.6rem !important;
+            text-align: center !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35) !important;
+            transition: transform 0.3s ease, border-color 0.3s ease !important;
+        }
+        .metric-card:hover {
+            transform: translateY(-3px) !important;
+            border-color: #3b82f6 !important;
+            box-shadow: 0 12px 35px rgba(59, 130, 246, 0.25) !important;
+        }
+        .metric-label {
+            font-size: 0.85rem !important;
+            color: #94a3b8 !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            margin-bottom: 0.5rem !important;
+        }
+        .metric-value {
+            font-size: 2.35rem !important;
+            font-weight: 800 !important;
+            background: linear-gradient(135deg, #60a5fa 0%, #38bdf8 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+        }
+
+        /* Inputs & Textareas */
+        div[data-baseweb="textarea"],
+        div[data-baseweb="input"],
+        div[data-baseweb="select"] > div {
+            background-color: rgba(15, 23, 42, 0.85) !important;
+            border: 1.5px solid rgba(59, 130, 246, 0.35) !important;
+            border-radius: 12px !important;
+            color: #f8fafc !important;
+            transition: all 0.25s ease !important;
+        }
+        textarea, input {
+            color: #f8fafc !important;
+            -webkit-text-fill-color: #f8fafc !important;
+        }
+        div[data-baseweb="textarea"]:focus-within,
+        div[data-baseweb="input"]:focus-within,
+        div[data-baseweb="select"] > div:focus-within {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25) !important;
+        }
+
+        /* Royal Blue / Indigo Action Buttons */
+        div.stButton > button {
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #4f46e5 100%) !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 14px !important;
+            padding: 14px 28px !important;
+            font-size: 1.05rem !important;
+            font-weight: 700 !important;
+            box-shadow: 0 4px 22px rgba(37, 99, 235, 0.4) !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            width: 100% !important;
+            letter-spacing: 0.5px !important;
+        }
+        div.stButton > button p,
+        div.stButton > button span,
+        div.stButton > button div {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            font-weight: 700 !important;
+        }
+        div.stButton > button:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 30px rgba(37, 99, 235, 0.55) !important;
+            filter: brightness(1.08) !important;
+        }
+
+        /* Theme Segmented Buttons */
+        div.st-key-theme_btn_corporate button {
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%) !important;
+            border: 1.5px solid #60a5fa !important;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.5) !important;
+        }
+        div.st-key-theme_btn_corporate button p,
+        div.st-key-theme_btn_corporate button span {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            font-weight: 700 !important;
+        }
+        div.st-key-theme_btn_obsidian button,
+        div.st-key-theme_btn_silver button {
+            background: rgba(30, 41, 59, 0.6) !important;
+            border: 1px solid rgba(59, 130, 246, 0.3) !important;
+        }
+        div.st-key-theme_btn_obsidian button p,
+        div.st-key-theme_btn_obsidian button span,
+        div.st-key-theme_btn_silver button p,
+        div.st-key-theme_btn_silver button span {
+            color: #cbd5e1 !important;
+            -webkit-text-fill-color: #cbd5e1 !important;
+        }
+
+        /* Secondary & Clear Scan Button */
+        div.st-key-clear_scan_btn button,
+        div[class*="st-key-clear_scan_btn"] button {
+            background: rgba(30, 41, 59, 0.75) !important;
+            border: 1px solid rgba(239, 68, 68, 0.4) !important;
+            color: #f87171 !important;
+            border-radius: 12px !important;
+            padding: 12px 20px !important;
+        }
+        div.st-key-clear_scan_btn button p,
+        div.st-key-clear_scan_btn button span {
+            color: #f87171 !important;
+            -webkit-text-fill-color: #f87171 !important;
+        }
+
+        /* Download button */
+        div.stDownloadButton > button {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+            color: white !important;
+            border: 1px solid rgba(59, 130, 246, 0.35) !important;
+            border-radius: 12px !important;
+            padding: 12px 24px !important;
+            font-weight: 700 !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
+        }
+        div.stDownloadButton > button:hover {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3) !important;
+        }
+
+        /* Browser Mockup Frame */
+        .browser-frame {
+            border: 1px solid rgba(59, 130, 246, 0.25) !important;
+            border-radius: 14px !important;
+            background: rgba(15, 23, 42, 0.8) !important;
+            overflow: hidden !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+        }
+        .browser-header {
+            background: rgba(30, 41, 59, 0.85) !important;
+            padding: 8px 14px !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2) !important;
+        }
+        .browser-address {
+            background: rgba(15, 23, 42, 0.7) !important;
             color: #94a3b8 !important;
             font-size: 0.78rem !important;
             padding: 3px 12px !important;
@@ -330,240 +456,137 @@ def inject_premium_styles(theme_mode="dark"):
             min-width: 0 !important;
         }
 
-        /* Popovers & Tooltips */
-        div[data-baseweb="popover"],
-        div[data-baseweb="menu"],
-        ul[role="listbox"],
-        div[role="listbox"],
-        div[data-testid="stColumnMenu"],
-        div[data-baseweb="tooltip"],
-        [data-testid="stPopoverContent"] {
+        /* Popovers */
+        div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"] {
             background-color: #0f172a !important;
-            border: 1px solid rgba(34, 211, 238, 0.3) !important;
-            border-radius: 12px !important;
-            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6) !important;
-            color: #f1f5f9 !important;
-            z-index: 999999 !important;
+            border: 1px solid rgba(59, 130, 246, 0.4) !important;
+            color: #f8fafc !important;
         }
-        div[data-baseweb="menu"] li:hover,
-        div[role="option"]:hover,
-        div[role="option"][aria-selected="true"],
-        ul[role="listbox"] li:hover {
-            background-color: rgba(34, 211, 238, 0.15) !important;
-            color: #22d3ee !important;
+        div[data-baseweb="menu"] li:hover, div[role="option"]:hover, div[role="option"][aria-selected="true"] {
+            background-color: rgba(59, 130, 246, 0.25) !important;
+            color: #ffffff !important;
         }
 
         div[data-testid="stDataFrame"] {
-            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid rgba(59, 130, 246, 0.25) !important;
             border-radius: 12px !important;
-            overflow: auto !important;
+            background: rgba(15, 23, 42, 0.6) !important;
         }
+        div[data-testid="stExpander"] {
+            background: rgba(30, 41, 59, 0.4) !important;
+            border: 1px solid rgba(59, 130, 246, 0.2) !important;
+            border-radius: 12px !important;
+        }
+    """
 
-        /* Prevent Glide Data Grid sticky/detached overlays on double-click */
-        .gdg-bubble,
-        [class*="bubble"],
-        [class*="gdg-bubble"],
-        .dvn-edit-overlay,
-        [class*="dvn-edit-overlay"],
-        .glideDataGrid-edit-overlay,
-        div[data-testid="stDataFrame"] div[class*="portal"],
-        div[data-testid="stDataFrame"] div[class*="bubble"] {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-        }
-        """
-    else:
-        theme_css = """
-        /* ================= AURORA LIGHT GRADIENT THEME ================= */
+    # ================= 3. MODERN MINIMALIST (Frosted Silver) =================
+    theme_silver_css = """
+        /* Modern Minimalist - Soft White to Cool Icy Gray */
         .stApp {
-            background: radial-gradient(at 10% 10%, rgba(99, 102, 241, 0.08) 0px, transparent 45%),
-                        radial-gradient(at 90% 15%, rgba(6, 182, 212, 0.1) 0px, transparent 50%),
-                        radial-gradient(at 50% 85%, rgba(168, 85, 247, 0.07) 0px, transparent 55%),
-                        linear-gradient(145deg, #f8fafc 0%, #f1f5f9 40%, #eef2ff 100%) !important;
-            color: #0f172a !important;
+            background: linear-gradient(to right bottom, #ffffff 0%, #f1f5f9 100%) !important;
+            color: #334155 !important;
+            min-height: 100vh;
         }
 
         h1 {
-            background: linear-gradient(135deg, #0f172a 0%, #2563eb 50%, #4f46e5 100%) !important;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0284c7 100%) !important;
             -webkit-background-clip: text !important;
             -webkit-text-fill-color: transparent !important;
             font-weight: 800 !important;
             letter-spacing: -0.5px !important;
         }
         h2 { color: #0f172a !important; font-weight: 700 !important; }
-        h3, h4 { color: #1d4ed8 !important; font-weight: 700 !important; }
+        h3, h4 { color: #0284c7 !important; font-weight: 700 !important; }
         h5, h6 { color: #0f172a !important; }
-        label, p, li { color: #475569 !important; }
+        label, p, li { color: #334155 !important; }
 
-        /* Crisp glassmorphic card styling with multi-layer shadow */
+        /* Pure White Cards with Soft Diffuse Shadow */
         .glass-card, div[data-testid="stVerticalBlockBorderWrapper"] {
-            background: rgba(255, 255, 255, 0.8) !important;
-            backdrop-filter: blur(20px) !important;
-            -webkit-backdrop-filter: blur(20px) !important;
-            border: 1px solid rgba(226, 232, 240, 0.85) !important;
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
             border-radius: 18px !important;
             padding: 1.8rem !important;
-            box-shadow: 0 10px 30px -5px rgba(99, 102, 241, 0.06), 0 4px 6px -2px rgba(0, 0, 0, 0.02), 0 0 0 1px rgba(255, 255, 255, 0.9) inset !important;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02) !important;
             margin-bottom: 1.5rem !important;
-            transition: transform 0.2s ease, box-shadow 0.2s ease !important;
         }
 
         /* Actionable recommendations lists */
         .recommendation-item {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%) !important;
-            border-left: 4px solid #4f46e5 !important;
+            background: #ffffff !important;
+            border-left: 4px solid #0284c7 !important;
+            border-top: 1px solid #f1f5f9 !important;
+            border-right: 1px solid #f1f5f9 !important;
+            border-bottom: 1px solid #f1f5f9 !important;
             border-radius: 10px !important;
             padding: 1rem 1.25rem !important;
             margin: 0.75rem 0 !important;
             color: #1e293b !important;
             font-size: 0.95rem !important;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
-            border-top: 1px solid rgba(241, 245, 249, 0.8) !important;
-            border-right: 1px solid rgba(241, 245, 249, 0.8) !important;
-            border-bottom: 1px solid rgba(241, 245, 249, 0.8) !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03) !important;
         }
 
         /* Custom stats metrics */
         .metric-card {
-            background: linear-gradient(140deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 245, 255, 0.85) 100%) !important;
-            border: 1px solid rgba(199, 210, 254, 0.7) !important;
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
             border-radius: 18px !important;
             padding: 1.6rem !important;
             text-align: center !important;
-            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.8) inset !important;
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04) !important;
+            transition: transform 0.3s ease, border-color 0.3s ease !important;
         }
         .metric-card:hover {
-            transform: translateY(-4px) !important;
-            border-color: #4f46e5 !important;
-            box-shadow: 0 16px 32px -4px rgba(79, 70, 229, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.9) inset !important;
+            transform: translateY(-3px) !important;
+            border-color: #0284c7 !important;
+            box-shadow: 0 8px 25px rgba(2, 132, 199, 0.12) !important;
         }
         .metric-label {
             font-size: 0.85rem !important;
-            color: #475569 !important;
+            color: #64748b !important;
             font-weight: 700 !important;
             text-transform: uppercase !important;
-            letter-spacing: 1.2px !important;
+            letter-spacing: 1px !important;
             margin-bottom: 0.5rem !important;
         }
         .metric-value {
             font-size: 2.35rem !important;
             font-weight: 800 !important;
-            background: linear-gradient(135deg, #1d4ed8 0%, #4f46e5 100%) !important;
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
             -webkit-background-clip: text !important;
             -webkit-text-fill-color: transparent !important;
         }
 
-        /* Force high-contrast white styling on BaseWeb textarea containers */
+        /* Inputs & Textareas */
         div[data-baseweb="textarea"],
-        div[data-baseweb="base-input"],
-        div[data-testid="stTextAreaRootElement"],
-        div[data-testid="stTextArea"] > div {
+        div[data-baseweb="input"],
+        div[data-baseweb="select"] > div {
             background-color: #ffffff !important;
-            background: #ffffff !important;
-            border: 1px solid #cbd5e1 !important;
+            border: 1.5px solid #cbd5e1 !important;
             border-radius: 12px !important;
-            transition: all 0.3s ease !important;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+            color: #0f172a !important;
+            transition: all 0.25s ease !important;
+        }
+        textarea, input {
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
         }
         div[data-baseweb="textarea"]:focus-within,
-        div[data-testid="stTextArea"] > div:focus-within {
-            border-color: #2563eb !important;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
-        }
-        div[data-testid="stTextArea"] textarea,
-        div[data-baseweb="textarea"] textarea,
-        textarea {
-            color: #0f172a !important;
-            background-color: #ffffff !important;
-            background: #ffffff !important;
-            -webkit-text-fill-color: #0f172a !important;
-            font-size: 0.95rem !important;
+        div[data-baseweb="input"]:focus-within,
+        div[data-baseweb="select"] > div:focus-within {
+            border-color: #0284c7 !important;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
         }
 
-        /* Select box styling */
-        div[data-baseweb="select"],
-        div[data-baseweb="select"] > div,
-        div[data-testid="stSelectbox"] > div {
-            background-color: #ffffff !important;
-            background: #ffffff !important;
-            border: 1px solid #cbd5e1 !important;
-            border-radius: 10px !important;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
-        }
-        div[data-baseweb="select"] span,
-        div[data-baseweb="select"] div,
-        div[data-baseweb="select"] svg {
-            color: #0f172a !important;
-            fill: #0f172a !important;
-        }
-
-        /* Tab lists and buttons */
-        div[role="tablist"], div[data-baseweb="tab-list"] {
-            background-color: #e2e8f0 !important;
-            border-radius: 12px !important;
-            padding: 6px !important;
-            border: 1px solid #cbd5e1 !important;
-            margin-bottom: 1.5rem !important;
-        }
-        button[role="tab"], button[data-baseweb="tab"], div[data-baseweb="tab"] {
-            color: #64748b !important;
-            font-weight: 600 !important;
-            padding: 10px 20px !important;
-            border-radius: 8px !important;
-            transition: all 0.2s ease !important;
-            border: none !important;
-            background: transparent !important;
-        }
-        button[role="tab"]:hover, button[data-baseweb="tab"]:hover, div[data-baseweb="tab"]:hover {
-            color: #2563eb !important;
-            background-color: rgba(255, 255, 255, 0.6) !important;
-        }
-        button[role="tab"][aria-selected="true"], button[data-baseweb="tab"][aria-selected="true"], div[data-baseweb="tab"][aria-selected="true"] {
-            background-color: #ffffff !important;
-            color: #2563eb !important;
-            border: 1px solid #cbd5e1 !important;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
-        }
-
-        /* Explanatory callout boxes */
-        .info-box {
-            background: #ffffff !important;
-            border: 1px solid #e2e8f0 !important;
-            border-left: 4px solid #2563eb !important;
-            padding: 1rem 1.25rem !important;
-            border-radius: 8px !important;
-            margin-bottom: 1.5rem !important;
-            font-size: 0.95rem !important;
-            color: #334155 !important;
-            line-height: 1.6 !important;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
-        }
-        .info-box strong {
-            color: #1d4ed8 !important;
-        }
-
-        .guarantee-box {
-            background: #ffffff !important;
-            border: 1px solid #cbd5e1 !important;
-            border-radius: 12px !important;
-            padding: 1.25rem !important;
-            margin-bottom: 1.5rem !important;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
-        }
-
-        /* Buttons */
+        /* Trustworthy Ocean Blue Action Buttons */
         div.stButton > button {
-            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #4f46e5 100%) !important;
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
             color: #ffffff !important;
             border: none !important;
             border-radius: 14px !important;
             padding: 14px 28px !important;
-            font-size: 1.1rem !important;
+            font-size: 1.05rem !important;
             font-weight: 700 !important;
-            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.35) !important;
+            box-shadow: 0 4px 18px rgba(2, 132, 199, 0.35) !important;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
             width: 100% !important;
             letter-spacing: 0.5px !important;
@@ -577,111 +600,75 @@ def inject_premium_styles(theme_mode="dark"):
         }
         div.stButton > button:hover {
             transform: translateY(-2px) !important;
-            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5) !important;
+            box-shadow: 0 8px 25px rgba(2, 132, 199, 0.5) !important;
             filter: brightness(1.05) !important;
+        }
+
+        /* Theme Segmented Buttons */
+        div.st-key-theme_btn_silver button {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+            border: 1.5px solid #0284c7 !important;
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3) !important;
+        }
+        div.st-key-theme_btn_silver button p,
+        div.st-key-theme_btn_silver button span {
             color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            font-weight: 700 !important;
+        }
+        div.st-key-theme_btn_obsidian button,
+        div.st-key-theme_btn_corporate button {
+            background: #ffffff !important;
+            border: 1px solid #cbd5e1 !important;
+        }
+        div.st-key-theme_btn_obsidian button p,
+        div.st-key-theme_btn_obsidian button span,
+        div.st-key-theme_btn_corporate button p,
+        div.st-key-theme_btn_corporate button span {
+            color: #475569 !important;
+            -webkit-text-fill-color: #475569 !important;
         }
 
-        /* Theme toggle button specific styling in Light Mode */
-        div.st-key-theme_toggle_btn,
-        div[class*="st-key-theme_toggle_btn"] {
-            display: flex !important;
-            justify-content: center !important;
-            margin-bottom: 1.25rem !important;
-        }
-        div.st-key-theme_toggle_btn button,
-        div[class*="st-key-theme_toggle_btn"] button {
-            background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%) !important;
-            border: 1.5px solid #3b82f6 !important;
-            border-radius: 9999px !important;
-            color: #1d4ed8 !important;
-            font-size: 0.95rem !important;
-            font-weight: 700 !important;
-            padding: 10px 24px !important;
-            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.9) inset !important;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            width: 100% !important;
-            max-width: 400px !important;
-            margin: 0 auto !important;
-            min-height: 46px !important;
-        }
-        div.st-key-theme_toggle_btn button p,
-        div.st-key-theme_toggle_btn button span,
-        div.st-key-theme_toggle_btn button div {
-            color: #1d4ed8 !important;
-            -webkit-text-fill-color: #1d4ed8 !important;
-            font-weight: 700 !important;
-            font-size: 0.95rem !important;
-            letter-spacing: 0.3px !important;
-        }
-        div.st-key-theme_toggle_btn button:hover {
-            background: #dbeafe !important;
-            border-color: #1d4ed8 !important;
-            transform: translateY(-2px) !important;
-            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3) !important;
-        }
-        div.st-key-theme_toggle_btn button:hover p,
-        div.st-key-theme_toggle_btn button:hover span {
-            color: #1e40af !important;
-            -webkit-text-fill-color: #1e40af !important;
-        }
-
-        /* Clear Scan / Secondary Buttons in Light Mode */
+        /* Secondary & Clear Scan Button */
         div.st-key-clear_scan_btn button,
-        div[class*="st-key-clear_scan_btn"] button,
-        button[data-testid="stBaseButton-secondary"]:not(.st-key-theme_toggle_btn button) {
+        div[class*="st-key-clear_scan_btn"] button {
             background: #ffffff !important;
             border: 1px solid #fca5a5 !important;
             color: #dc2626 !important;
             border-radius: 12px !important;
             padding: 12px 20px !important;
-            font-weight: 600 !important;
-            font-size: 0.95rem !important;
-            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.08) !important;
         }
         div.st-key-clear_scan_btn button p,
         div.st-key-clear_scan_btn button span {
             color: #dc2626 !important;
             -webkit-text-fill-color: #dc2626 !important;
         }
-        div.st-key-clear_scan_btn button:hover {
-            background: #fef2f2 !important;
-            border-color: #ef4444 !important;
-            transform: translateY(-1px) !important;
-        }
 
-        /* Download button redesign */
+        /* Download button */
         div.stDownloadButton > button {
-            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%) !important;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
             color: #0f172a !important;
             border: 1px solid #cbd5e1 !important;
             border-radius: 12px !important;
             padding: 12px 24px !important;
             font-weight: 700 !important;
-            font-size: 1rem !important;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
-            transition: all 0.3s ease !important;
-            width: 100% !important;
-            letter-spacing: 0.5px !important;
         }
         div.stDownloadButton > button:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15) !important;
-            border-color: #2563eb !important;
-            color: #2563eb !important;
+            border-color: #0284c7 !important;
+            box-shadow: 0 8px 20px rgba(2, 132, 199, 0.15) !important;
         }
 
-        /* Browser Mockup Frame Styles */
+        /* Browser Mockup Frame */
         .browser-frame {
             border: 1px solid #cbd5e1 !important;
             border-radius: 14px !important;
             background: #ffffff !important;
             overflow: hidden !important;
-            margin-bottom: 1.5rem !important;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06) !important;
         }
         .browser-header {
-            background: #f1f5f9 !important;
+            background: #f8fafc !important;
             padding: 8px 14px !important;
             display: flex !important;
             align-items: center !important;
@@ -704,59 +691,35 @@ def inject_premium_styles(theme_mode="dark"):
             min-width: 0 !important;
         }
 
-        /* Popovers & Tooltips */
-        div[data-baseweb="popover"],
-        div[data-baseweb="menu"],
-        ul[role="listbox"],
-        div[role="listbox"],
-        div[data-testid="stColumnMenu"],
-        div[data-baseweb="tooltip"],
-        [data-testid="stPopoverContent"] {
+        /* Popovers */
+        div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"] {
             background-color: #ffffff !important;
             border: 1px solid #cbd5e1 !important;
-            border-radius: 12px !important;
-            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12) !important;
             color: #0f172a !important;
-            z-index: 999999 !important;
         }
-        div[data-baseweb="menu"] li:hover,
-        div[role="option"]:hover,
-        div[role="option"][aria-selected="true"],
-        ul[role="listbox"] li:hover {
-            background-color: #eff6ff !important;
-            color: #2563eb !important;
+        div[data-baseweb="menu"] li:hover, div[role="option"]:hover, div[role="option"][aria-selected="true"] {
+            background-color: #f0f9ff !important;
+            color: #0284c7 !important;
         }
 
         div[data-testid="stDataFrame"] {
             border: 1px solid #e2e8f0 !important;
             border-radius: 12px !important;
             background: #ffffff !important;
-            overflow: auto !important;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
         }
-
-        /* Prevent Glide Data Grid sticky/detached overlays on double-click */
-        .gdg-bubble,
-        [class*="bubble"],
-        [class*="gdg-bubble"],
-        .dvn-edit-overlay,
-        [class*="dvn-edit-overlay"],
-        .glideDataGrid-edit-overlay,
-        div[data-testid="stDataFrame"] div[class*="portal"],
-        div[data-testid="stDataFrame"] div[class*="bubble"] {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-        }
-
         div[data-testid="stExpander"] {
             background: #ffffff !important;
             border: 1px solid #e2e8f0 !important;
             border-radius: 12px !important;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
         }
-        """
+    """
+
+    if active_mode == "silver":
+        theme_css = theme_silver_css
+    elif active_mode == "corporate":
+        theme_css = theme_corporate_css
+    else:
+        theme_css = theme_obsidian_css
 
     base_css = """
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
@@ -803,13 +766,18 @@ def inject_premium_styles(theme_mode="dark"):
             line-height: 1.15 !important;
             text-align: center !important;
         }
-        .main-app-title.gradient-title-dark {
-            background: linear-gradient(135deg, #22d3ee 0%, #38bdf8 40%, #818cf8 100%) !important;
+        .main-app-title.gradient-title-obsidian {
+            background: linear-gradient(135deg, #f1f5f9 0%, #c084fc 50%, #38bdf8 100%) !important;
             -webkit-background-clip: text !important;
             -webkit-text-fill-color: transparent !important;
         }
-        .main-app-title.gradient-title-light {
-            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #4f46e5 100%) !important;
+        .main-app-title.gradient-title-corporate {
+            background: linear-gradient(135deg, #ffffff 0%, #60a5fa 50%, #818cf8 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+        }
+        .main-app-title.gradient-title-silver {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0284c7 100%) !important;
             -webkit-background-clip: text !important;
             -webkit-text-fill-color: transparent !important;
         }
@@ -818,6 +786,27 @@ def inject_premium_styles(theme_mode="dark"):
             margin-bottom: 1.25rem !important;
             line-height: 1.5 !important;
             text-align: center !important;
+        }
+
+        /* Theme Segmented Button Common Styling */
+        div.st-key-theme_btn_obsidian button,
+        div.st-key-theme_btn_corporate button,
+        div.st-key-theme_btn_silver button {
+            border-radius: 9999px !important;
+            min-height: 44px !important;
+            font-size: 0.88rem !important;
+            font-weight: 700 !important;
+            padding: 8px 16px !important;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        div.st-key-theme_btn_obsidian button:hover,
+        div.st-key-theme_btn_corporate button:hover,
+        div.st-key-theme_btn_silver button:hover {
+            transform: translateY(-2px) !important;
+            filter: brightness(1.1) !important;
         }
 
         div[data-baseweb="tab-highlight"] {
@@ -838,9 +827,9 @@ def inject_premium_styles(theme_mode="dark"):
         .circular-spinner {
             width: 32px;
             height: 32px;
-            border: 3px solid rgba(34, 211, 238, 0.2);
+            border: 3px solid rgba(56, 189, 248, 0.2);
             border-radius: 50%;
-            border-top: 3px solid #22d3ee;
+            border-top: 3px solid #38bdf8;
             animation: spin 1s linear infinite;
             display: inline-block;
         }
@@ -896,12 +885,12 @@ def inject_premium_styles(theme_mode="dark"):
                 font-size: 1rem !important;
                 min-height: 46px !important;
             }
-            div.st-key-theme_toggle_btn button,
-            div[class*="st-key-theme_toggle_btn"] button {
-                max-width: 100% !important;
-                width: 100% !important;
-                font-size: 0.88rem !important;
-                padding: 10px 16px !important;
+            div.st-key-theme_btn_obsidian button,
+            div.st-key-theme_btn_corporate button,
+            div.st-key-theme_btn_silver button {
+                font-size: 0.82rem !important;
+                padding: 8px 10px !important;
+                min-height: 40px !important;
             }
             div[data-baseweb="tab-list"] {
                 overflow-x: auto !important;
@@ -962,10 +951,16 @@ def inject_premium_styles(theme_mode="dark"):
     st.markdown(f"<style>{base_css}\n{theme_css}</style>", unsafe_allow_html=True)
 
 
-def inject_header_element(theme_mode="dark"):
-    is_dark = (theme_mode == "dark")
-    gradient_class = "gradient-title-dark" if is_dark else "gradient-title-light"
-    sub_color = "#94a3b8" if is_dark else "#475569"
+def inject_header_element(theme_mode="obsidian"):
+    if theme_mode in ["silver", "light", "minimalist"]:
+        gradient_class = "gradient-title-silver"
+        sub_color = "#475569"
+    elif theme_mode in ["corporate", "corporate_trust"]:
+        gradient_class = "gradient-title-corporate"
+        sub_color = "#94a3b8"
+    else:
+        gradient_class = "gradient-title-obsidian"
+        sub_color = "#a5b4fc"
 
     st.markdown(f"""
     <div class="main-header-banner" style="text-align: center; margin-bottom: 0.5rem;">
@@ -979,10 +974,16 @@ def inject_header_element(theme_mode="dark"):
     """, unsafe_allow_html=True)
 
 
-def inject_footer_element(theme_mode="dark"):
-    is_dark = (theme_mode == "dark")
-    border_color = "rgba(255, 255, 255, 0.08)" if is_dark else "#e2e8f0"
-    text_color = "#94a3b8" if is_dark else "#64748b"
+def inject_footer_element(theme_mode="obsidian"):
+    if theme_mode in ["silver", "light", "minimalist"]:
+        border_color = "#e2e8f0"
+        text_color = "#64748b"
+    elif theme_mode in ["corporate", "corporate_trust"]:
+        border_color = "rgba(59, 130, 246, 0.2)"
+        text_color = "#94a3b8"
+    else:
+        border_color = "rgba(139, 92, 246, 0.2)"
+        text_color = "#a5b4fc"
 
     st.markdown(f"""
     <div style="

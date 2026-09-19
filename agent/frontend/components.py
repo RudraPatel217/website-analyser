@@ -48,20 +48,35 @@ def render_scan_progress(placeholder, domain, current_log, progress_percentage):
     """, unsafe_allow_html=True)
 
 
-def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode="dark"):
+def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode="obsidian"):
     import re
     clean_host = domain.replace("https://", "").replace("http://", "").rstrip("/").split("/")[0].split(":")[0]
     display_url = domain.replace("https://", "").replace("http://", "").rstrip("/")
     target_link = domain if (domain.startswith("http://") or domain.startswith("https://")) else f"https://{domain}"
     safe_id = re.sub(r'[^a-zA-Z0-9_-]', '_', domain)
-    is_dark = (theme_mode == "dark")
     
-    container_bg = "#0f172a" if is_dark else "#f8fafc"
-    card_title_color = "#22d3ee" if is_dark else "#2563eb"
-    card_text_color = "#94a3b8" if is_dark else "#64748b"
-    btn_bg = "rgba(34, 211, 238, 0.15)" if is_dark else "#eff6ff"
-    btn_color = "#22d3ee" if is_dark else "#2563eb"
-    btn_border = "rgba(34, 211, 238, 0.4)" if is_dark else "#93c5fd"
+    if theme_mode == "silver":
+        container_bg = "#ffffff"
+        card_title_color = "#0284c7"
+        card_text_color = "#475569"
+        btn_bg = "#eff6ff"
+        btn_color = "#0284c7"
+        btn_border = "#93c5fd"
+    elif theme_mode == "corporate":
+        container_bg = "#0f172a"
+        card_title_color = "#38bdf8"
+        card_text_color = "#94a3b8"
+        btn_bg = "rgba(59, 130, 246, 0.15)"
+        btn_color = "#38bdf8"
+        btn_border = "rgba(59, 130, 246, 0.4)"
+    else:  # obsidian
+        container_bg = "#121212"
+        card_title_color = "#c084fc"
+        card_text_color = "#a5b4fc"
+        btn_bg = "rgba(139, 92, 246, 0.15)"
+        btn_color = "#c084fc"
+        btn_border = "rgba(139, 92, 246, 0.4)"
+
     favicon_url = f"https://www.google.com/s2/favicons?domain={clean_host}&sz=32"
 
     if screenshot_url == "instant":
@@ -153,11 +168,19 @@ def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode
     """, unsafe_allow_html=True)
 
 
-def render_metric_cards(total_domains, total_issues, high_crit_issues, theme_mode="dark"):
-    is_dark = (theme_mode == "dark")
-    c1_color = "#22d3ee" if is_dark else "#0284c7"
-    c2_color = "#818cf8" if is_dark else "#4f46e5"
-    c3_color = "#f87171" if is_dark else "#dc2626"
+def render_metric_cards(total_domains, total_issues, high_crit_issues, theme_mode="obsidian"):
+    if theme_mode == "silver":
+        c1_color = "#0284c7"
+        c2_color = "#4f46e5"
+        c3_color = "#dc2626"
+    elif theme_mode == "corporate":
+        c1_color = "#38bdf8"
+        c2_color = "#818cf8"
+        c3_color = "#f87171"
+    else:  # obsidian
+        c1_color = "#c084fc"
+        c2_color = "#38bdf8"
+        c3_color = "#f87171"
 
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -185,11 +208,19 @@ def render_metric_cards(total_domains, total_issues, high_crit_issues, theme_mod
         """, unsafe_allow_html=True)
 
 
-def render_ready_to_scan(theme_mode="dark"):
-    is_dark = (theme_mode == "dark")
-    title_color = "#22d3ee" if is_dark else "#2563eb"
-    desc_color = "#94a3b8" if is_dark else "#64748b"
-    border_color = "rgba(99, 102, 241, 0.25)" if is_dark else "#cbd5e1"
+def render_ready_to_scan(theme_mode="obsidian"):
+    if theme_mode == "silver":
+        title_color = "#0284c7"
+        desc_color = "#475569"
+        border_color = "#cbd5e1"
+    elif theme_mode == "corporate":
+        title_color = "#38bdf8"
+        desc_color = "#94a3b8"
+        border_color = "rgba(59, 130, 246, 0.35)"
+    else:  # obsidian
+        title_color = "#c084fc"
+        desc_color = "#a5b4fc"
+        border_color = "rgba(139, 92, 246, 0.35)"
 
     st.markdown(f"""
     <div class="glass-card" style="text-align: center; padding: 3rem !important; border: 1px dashed {border_color}; margin-top: 2rem;">
@@ -201,11 +232,19 @@ def render_ready_to_scan(theme_mode="dark"):
     """, unsafe_allow_html=True)
 
 
-def render_download_section(theme_mode="dark"):
-    is_dark = (theme_mode == "dark")
-    title_color = "#22d3ee" if is_dark else "#2563eb"
-    desc_color = "#94a3b8" if is_dark else "#64748b"
-    border_color = "rgba(34, 211, 238, 0.4)" if is_dark else "#93c5fd"
+def render_download_section(theme_mode="obsidian"):
+    if theme_mode == "silver":
+        title_color = "#0284c7"
+        desc_color = "#475569"
+        border_color = "#93c5fd"
+    elif theme_mode == "corporate":
+        title_color = "#38bdf8"
+        desc_color = "#94a3b8"
+        border_color = "rgba(59, 130, 246, 0.4)"
+    else:  # obsidian
+        title_color = "#c084fc"
+        desc_color = "#a5b4fc"
+        border_color = "rgba(139, 92, 246, 0.4)"
 
     st.markdown(f"""
     <div class="glass-card" style="text-align: center; border: 1px dashed {border_color}; margin-bottom: 1rem;">
