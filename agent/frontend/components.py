@@ -69,9 +69,6 @@ def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode
         btn_bg = "rgba(59, 130, 246, 0.15)"
         btn_color = "#38bdf8"
         btn_border = "rgba(59, 130, 246, 0.4)"
-        btn_bg = "rgba(139, 92, 246, 0.15)"
-        btn_color = "#c084fc"
-        btn_border = "rgba(139, 92, 246, 0.4)"
 
     favicon_url = f"https://www.google.com/s2/favicons?domain={clean_host}&sz=32"
 
