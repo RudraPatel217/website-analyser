@@ -208,26 +208,71 @@ def inject_premium_styles(theme_mode="dark"):
         }
 
         /* Theme toggle button specific styling */
-        button[key="theme_toggle_btn"],
-        div[data-testid="stButton"] button[kind="secondary"] {
-            background: rgba(30, 41, 59, 0.8) !important;
-            border: 1px solid rgba(34, 211, 238, 0.4) !important;
-            color: #22d3ee !important;
+        div.st-key-theme_toggle_btn,
+        div[class*="st-key-theme_toggle_btn"] {
+            display: flex !important;
+            justify-content: center !important;
+            margin-bottom: 1.25rem !important;
+        }
+        div.st-key-theme_toggle_btn button,
+        div[class*="st-key-theme_toggle_btn"] button {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
+            border: 1.5px solid rgba(56, 189, 248, 0.6) !important;
+            border-radius: 9999px !important;
+            color: #38bdf8 !important;
             font-size: 0.95rem !important;
-            padding: 8px 16px !important;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2) !important;
+            font-weight: 700 !important;
+            padding: 10px 24px !important;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5), 0 0 12px rgba(56, 189, 248, 0.25) !important;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            width: 100% !important;
+            max-width: 400px !important;
+            margin: 0 auto !important;
+            min-height: 46px !important;
         }
-        button[key="theme_toggle_btn"] p,
-        button[key="theme_toggle_btn"] span {
-            color: #22d3ee !important;
-            -webkit-text-fill-color: #22d3ee !important;
-            font-weight: 600 !important;
+        div.st-key-theme_toggle_btn button p,
+        div.st-key-theme_toggle_btn button span,
+        div.st-key-theme_toggle_btn button div {
+            color: #38bdf8 !important;
+            -webkit-text-fill-color: #38bdf8 !important;
+            font-weight: 700 !important;
+            font-size: 0.95rem !important;
+            letter-spacing: 0.3px !important;
         }
-        button[key="theme_toggle_btn"]:hover,
-        div[data-testid="stButton"] button[kind="secondary"]:hover {
-            background: rgba(34, 211, 238, 0.15) !important;
-            border-color: #22d3ee !important;
+        div.st-key-theme_toggle_btn button:hover {
+            background: rgba(56, 189, 248, 0.2) !important;
+            border-color: #38bdf8 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 24px rgba(56, 189, 248, 0.45) !important;
+        }
+        div.st-key-theme_toggle_btn button:hover p,
+        div.st-key-theme_toggle_btn button:hover span {
             color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+        }
+
+        /* Clear Scan / Secondary Buttons */
+        div.st-key-clear_scan_btn button,
+        div[class*="st-key-clear_scan_btn"] button,
+        button[data-testid="stBaseButton-secondary"]:not(.st-key-theme_toggle_btn button) {
+            background: rgba(30, 41, 59, 0.75) !important;
+            border: 1px solid rgba(239, 68, 68, 0.4) !important;
+            color: #f87171 !important;
+            border-radius: 12px !important;
+            padding: 12px 20px !important;
+            font-weight: 600 !important;
+            font-size: 0.95rem !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
+        }
+        div.st-key-clear_scan_btn button p,
+        div.st-key-clear_scan_btn button span {
+            color: #f87171 !important;
+            -webkit-text-fill-color: #f87171 !important;
+        }
+        div.st-key-clear_scan_btn button:hover {
+            background: rgba(239, 68, 68, 0.15) !important;
+            border-color: #ef4444 !important;
+            transform: translateY(-1px) !important;
         }
 
         /* Download button redesign */
@@ -279,6 +324,10 @@ def inject_premium_styles(theme_mode="dark"):
             margin-left: 10px !important;
             flex-grow: 1 !important;
             font-family: monospace !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+            min-width: 0 !important;
         }
 
         /* Popovers & Tooltips */
@@ -534,26 +583,71 @@ def inject_premium_styles(theme_mode="dark"):
         }
 
         /* Theme toggle button specific styling in Light Mode */
-        button[key="theme_toggle_btn"],
-        div[data-testid="stButton"] button[kind="secondary"] {
-            background: #ffffff !important;
-            border: 1px solid #cbd5e1 !important;
+        div.st-key-theme_toggle_btn,
+        div[class*="st-key-theme_toggle_btn"] {
+            display: flex !important;
+            justify-content: center !important;
+            margin-bottom: 1.25rem !important;
+        }
+        div.st-key-theme_toggle_btn button,
+        div[class*="st-key-theme_toggle_btn"] button {
+            background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%) !important;
+            border: 1.5px solid #3b82f6 !important;
+            border-radius: 9999px !important;
             color: #1d4ed8 !important;
             font-size: 0.95rem !important;
-            padding: 8px 16px !important;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+            font-weight: 700 !important;
+            padding: 10px 24px !important;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.9) inset !important;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            width: 100% !important;
+            max-width: 400px !important;
+            margin: 0 auto !important;
+            min-height: 46px !important;
         }
-        button[key="theme_toggle_btn"] p,
-        button[key="theme_toggle_btn"] span {
+        div.st-key-theme_toggle_btn button p,
+        div.st-key-theme_toggle_btn button span,
+        div.st-key-theme_toggle_btn button div {
             color: #1d4ed8 !important;
             -webkit-text-fill-color: #1d4ed8 !important;
-            font-weight: 600 !important;
+            font-weight: 700 !important;
+            font-size: 0.95rem !important;
+            letter-spacing: 0.3px !important;
         }
-        button[key="theme_toggle_btn"]:hover,
-        div[data-testid="stButton"] button[kind="secondary"]:hover {
-            background: #eff6ff !important;
-            border-color: #2563eb !important;
+        div.st-key-theme_toggle_btn button:hover {
+            background: #dbeafe !important;
+            border-color: #1d4ed8 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3) !important;
+        }
+        div.st-key-theme_toggle_btn button:hover p,
+        div.st-key-theme_toggle_btn button:hover span {
             color: #1e40af !important;
+            -webkit-text-fill-color: #1e40af !important;
+        }
+
+        /* Clear Scan / Secondary Buttons in Light Mode */
+        div.st-key-clear_scan_btn button,
+        div[class*="st-key-clear_scan_btn"] button,
+        button[data-testid="stBaseButton-secondary"]:not(.st-key-theme_toggle_btn button) {
+            background: #ffffff !important;
+            border: 1px solid #fca5a5 !important;
+            color: #dc2626 !important;
+            border-radius: 12px !important;
+            padding: 12px 20px !important;
+            font-weight: 600 !important;
+            font-size: 0.95rem !important;
+            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.08) !important;
+        }
+        div.st-key-clear_scan_btn button p,
+        div.st-key-clear_scan_btn button span {
+            color: #dc2626 !important;
+            -webkit-text-fill-color: #dc2626 !important;
+        }
+        div.st-key-clear_scan_btn button:hover {
+            background: #fef2f2 !important;
+            border-color: #ef4444 !important;
+            transform: translateY(-1px) !important;
         }
 
         /* Download button redesign */
@@ -604,6 +698,10 @@ def inject_premium_styles(theme_mode="dark"):
             margin-left: 10px !important;
             flex-grow: 1 !important;
             font-family: monospace !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+            min-width: 0 !important;
         }
 
         /* Popovers & Tooltips */
@@ -660,15 +758,14 @@ def inject_premium_styles(theme_mode="dark"):
         }
         """
 
-    st.markdown(f"""
-    <style>
+    base_css = """
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
         /* Scoped global typography */
         html, body, .stApp, p, label, button, input, select, textarea, h1, h2, h3, h4, h5, h6,
-        .glass-card, .metric-card, .recommendation-item, .browser-frame, .info-box {{
+        .glass-card, .metric-card, .recommendation-item, .browser-frame, .info-box {
             font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-        }}
+        }
 
         /* Preserve Material Symbols & Streamlit Icon Fonts */
         [class*="material-symbols"],
@@ -677,36 +774,68 @@ def inject_premium_styles(theme_mode="dark"):
         [data-testid="stIcon"],
         .material-symbols-outlined,
         .material-symbols-rounded,
-        .material-symbols-sharp {{
+        .material-symbols-sharp {
             font-family: 'Material Symbols Outlined', 'Material Icons', 'StreamlitIcons', sans-serif !important;
             font-style: normal !important;
             text-transform: none !important;
-        }}
+        }
 
-        footer {{visibility: hidden;}}
+        footer {visibility: hidden;}
 
-        .block-container {{
-            padding-top: 1rem !important;
+        header[data-testid="stHeader"] {
+            background: transparent !important;
+        }
+
+        .block-container {
+            padding-top: 3.5rem !important;
             padding-bottom: 4rem !important;
-            max-width: 95% !important;
-        }}
+            max-width: 1200px !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
 
-        div[data-baseweb="tab-highlight"] {{
+        /* App Title & Subtitle Typography */
+        .main-app-title {
+            font-size: 2.85rem !important;
+            font-weight: 800 !important;
+            letter-spacing: -0.5px !important;
+            margin-bottom: 0.5rem !important;
+            line-height: 1.15 !important;
+            text-align: center !important;
+        }
+        .main-app-title.gradient-title-dark {
+            background: linear-gradient(135deg, #22d3ee 0%, #38bdf8 40%, #818cf8 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+        }
+        .main-app-title.gradient-title-light {
+            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #4f46e5 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+        }
+        .main-app-subtitle {
+            font-size: 1.1rem !important;
+            margin-bottom: 1.25rem !important;
+            line-height: 1.5 !important;
+            text-align: center !important;
+        }
+
+        div[data-baseweb="tab-highlight"] {
             display: none !important;
-        }}
+        }
 
         /* Keyframe Animations */
-        @keyframes spin {{
-            0% {{ transform: rotate(0deg); }}
-            100% {{ transform: rotate(360deg); }}
-        }}
-        @keyframes pulse {{
-            0%, 100% {{ opacity: 0.6; }}
-            50% {{ opacity: 1; }}
-        }}
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
 
         /* Circular spinner */
-        .circular-spinner {{
+        .circular-spinner {
             width: 32px;
             height: 32px;
             border: 3px solid rgba(34, 211, 238, 0.2);
@@ -714,39 +843,136 @@ def inject_premium_styles(theme_mode="dark"):
             border-top: 3px solid #22d3ee;
             animation: spin 1s linear infinite;
             display: inline-block;
-        }}
+        }
 
-        .browser-dot {{
+        .browser-dot {
             width: 9px !important;
             height: 9px !important;
             border-radius: 50% !important;
             display: inline-block !important;
-        }}
-        .browser-dot.red {{ background: #ef4444 !important; }}
-        .browser-dot.yellow {{ background: #f59e0b !important; }}
-        .browser-dot.green {{ background: #10b981 !important; }}
+        }
+        .browser-dot.red { background: #ef4444 !important; }
+        .browser-dot.yellow { background: #f59e0b !important; }
+        .browser-dot.green { background: #10b981 !important; }
 
-        /* Theme-specific overrides */
-        {theme_css}
-    </style>
-    """, unsafe_allow_html=True)
+        /* ================= MOBILE & TABLET RESPONSIVE SYSTEM ================= */
+        @media (max-width: 768px) {
+            .block-container {
+                padding-top: 2.5rem !important;
+                padding-left: 0.85rem !important;
+                padding-right: 0.85rem !important;
+                padding-bottom: 2.5rem !important;
+            }
+            .main-app-title {
+                font-size: 1.95rem !important;
+                letter-spacing: -0.3px !important;
+                line-height: 1.2 !important;
+            }
+            .main-app-subtitle {
+                font-size: 0.95rem !important;
+                line-height: 1.45 !important;
+                padding: 0 0.5rem !important;
+                margin-bottom: 1rem !important;
+            }
+            .glass-card, div[data-testid="stVerticalBlockBorderWrapper"] {
+                padding: 1.2rem 1rem !important;
+                border-radius: 14px !important;
+                margin-bottom: 1rem !important;
+            }
+            .metric-card {
+                padding: 1rem 0.85rem !important;
+                border-radius: 14px !important;
+                margin-bottom: 0.75rem !important;
+            }
+            .metric-value {
+                font-size: 1.75rem !important;
+            }
+            .metric-label {
+                font-size: 0.75rem !important;
+                letter-spacing: 0.8px !important;
+            }
+            div.stButton > button {
+                padding: 12px 18px !important;
+                font-size: 1rem !important;
+                min-height: 46px !important;
+            }
+            div.st-key-theme_toggle_btn button,
+            div[class*="st-key-theme_toggle_btn"] button {
+                max-width: 100% !important;
+                width: 100% !important;
+                font-size: 0.88rem !important;
+                padding: 10px 16px !important;
+            }
+            div[data-baseweb="tab-list"] {
+                overflow-x: auto !important;
+                flex-wrap: nowrap !important;
+                white-space: nowrap !important;
+                padding-bottom: 4px !important;
+            }
+            div[data-baseweb="tab"] {
+                padding: 8px 12px !important;
+                font-size: 0.85rem !important;
+            }
+            div[data-testid="stDataFrame"] {
+                max-width: 100% !important;
+                overflow-x: auto !important;
+            }
+            .browser-frame {
+                border-radius: 12px !important;
+                margin: 1rem 0 !important;
+            }
+            .browser-header {
+                padding: 6px 10px !important;
+                gap: 4px !important;
+            }
+            .browser-address {
+                font-size: 0.72rem !important;
+                padding: 2px 8px !important;
+                margin-left: 6px !important;
+                max-width: 60% !important;
+            }
+            .recommendation-item {
+                padding: 0.85rem 1rem !important;
+                font-size: 0.88rem !important;
+            }
+            textarea, input, select {
+                font-size: 16px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .block-container {
+                padding-left: 0.5rem !important;
+                padding-right: 0.5rem !important;
+            }
+            .main-app-title {
+                font-size: 1.65rem !important;
+            }
+            .main-app-subtitle {
+                font-size: 0.85rem !important;
+            }
+            .metric-value {
+                font-size: 1.55rem !important;
+            }
+            .glass-card, div[data-testid="stVerticalBlockBorderWrapper"] {
+                padding: 1rem 0.75rem !important;
+            }
+        }
+    """
+    st.markdown(f"<style>{base_css}\n{theme_css}</style>", unsafe_allow_html=True)
 
 
 def inject_header_element(theme_mode="dark"):
     is_dark = (theme_mode == "dark")
-    if is_dark:
-        title_style = "font-weight: 800; background: linear-gradient(135deg, #22d3ee 0%, #6366f1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem; font-size: 3.2rem; letter-spacing: -0.5px;"
-        sub_color = "#94a3b8"
-    else:
-        title_style = "font-weight: 800; color: #1d4ed8 !important; margin-bottom: 0.5rem; font-size: 3.2rem; letter-spacing: -0.5px;"
-        sub_color = "#475569"
+    gradient_class = "gradient-title-dark" if is_dark else "gradient-title-light"
+    sub_color = "#94a3b8" if is_dark else "#475569"
 
     st.markdown(f"""
-    <div style="text-align: center; margin-bottom: 1.5rem;">
-        <h1 style="{title_style}">
+    <div class="main-header-banner" style="text-align: center; margin-bottom: 0.5rem;">
+        <h1 class="main-app-title {gradient_class}">
             SEO Domain Intelligence Agent
         </h1>
-        <p style="color: {sub_color}; font-size: 1.15rem; margin-bottom: 1.5rem; font-weight: 500;">
+        <p class="main-app-subtitle" style="color: {sub_color}; font-weight: 500;">
             Multi-Website Enterprise SEO Analysis — Powered by Screaming Frog + Semrush + WebPageTest
         </p>
     </div>

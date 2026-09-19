@@ -111,14 +111,14 @@ is_dark = (theme_mode == "dark")
 # Inject global style and header with active theme
 inject_premium_styles(theme_mode)
 
-col_top_space, col_top_toggle = st.columns([3.6, 1.4])
+inject_header_element(theme_mode)
+
+col_top_l, col_top_toggle, col_top_r = st.columns([1.2, 1.6, 1.2])
 with col_top_toggle:
-    toggle_icon = "✨ Aurora Gradient Mode" if is_dark else "🌙 Obsidian Dark Mode"
+    toggle_icon = "✨ Switch to Light (Aurora) Mode" if is_dark else "🌙 Switch to Dark (Obsidian) Mode"
     if st.button(toggle_icon, key="theme_toggle_btn", use_container_width=True, help="Toggle between Obsidian Dark and Aurora Gradient modes"):
         st.session_state["theme_mode"] = "light" if is_dark else "dark"
         st.rerun()
-
-inject_header_element(theme_mode)
 
 # Input Panel configured inside native bordered container
 with st.container(border=True):
@@ -179,7 +179,7 @@ with col_b1:
     )
 with col_b2:
     if "audit_results" in st.session_state and st.session_state["audit_results"]:
-        if st.button("Clear Results & New Scan", use_container_width=True):
+        if st.button("Clear Results & New Scan", key="clear_scan_btn", type="secondary", use_container_width=True):
             st.session_state["audit_results"] = None
             st.rerun()
 
