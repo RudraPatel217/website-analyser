@@ -111,10 +111,10 @@ is_dark = (theme_mode == "dark")
 # Inject global style and header with active theme
 inject_premium_styles(theme_mode)
 
-col_top_space, col_top_toggle = st.columns([6, 1])
+col_top_space, col_top_toggle = st.columns([3.6, 1.4])
 with col_top_toggle:
-    toggle_icon = "☀️ White Mode" if is_dark else "🌙 Dark Mode"
-    if st.button(toggle_icon, key="theme_toggle_btn", use_container_width=True, help="Toggle between Dark and White/Light mode"):
+    toggle_icon = "✨ Aurora Gradient Mode" if is_dark else "🌙 Obsidian Dark Mode"
+    if st.button(toggle_icon, key="theme_toggle_btn", use_container_width=True, help="Toggle between Obsidian Dark and Aurora Gradient modes"):
         st.session_state["theme_mode"] = "light" if is_dark else "dark"
         st.rerun()
 
@@ -136,19 +136,21 @@ with st.container(border=True):
     )
     
     service_healthy, _ = check_service_health()
-    default_source_index = 0 if service_healthy else 1
+    preview_options = [
+        "⚡ Ultra-Fast Visual Capture (1-2s Recommended)",
+        "🌐 Cloud High-Resolution Engine",
+        "⚡ Instant Domain Snapshot (0s)"
+    ]
+    if service_healthy:
+        preview_options.insert(0, "💻 Local Puppeteer Engine (Port 3000)")
 
     col_source, col_c1, col_c2 = st.columns(3)
     with col_source:
         screenshot_source = st.selectbox(
             "Website Visual Preview Engine:",
-            options=[
-                "Automated High-Speed Visual Capture (Recommended)",
-                "Cloud Visual Engine",
-                "Standard Website Preview"
-            ],
+            options=preview_options,
             index=0,
-            help="Select your preferred mode for instant homepage visual previews."
+            help="Select your preferred mode for homepage visual previews (optimized for 1-2s response)."
         )
     with col_c1:
         max_pages = st.slider(
@@ -206,15 +208,18 @@ if domains_input.strip() and not st.session_state.get("audit_results"):
                 target_url = domain if (domain.startswith("http://") or domain.startswith("https://")) else f"https://{domain}"
                 encoded = quote(target_url, safe="")
 
-                if screenshot_source == "Standard Website Preview":
+                if "Instant Domain" in screenshot_source or screenshot_source == "Standard Website Preview":
                     primary_url = "instant"
                     fallback_url = None
-                elif "Cloud Visual" in screenshot_source:
-                    primary_url = f"https://s0.wp.com/mshots/v1/{encoded}?w=800"
-                    fallback_url = f"https://api.microlink.io/?url={encoded}&screenshot=true&meta=false&embed=screenshot.url"
+                elif "Local Puppeteer" in screenshot_source:
+                    primary_url = f"http://localhost:3000/screenshot?url={encoded}"
+                    fallback_url = f"https://image.thum.io/get/width/800/crop/600/{target_url}"
+                elif "Cloud High-Resolution" in screenshot_source:
+                    primary_url = f"https://api.microlink.io/?url={encoded}&screenshot=true&meta=false&embed=screenshot.url"
+                    fallback_url = f"https://image.thum.io/get/width/800/crop/600/{target_url}"
                 else:
-                    # Automated High-Speed Visual Capture: lightweight w=600 (62KB) for rapid loading
-                    primary_url = f"https://s0.wp.com/mshots/v1/{encoded}?w=600"
+                    # Ultra-Fast Visual Capture: ~1-1.2s high-speed CDN visual render
+                    primary_url = f"https://image.thum.io/get/width/800/crop/600/{target_url}"
                     fallback_url = f"https://api.microlink.io/?url={encoded}&screenshot=true&meta=false&embed=screenshot.url"
 
                 render_browser_preview(domain, primary_url, fallback_url=fallback_url, theme_mode=theme_mode)

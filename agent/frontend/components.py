@@ -89,11 +89,7 @@ def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode
         """, unsafe_allow_html=True)
         return
 
-    if fallback_url:
-        onerror_attr = f'onerror="if(!this.dataset.tried){{this.dataset.tried=\'1\';this.src=\'{fallback_url}\';}}else{{this.style.display=\'none\';var l=document.getElementById(\'preview-loader-{safe_id}\');if(l)l.style.display=\'none\';var fb=document.getElementById(\'preview-fallback-{safe_id}\');if(fb)fb.style.display=\'block\';}}"'
-    else:
-        onerror_attr = f'onerror="this.style.display=\'none\';var l=document.getElementById(\'preview-loader-{safe_id}\');if(l)l.style.display=\'none\';var fb=document.getElementById(\'preview-fallback-{safe_id}\');if(fb)fb.style.display=\'block\';"'
-
+    fb_val = fallback_url if fallback_url else ""
     st.markdown(f"""
     <div class="browser-frame">
         <div class="browser-header">
@@ -102,23 +98,56 @@ def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode
             <span class="browser-dot green"></span>
             <img src="{favicon_url}" style="width: 14px; height: 14px; margin-left: 8px; margin-right: 6px; vertical-align: -2px;" onerror="this.style.display='none';" />
             <span class="browser-address">{display_url}</span>
+            <a href="{target_link}" target="_blank" style="color: {card_text_color}; font-size: 0.78rem; text-decoration: none; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); margin-left: 6px; white-space: nowrap;">Open ↗</a>
         </div>
-        <div style="width: 100%; min-height: 320px; max-height: 520px; overflow-y: auto; background: {container_bg}; position: relative;">
-            <div id="preview-loader-{safe_id}" style="position: absolute; top: 0; left: 0; width: 100%; height: 320px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: {container_bg}; z-index: 1;">
-                <div style="width: 34px; height: 34px; border: 3px solid rgba(34, 211, 238, 0.2); border-top: 3px solid #22d3ee; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px;"></div>
-                <div style="color: {card_title_color}; font-size: 0.92rem; font-weight: 600; letter-spacing: 0.3px;">Loading High-Speed Preview...</div>
+        <div style="width: 100%; min-height: 300px; max-height: 520px; overflow-y: auto; background: {container_bg}; position: relative;">
+            <div id="preview-loader-{safe_id}" style="position: absolute; top: 0; left: 0; width: 100%; height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: {container_bg}; z-index: 1; transition: opacity 0.3s ease;">
+                <div style="width: 32px; height: 32px; border: 3px solid rgba(34, 211, 238, 0.2); border-top: 3px solid #22d3ee; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px;"></div>
+                <div style="color: {card_title_color}; font-size: 0.92rem; font-weight: 600; letter-spacing: 0.3px;">⚡ Fast Preview (1-2s)...</div>
             </div>
-            <img id="preview-img-{safe_id}" src="{screenshot_url}" {onerror_attr} onload="var l=document.getElementById('preview-loader-{safe_id}');if(l)l.style.display='none';" loading="eager" decoding="async" style="width: 100%; height: auto; display: block; min-height: 220px; position: relative; z-index: 2;" alt="Visual Preview for {display_url}" />
+            <img id="preview-img-{safe_id}" src="{screenshot_url}"
+                onload="var l=document.getElementById('preview-loader-{safe_id}');if(l){{l.style.opacity='0';setTimeout(function(){{l.style.display='none';}},200);}}"
+                onerror="window.handlePreviewErr_{safe_id}();"
+                loading="eager" decoding="async"
+                style="width: 100%; height: auto; display: block; min-height: 220px; position: relative; z-index: 2;"
+                alt="Visual Preview for {display_url}" />
             <div id="preview-fallback-{safe_id}" style="display: none; padding: 3.5rem 2rem; text-align: center; position: relative; z-index: 3;">
                 <div style="font-size: 3rem; margin-bottom: 0.75rem;">🌐</div>
                 <h4 style="color: {card_title_color}; margin: 0 0 0.5rem 0; font-size: 1.25rem; font-weight: 700;">Live Connection Established</h4>
                 <p style="font-size: 0.95rem; color: {card_text_color}; max-width: 480px; margin: 0 auto 1.5rem auto; line-height: 1.6;">
-                    Target website structure cataloged for <strong>{display_url}</strong>. Ready for in-depth SEO & security crawl.
+                    Target website verified for <strong>{display_url}</strong>. Ready for in-depth SEO & security crawl.
                 </p>
                 <a href="{target_link}" target="_blank" style="display: inline-block; background: {btn_bg}; color: {btn_color}; border: 1px solid {btn_border}; border-radius: 8px; padding: 8px 18px; font-weight: 600; text-decoration: none;">
                     Visit Live Site ↗
                 </a>
             </div>
+            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" style="display:none;" onload="
+                window.handlePreviewErr_{safe_id} = function() {{
+                    var img = document.getElementById('preview-img-{safe_id}');
+                    var l = document.getElementById('preview-loader-{safe_id}');
+                    var fb = document.getElementById('preview-fallback-{safe_id}');
+                    var fbUrl = '{fb_val}';
+                    if (img && fbUrl && !img.dataset.tried) {{
+                        img.dataset.tried = '1';
+                        img.src = fbUrl;
+                    }} else {{
+                        if (img) img.style.display = 'none';
+                        if (l) l.style.display = 'none';
+                        if (fb) fb.style.display = 'block';
+                    }}
+                }};
+                setTimeout(function() {{
+                    var img = document.getElementById('preview-img-{safe_id}');
+                    var l = document.getElementById('preview-loader-{safe_id}');
+                    if (l && l.style.display !== 'none') {{
+                        if (img && img.complete && img.naturalWidth > 0) {{
+                            l.style.display = 'none';
+                        }} else {{
+                            window.handlePreviewErr_{safe_id}();
+                        }}
+                    }}
+                }}, 2600);
+            " />
         </div>
     </div>
     """, unsafe_allow_html=True)

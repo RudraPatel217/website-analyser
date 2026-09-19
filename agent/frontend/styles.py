@@ -7,57 +7,82 @@ def inject_premium_styles(theme_mode="dark"):
         theme_css = """
         /* ================= DARK THEME STYLES ================= */
         .stApp {
-            background: radial-gradient(circle at 50% 0%, #0f172a 0%, #080c14 100%) !important;
+            background: radial-gradient(at 0% 0%, rgba(34, 211, 238, 0.12) 0px, transparent 45%),
+                        radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 45%),
+                        radial-gradient(at 50% 100%, rgba(56, 189, 248, 0.08) 0px, transparent 50%),
+                        radial-gradient(circle at 50% 0%, #0c1220 0%, #060911 100%) !important;
             color: #f1f5f9 !important;
         }
 
-        h2 { color: #f1f5f9 !important; }
-        h3, h4 { color: #22d3ee !important; }
+        h1 {
+            background: linear-gradient(135deg, #f8fafc 0%, #38bdf8 50%, #818cf8 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            font-weight: 800 !important;
+            letter-spacing: -0.5px !important;
+        }
+        h2 { color: #f1f5f9 !important; font-weight: 700 !important; }
+        h3, h4 { color: #22d3ee !important; font-weight: 700 !important; }
         h5, h6 { color: #f1f5f9 !important; }
         label, p, li { color: #cbd5e1 !important; }
 
         /* Glassmorphic layout card styling */
         .glass-card, div[data-testid="stVerticalBlockBorderWrapper"] {
-            background: rgba(30, 41, 59, 0.5) !important;
-            border: 1px solid rgba(255, 255, 255, 0.08) !important;
-            border-radius: 16px !important;
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(255, 255, 255, 0.09) !important;
+            border-radius: 18px !important;
             padding: 1.8rem !important;
-            backdrop-filter: blur(16px) !important;
-            -webkit-backdrop-filter: blur(16px) !important;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.04) inset !important;
             margin-bottom: 1.5rem !important;
         }
 
         /* Actionable recommendations lists */
         .recommendation-item {
-            background: rgba(30, 41, 59, 0.4) !important;
-            border-left: 4px solid #475569 !important;
-            border-radius: 8px !important;
-            padding: 1rem !important;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.55) 0%, rgba(15, 23, 42, 0.6) 100%) !important;
+            border-left: 4px solid #38bdf8 !important;
+            border-radius: 10px !important;
+            padding: 1rem 1.25rem !important;
             margin: 0.75rem 0 !important;
             color: #cbd5e1 !important;
             font-size: 0.95rem !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.04) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.04) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
         }
 
         /* Custom stats metrics */
         .metric-card {
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.7) 100%) !important;
-            border: 1px solid rgba(255, 255, 255, 0.08) !important;
-            border-radius: 16px !important;
-            padding: 1.5rem !important;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.85) 100%) !important;
+            border: 1px solid rgba(56, 189, 248, 0.25) !important;
+            border-radius: 18px !important;
+            padding: 1.6rem !important;
             text-align: center !important;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
-            transition: transform 0.3s ease, border-color 0.3s ease !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.05) inset !important;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease !important;
         }
         .metric-card:hover {
-            transform: translateY(-3px) !important;
-            border-color: rgba(34, 211, 238, 0.4) !important;
+            transform: translateY(-4px) !important;
+            border-color: rgba(34, 211, 238, 0.6) !important;
+            box-shadow: 0 16px 36px rgba(34, 211, 238, 0.2), 0 0 0 1px rgba(34, 211, 238, 0.3) inset !important;
         }
         .metric-label {
             font-size: 0.85rem !important;
             color: #94a3b8 !important;
-            font-weight: 600 !important;
+            font-weight: 700 !important;
             text-transform: uppercase !important;
+            letter-spacing: 1.2px !important;
+            margin-bottom: 0.5rem !important;
+        }
+        .metric-value {
+            font-size: 2.35rem !important;
+            font-weight: 800 !important;
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            text-shadow: 0 0 20px rgba(56, 189, 248, 0.3) !important;
+        }
             letter-spacing: 1px !important;
             margin-bottom: 0.5rem !important;
         }
@@ -156,23 +181,30 @@ def inject_premium_styles(theme_mode="dark"):
 
         /* Buttons */
         div.stButton > button {
-            background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 50%, #6366f1 100%) !important;
-            color: white !important;
+            background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #6366f1 100%) !important;
+            color: #ffffff !important;
             border: none !important;
             border-radius: 14px !important;
             padding: 14px 28px !important;
             font-size: 1.1rem !important;
             font-weight: 700 !important;
-            box-shadow: 0 4px 25px rgba(59, 130, 246, 0.3) !important;
+            box-shadow: 0 4px 25px rgba(59, 130, 246, 0.35) !important;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
             width: 100% !important;
             letter-spacing: 0.5px !important;
         }
+        div.stButton > button p,
+        div.stButton > button span,
+        div.stButton > button div {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            font-weight: 700 !important;
+        }
         div.stButton > button:hover {
             transform: translateY(-2px) !important;
-            box-shadow: 0 8px 30px rgba(59, 130, 246, 0.45) !important;
+            box-shadow: 0 8px 30px rgba(59, 130, 246, 0.5) !important;
             filter: brightness(1.08) !important;
-            color: white !important;
+            color: #ffffff !important;
         }
 
         /* Theme toggle button specific styling */
@@ -184,6 +216,12 @@ def inject_premium_styles(theme_mode="dark"):
             font-size: 0.95rem !important;
             padding: 8px 16px !important;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2) !important;
+        }
+        button[key="theme_toggle_btn"] p,
+        button[key="theme_toggle_btn"] span {
+            color: #22d3ee !important;
+            -webkit-text-fill-color: #22d3ee !important;
+            font-weight: 600 !important;
         }
         button[key="theme_toggle_btn"]:hover,
         div[data-testid="stButton"] button[kind="secondary"]:hover {
@@ -289,66 +327,84 @@ def inject_premium_styles(theme_mode="dark"):
         """
     else:
         theme_css = """
-        /* ================= LIGHT / WHITE THEME STYLES ================= */
+        /* ================= AURORA LIGHT GRADIENT THEME ================= */
         .stApp {
-            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%) !important;
+            background: radial-gradient(at 10% 10%, rgba(99, 102, 241, 0.08) 0px, transparent 45%),
+                        radial-gradient(at 90% 15%, rgba(6, 182, 212, 0.1) 0px, transparent 50%),
+                        radial-gradient(at 50% 85%, rgba(168, 85, 247, 0.07) 0px, transparent 55%),
+                        linear-gradient(145deg, #f8fafc 0%, #f1f5f9 40%, #eef2ff 100%) !important;
             color: #0f172a !important;
         }
 
-        h2 { color: #0f172a !important; }
-        h3, h4 { color: #1d4ed8 !important; }
+        h1 {
+            background: linear-gradient(135deg, #0f172a 0%, #2563eb 50%, #4f46e5 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            font-weight: 800 !important;
+            letter-spacing: -0.5px !important;
+        }
+        h2 { color: #0f172a !important; font-weight: 700 !important; }
+        h3, h4 { color: #1d4ed8 !important; font-weight: 700 !important; }
         h5, h6 { color: #0f172a !important; }
         label, p, li { color: #475569 !important; }
 
-        /* Crisp white card styling */
+        /* Crisp glassmorphic card styling with multi-layer shadow */
         .glass-card, div[data-testid="stVerticalBlockBorderWrapper"] {
-            background: #ffffff !important;
-            border: 1px solid #e2e8f0 !important;
-            border-radius: 16px !important;
+            background: rgba(255, 255, 255, 0.8) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            border: 1px solid rgba(226, 232, 240, 0.85) !important;
+            border-radius: 18px !important;
             padding: 1.8rem !important;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03) !important;
+            box-shadow: 0 10px 30px -5px rgba(99, 102, 241, 0.06), 0 4px 6px -2px rgba(0, 0, 0, 0.02), 0 0 0 1px rgba(255, 255, 255, 0.9) inset !important;
             margin-bottom: 1.5rem !important;
+            transition: transform 0.2s ease, box-shadow 0.2s ease !important;
         }
 
         /* Actionable recommendations lists */
         .recommendation-item {
-            background: #f8fafc !important;
-            border-left: 4px solid #3b82f6 !important;
-            border-radius: 8px !important;
-            padding: 1rem !important;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%) !important;
+            border-left: 4px solid #4f46e5 !important;
+            border-radius: 10px !important;
+            padding: 1rem 1.25rem !important;
             margin: 0.75rem 0 !important;
-            color: #334155 !important;
+            color: #1e293b !important;
             font-size: 0.95rem !important;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+            border-top: 1px solid rgba(241, 245, 249, 0.8) !important;
+            border-right: 1px solid rgba(241, 245, 249, 0.8) !important;
+            border-bottom: 1px solid rgba(241, 245, 249, 0.8) !important;
         }
 
         /* Custom stats metrics */
         .metric-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
-            border: 1px solid #e2e8f0 !important;
-            border-radius: 16px !important;
-            padding: 1.5rem !important;
+            background: linear-gradient(140deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 245, 255, 0.85) 100%) !important;
+            border: 1px solid rgba(199, 210, 254, 0.7) !important;
+            border-radius: 18px !important;
+            padding: 1.6rem !important;
             text-align: center !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
-            transition: transform 0.3s ease, border-color 0.3s ease !important;
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.8) inset !important;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease !important;
         }
         .metric-card:hover {
-            transform: translateY(-3px) !important;
-            border-color: #3b82f6 !important;
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15) !important;
+            transform: translateY(-4px) !important;
+            border-color: #4f46e5 !important;
+            box-shadow: 0 16px 32px -4px rgba(79, 70, 229, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.9) inset !important;
         }
         .metric-label {
             font-size: 0.85rem !important;
-            color: #64748b !important;
+            color: #475569 !important;
             font-weight: 700 !important;
             text-transform: uppercase !important;
-            letter-spacing: 1px !important;
+            letter-spacing: 1.2px !important;
             margin-bottom: 0.5rem !important;
         }
         .metric-value {
-            font-size: 2.25rem !important;
+            font-size: 2.35rem !important;
             font-weight: 800 !important;
-            color: #2563eb !important;
+            background: linear-gradient(135deg, #1d4ed8 0%, #4f46e5 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
         }
 
         /* Force high-contrast white styling on BaseWeb textarea containers */
@@ -452,22 +508,29 @@ def inject_premium_styles(theme_mode="dark"):
         /* Buttons */
         div.stButton > button {
             background: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #4f46e5 100%) !important;
-            color: white !important;
+            color: #ffffff !important;
             border: none !important;
             border-radius: 14px !important;
             padding: 14px 28px !important;
             font-size: 1.1rem !important;
             font-weight: 700 !important;
-            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3) !important;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.35) !important;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
             width: 100% !important;
             letter-spacing: 0.5px !important;
         }
+        div.stButton > button p,
+        div.stButton > button span,
+        div.stButton > button div {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            font-weight: 700 !important;
+        }
         div.stButton > button:hover {
             transform: translateY(-2px) !important;
-            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.45) !important;
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5) !important;
             filter: brightness(1.05) !important;
-            color: white !important;
+            color: #ffffff !important;
         }
 
         /* Theme toggle button specific styling in Light Mode */
@@ -479,6 +542,12 @@ def inject_premium_styles(theme_mode="dark"):
             font-size: 0.95rem !important;
             padding: 8px 16px !important;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+        }
+        button[key="theme_toggle_btn"] p,
+        button[key="theme_toggle_btn"] span {
+            color: #1d4ed8 !important;
+            -webkit-text-fill-color: #1d4ed8 !important;
+            font-weight: 600 !important;
         }
         button[key="theme_toggle_btn"]:hover,
         div[data-testid="stButton"] button[kind="secondary"]:hover {

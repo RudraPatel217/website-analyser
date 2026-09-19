@@ -64,7 +64,7 @@ def crawl_page(base_url, max_pages=25, live_callback=None):
             # Robust tag parsing to prevent AttributeError on empty or malformed elements
             title = "Missing Title"
             if soup.title and soup.title.string:
-                title = str(soup.title.string).strip() or "Missing Title"
+                title = soup.title.string.strip() or "Missing Title"
                 
             meta = soup.find('meta', attrs={'name': 'description'})
             meta_desc = "Missing Meta Description"

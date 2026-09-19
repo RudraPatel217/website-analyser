@@ -6,7 +6,7 @@ import re
 from urllib.parse import urlparse
 from datetime import datetime, timezone
 from bs4 import BeautifulSoup
-from dateutil import parser as date_parser
+from dateutil import parser as date_parser  # type: ignore
 import urllib3
 
 # Disable warning messages for unverified HTTPS requests
@@ -336,7 +336,7 @@ def check_malware_and_code_vulnerabilities(html_content, is_https=True):
         for tag, attr in [('script', 'src'), ('link', 'href'), ('img', 'src')]:
             for elem in soup.find_all(tag):
                 src_val = elem.get(attr, '')
-                if src_val.startswith('http://'):
+                if isinstance(src_val, str) and src_val.startswith('http://'):
                     insecure_assets += 1
         if insecure_assets > 0:
             risk_score += 15

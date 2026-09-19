@@ -1,6 +1,6 @@
-# Use official Python 3.10 slim image with Node.js and Chromium for Puppeteer
+# Use official Python 3.13 slim image with Node.js and Chromium for Puppeteer
 FROM node:18-bullseye-slim AS node_base
-FROM python:3.10-slim-bullseye
+FROM python:3.13-slim-bookworm
 
 # Copy Node binaries from node_base
 COPY --from=node_base /usr/local/bin/node /usr/local/bin/

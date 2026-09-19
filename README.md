@@ -1,7 +1,7 @@
 # 🌐 Domain Intelligence Agent & SEO Auditor
 
 [![Live Application](https://img.shields.io/badge/Live_App-website--analyser.streamlit.app-FF4B4B?style=for-the-badge&logo=Streamlit&logoColor=white)](https://website-analyser.streamlit.app/)
-[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Python 3.13+](https://img.shields.io/badge/Python-3.13+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![Puppeteer](https://img.shields.io/badge/Puppeteer-40B5A4?style=for-the-badge&logo=Puppeteer&logoColor=white)](https://pptr.dev/)
 [![Security: SSRF Protected](https://img.shields.io/badge/Security-SSRF%20Protected-brightgreen.svg?style=for-the-badge)](SECURITY.md)
