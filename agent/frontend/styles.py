@@ -82,6 +82,27 @@ def inject_premium_styles(theme_mode="corporate"):
             -webkit-text-fill-color: transparent !important;
         }
 
+        /* Navigation Segmented Control (Obsidian) */
+        div[data-testid="stSegmentedControl"] {
+            margin: 1.5rem 0 1.75rem 0 !important;
+        }
+        div[data-testid="stSegmentedControl"] button {
+            background: rgba(30, 27, 75, 0.45) !important;
+            border: 1px solid rgba(139, 92, 246, 0.25) !important;
+            border-radius: 12px !important;
+            padding: 10px 20px !important;
+            font-weight: 600 !important;
+            color: #cbd5e1 !important;
+            font-size: 0.95rem !important;
+        }
+        div[data-testid="stSegmentedControl"] button[aria-checked="true"] {
+            background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%) !important;
+            border-color: #c084fc !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 18px rgba(139, 92, 246, 0.45) !important;
+            font-weight: 700 !important;
+        }
+
         /* Inputs & Textareas */
         div[data-baseweb="textarea"],
         div[data-baseweb="input"],
@@ -180,6 +201,77 @@ def inject_premium_styles(theme_mode="corporate"):
         div.stDownloadButton > button:hover {
             border-color: #a855f7 !important;
             box-shadow: 0 8px 25px rgba(168, 85, 247, 0.3) !important;
+        }
+
+        /* Clickable Metric Card Buttons (Obsidian) */
+        .stApp div[class*="st-key-btn_metric_"] .stButton > button,
+        .stApp div[class*="st-key-btn_metric_"] button,
+        div.st-key-btn_metric_domains button,
+        div.st-key-btn_metric_seo_issues button,
+        div.st-key-btn_metric_critical_issues button {
+            background: linear-gradient(135deg, rgba(30, 27, 75, 0.75) 0%, rgba(18, 18, 18, 0.85) 100%) !important;
+            border: 1px solid rgba(139, 92, 246, 0.35) !important;
+            border-radius: 18px !important;
+            padding: 1.5rem 1rem !important;
+            min-height: 120px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45) !important;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            cursor: pointer !important;
+            width: 100% !important;
+        }
+        .stApp div[class*="st-key-btn_metric_"] .stButton > button:hover,
+        .stApp div[class*="st-key-btn_metric_"] button:hover {
+            transform: translateY(-4px) !important;
+            border-color: #c084fc !important;
+            box-shadow: 0 12px 35px rgba(192, 132, 252, 0.3) !important;
+            filter: brightness(1.08) !important;
+        }
+        .stApp div[class*="st-key-btn_metric_"] .stButton > button > div,
+        .stApp div[class*="st-key-btn_metric_"] .stButton > button div[data-testid="stMarkdownContainer"] {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 100% !important;
+            gap: 4px !important;
+        }
+        .stApp div[class*="st-key-btn_metric_"] .stButton > button div[data-testid="stMarkdownContainer"] p {
+            display: block !important;
+            text-align: center !important;
+            width: 100% !important;
+            margin: 0 !important;
+        }
+        .stApp div[class*="st-key-btn_metric_"] .stButton > button div[data-testid="stMarkdownContainer"] p:first-of-type {
+            font-size: 0.82rem !important;
+            color: #a5b4fc !important;
+            -webkit-text-fill-color: #a5b4fc !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1.2px !important;
+            margin: 0 0 0.4rem 0 !important;
+        }
+        .stApp div[class*="st-key-btn_metric_"] .stButton > button div[data-testid="stMarkdownContainer"] p:last-of-type {
+            font-size: 2.35rem !important;
+            font-weight: 800 !important;
+            line-height: 1.1 !important;
+            margin: 0 !important;
+        }
+        .stApp div[class*="st-key-btn_metric_domains"] .stButton > button div[data-testid="stMarkdownContainer"] p:last-of-type {
+            color: #c084fc !important;
+            -webkit-text-fill-color: #c084fc !important;
+        }
+        .stApp div[class*="st-key-btn_metric_seo_issues"] .stButton > button div[data-testid="stMarkdownContainer"] p:last-of-type {
+            color: #38bdf8 !important;
+            -webkit-text-fill-color: #38bdf8 !important;
+        }
+        .stApp div[class*="st-key-btn_metric_critical_issues"] .stButton > button div[data-testid="stMarkdownContainer"] p:last-of-type {
+            color: #f87171 !important;
+            -webkit-text-fill-color: #f87171 !important;
         }
 
         /* Browser Mockup Frame */
@@ -314,6 +406,27 @@ def inject_premium_styles(theme_mode="corporate"):
             -webkit-text-fill-color: transparent !important;
         }
 
+        /* Navigation Segmented Control (Corporate) */
+        div[data-testid="stSegmentedControl"] {
+            margin: 1.5rem 0 1.75rem 0 !important;
+        }
+        div[data-testid="stSegmentedControl"] button {
+            background: rgba(30, 41, 59, 0.55) !important;
+            border: 1px solid rgba(59, 130, 246, 0.25) !important;
+            border-radius: 12px !important;
+            padding: 10px 20px !important;
+            font-weight: 600 !important;
+            color: #cbd5e1 !important;
+            font-size: 0.95rem !important;
+        }
+        div[data-testid="stSegmentedControl"] button[aria-checked="true"] {
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%) !important;
+            border-color: #60a5fa !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 18px rgba(37, 99, 235, 0.45) !important;
+            font-weight: 700 !important;
+        }
+
         /* Inputs & Textareas */
         div[data-baseweb="textarea"],
         div[data-baseweb="input"],
@@ -410,8 +523,79 @@ def inject_premium_styles(theme_mode="corporate"):
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
         }
         div.stDownloadButton > button:hover {
-            border-color: #3b82f6 !important;
+            border-color: #38bdf8 !important;
             box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3) !important;
+        }
+
+        /* Clickable Metric Card Buttons (Corporate) */
+        .stApp div[class*="st-key-btn_metric_"] .stButton > button,
+        .stApp div[class*="st-key-btn_metric_"] button,
+        div.st-key-btn_metric_domains button,
+        div.st-key-btn_metric_seo_issues button,
+        div.st-key-btn_metric_critical_issues button {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.9) 100%) !important;
+            border: 1px solid rgba(59, 130, 246, 0.35) !important;
+            border-radius: 18px !important;
+            padding: 1.5rem 1rem !important;
+            min-height: 120px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35) !important;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            cursor: pointer !important;
+            width: 100% !important;
+        }
+        .stApp div[class*="st-key-btn_metric_"] .stButton > button:hover,
+        .stApp div[class*="st-key-btn_metric_"] button:hover {
+            transform: translateY(-4px) !important;
+            border-color: #38bdf8 !important;
+            box-shadow: 0 12px 35px rgba(56, 189, 248, 0.25) !important;
+            filter: brightness(1.08) !important;
+        }
+        .stApp div[class*="st-key-btn_metric_"] .stButton > button > div,
+        .stApp div[class*="st-key-btn_metric_"] .stButton > button div[data-testid="stMarkdownContainer"] {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 100% !important;
+            gap: 4px !important;
+        }
+        .stApp div[class*="st-key-btn_metric_"] .stButton > button div[data-testid="stMarkdownContainer"] p {
+            display: block !important;
+            text-align: center !important;
+            width: 100% !important;
+            margin: 0 !important;
+        }
+        .stApp div[class*="st-key-btn_metric_"] .stButton > button div[data-testid="stMarkdownContainer"] p:first-of-type {
+            font-size: 0.85rem !important;
+            color: #94a3b8 !important;
+            -webkit-text-fill-color: #94a3b8 !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            margin: 0 0 0.4rem 0 !important;
+        }
+        .stApp div[class*="st-key-btn_metric_"] .stButton > button div[data-testid="stMarkdownContainer"] p:last-of-type {
+            font-size: 2.35rem !important;
+            font-weight: 800 !important;
+            line-height: 1.1 !important;
+            margin: 0 !important;
+        }
+        .stApp div[class*="st-key-btn_metric_domains"] .stButton > button div[data-testid="stMarkdownContainer"] p:last-of-type {
+            color: #38bdf8 !important;
+            -webkit-text-fill-color: #38bdf8 !important;
+        }
+        .stApp div[class*="st-key-btn_metric_seo_issues"] .stButton > button div[data-testid="stMarkdownContainer"] p:last-of-type {
+            color: #818cf8 !important;
+            -webkit-text-fill-color: #818cf8 !important;
+        }
+        .stApp div[class*="st-key-btn_metric_critical_issues"] .stButton > button div[data-testid="stMarkdownContainer"] p:last-of-type {
+            color: #f87171 !important;
+            -webkit-text-fill-color: #f87171 !important;
         }
 
         /* Browser Mockup Frame */
@@ -731,6 +915,6 @@ def inject_footer_element(theme_mode="corporate"):
         letter-spacing: 0.5px;
         font-weight: 500;
     ">
-        © 2026 Chronflow Made By Patel Rudra J. ,All Rights Reserved.
+        2026 Chronflow Made By Patel Rudra J. ,All Rights Reserved.
     </div>
     """, unsafe_allow_html=True)

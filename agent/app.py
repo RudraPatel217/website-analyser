@@ -47,7 +47,7 @@ def is_owner_or_app_url(domain_str):
 
 def render_easter_egg(domain):
     """
-    Displays hilarious Easter egg card when someone attempts to scan the app or owner domain.
+    Displays notification card when someone attempts to scan the app or owner domain.
     """
     st.markdown(f"""
     <div style="
@@ -59,19 +59,18 @@ def render_easter_egg(domain):
         margin: 1.5rem 0;
         box-shadow: 0 10px 30px rgba(245, 158, 11, 0.2);
     ">
-        <div style="font-size: 5rem; margin-bottom: 0.5rem;">🤫 😂 🗿 👀 💀</div>
         <h2 style="color: #fbbf24; font-size: 2.2rem; font-weight: 800; margin-top: 0; margin-bottom: 0.5rem; letter-spacing: 0.5px;">
-            Bakchodi Nahi Mittr! 🚫😂
+            Access Restricted: Protected Domain
         </h2>
         <p style="color: #f1f5f9; font-size: 1.15rem; max-width: 650px; margin: 0.5rem auto 0 auto; line-height: 1.6; font-weight: 600;">
-            Apne hi app ka audit karoge kya bhai? 😜 Kuch aur website daalo test karne ke liye!
+            Auditing internal system domains is restricted. Please enter an external website address to audit.
         </p>
     </div>
     """, unsafe_allow_html=True)
 
 def render_preview_meme(domain):
     """
-    Displays a hilarious meme GIF in the preview section when auditing the app itself.
+    Displays notification in the preview section when auditing the app itself.
     """
     st.markdown(f"""
     <div style="
@@ -84,10 +83,10 @@ def render_preview_meme(domain):
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     ">
         <h3 style="color: #fbbf24; font-size: 1.6rem; font-weight: 800; margin-top: 0; margin-bottom: 0.75rem;">
-            🕷️ Spider-Man Pointing at Spider-Man Moment! 🕷️
+            Self-Audit Protection Active
         </h3>
         <p style="color: #94a3b8; font-size: 1rem; margin-bottom: 1.25rem;">
-            When you try to audit the website analyzer using the website analyzer itself...
+            Target domain matches internal application address.
         </p>
         <div style="display: flex; justify-content: center; margin-bottom: 1rem;">
             <img src="https://media.giphy.com/media/l36kUemp4vITTX4PC/giphy.gif" 
@@ -95,12 +94,18 @@ def render_preview_meme(domain):
                  style="max-width: 460px; width: 100%; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.1);" />
         </div>
         <p style="color: #cbd5e1; font-size: 0.95rem; font-style: italic; margin-bottom: 0;">
-            "Wait... are you scanning me or am I scanning you?" 🤔😂
+            "Self-audit protection is active."
         </p>
     </div>
     """, unsafe_allow_html=True)
 
 st.set_page_config(page_title="SEO Domain Intelligence Agent", layout="wide")
+
+def set_theme(mode):
+    st.session_state["theme_mode"] = mode
+
+def clear_scan_results():
+    st.session_state["audit_results"] = None
 
 if "theme_mode" not in st.session_state or st.session_state["theme_mode"] not in ["corporate", "obsidian"]:
     st.session_state["theme_mode"] = "corporate"
@@ -115,16 +120,12 @@ inject_header_element(theme_mode)
 col_space_l, col_t1, col_t2, col_space_r = st.columns([1, 2, 2, 1])
 with col_t1:
     is_active = (theme_mode == "corporate")
-    label = "🏢 Corporate Trust (Navy) ✓" if is_active else "🏢 Corporate Trust"
-    if st.button(label, key="theme_btn_corporate", use_container_width=True):
-        st.session_state["theme_mode"] = "corporate"
-        st.rerun()
+    label = "Corporate Trust (Navy) [Active]" if is_active else "Corporate Trust (Navy)"
+    st.button(label, key="theme_btn_corporate", use_container_width=True, on_click=set_theme, args=("corporate",))
 with col_t2:
     is_active = (theme_mode == "obsidian")
-    label = "🟣 Obsidian Midnight (Purple) ✓" if is_active else "🟣 Obsidian Midnight"
-    if st.button(label, key="theme_btn_obsidian", use_container_width=True):
-        st.session_state["theme_mode"] = "obsidian"
-        st.rerun()
+    label = "Obsidian Midnight (Purple) [Active]" if is_active else "Obsidian Midnight (Purple)"
+    st.button(label, key="theme_btn_obsidian", use_container_width=True, on_click=set_theme, args=("obsidian",))
 
 # Input Panel configured inside native bordered container
 with st.container(border=True):
@@ -148,12 +149,12 @@ with st.container(border=True):
     
     service_healthy, _ = check_service_health()
     preview_options = [
-        "⚡ Ultra-Fast Visual Capture (1-2s Recommended)",
-        "🌐 Cloud High-Resolution Engine",
-        "⚡ Instant Domain Snapshot (0s)"
+        "Ultra-Fast Visual Capture (1-2s Recommended)",
+        "Cloud High-Resolution Engine",
+        "Instant Domain Snapshot (0s)"
     ]
     if service_healthy:
-        preview_options.insert(0, "💻 Local Puppeteer Engine (Port 3000)")
+        preview_options.insert(0, "Local Puppeteer Engine (Port 3000)")
 
     col_source, col_c1, col_c2 = st.columns(3)
     with col_source:
@@ -190,9 +191,7 @@ with col_b1:
     )
 with col_b2:
     if "audit_results" in st.session_state and st.session_state["audit_results"]:
-        if st.button("Clear Results & New Scan", key="clear_scan_btn", type="secondary", use_container_width=True):
-            st.session_state["audit_results"] = None
-            st.rerun()
+        st.button("Clear Results & New Scan", key="clear_scan_btn", type="secondary", use_container_width=True, on_click=clear_scan_results)
 
 scan_placeholder = st.empty()
 crawl_count_placeholder = st.empty()
@@ -251,7 +250,7 @@ if run_analysis:
         last_scan = st.session_state.get("last_scan_timestamp", 0)
         cooldown = 5
         if now - last_scan < cooldown:
-            st.warning(f"🛡️ **Bot Protection & Anti-Flood:** Please wait {int(cooldown - (now - last_scan))}s before launching another multi-website scan.")
+            st.warning(f"**Bot Protection & Anti-Flood:** Please wait {int(cooldown - (now - last_scan))}s before launching another multi-website scan.")
             st.stop()
         st.session_state["last_scan_timestamp"] = now
         if domains:
@@ -406,7 +405,9 @@ if run_analysis:
                     "domains": domains,
                     "filename": filename
                 }
-                st.rerun()
+                scan_placeholder.empty()
+                crawl_count_placeholder.empty()
+                crawl_log_placeholder.empty()
 
 # ===================== DISPLAY PERSISTENT RESULTS =====================
 if "audit_results" in st.session_state and st.session_state["audit_results"]:
@@ -421,27 +422,103 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
 
     st.success(f"Analysis Completed Successfully for {len(domains)} Website(s)!")
 
-    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+    nav_tabs = [
         "Summary Dashboard",
         "Domain Info",
         "Crawled Pages",
         "SEO Issues",
         "Technical Audit",
         "Security Scorecard"
-    ])
+    ]
 
-    with tab1:
+    if "target_tab" not in st.session_state or st.session_state["target_tab"] not in nav_tabs:
+        st.session_state["target_tab"] = "Summary Dashboard"
+
+    high_crit_count = len(df_all_issues[df_all_issues.get('Severity', pd.Series()).isin(
+        ['High', 'Critical'])]) if not df_all_issues.empty else 0
+
+    def nav_to_domains():
+        st.session_state["target_tab"] = "Domain Info"
+
+    def nav_to_issues():
+        st.session_state["target_tab"] = "SEO Issues"
+        st.session_state["highlight_critical"] = False
+
+    def nav_to_critical(crit_count):
+        if crit_count == 0:
+            st.session_state["show_no_critical_popup"] = True
+        else:
+            st.session_state["target_tab"] = "SEO Issues"
+            st.session_state["highlight_critical"] = True
+
+    # 3-Second Disappearing Popup when there are 0 Critical Issues
+    if st.session_state.get("show_no_critical_popup"):
+        st.session_state["show_no_critical_popup"] = False
+        st.toast("No critical issue found on analyzed domain(s)")
+        st.markdown("""
+        <div id="no-critical-toast-box" class="no-critical-toast">
+            No critical issue found on analyzed domain(s)
+        </div>
+        <style>
+            .no-critical-toast {
+                position: fixed;
+                top: 24px;
+                right: 24px;
+                z-index: 9999999;
+                background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+                color: #ffffff;
+                padding: 16px 28px;
+                border-radius: 12px;
+                font-weight: 700;
+                font-size: 1rem;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+                pointer-events: none;
+                animation: noCritFade 3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            }
+            @keyframes noCritFade {
+                0% { opacity: 0; transform: translateY(-20px) scale(0.95); }
+                10% { opacity: 1; transform: translateY(0) scale(1); }
+                80% { opacity: 1; transform: translateY(0) scale(1); }
+                100% { opacity: 0; transform: translateY(-15px) scale(0.95); display: none; }
+            }
+        </style>
+        <script>
+            setTimeout(function() {
+                var el = document.getElementById('no-critical-toast-box');
+                if (el) { el.style.display = 'none'; }
+            }, 3000);
+        </script>
+        """, unsafe_allow_html=True)
+
+    # Clickable Metric Cards
+    render_metric_cards(
+        len(domains),
+        len(df_all_issues),
+        high_crit_count,
+        on_domains_click=nav_to_domains,
+        on_issues_click=nav_to_issues,
+        on_critical_click=nav_to_critical,
+        theme_mode=theme_mode
+    )
+
+    current_nav_tab = st.segmented_control(
+        "Navigation Tabs",
+        options=nav_tabs,
+        default=st.session_state["target_tab"],
+        key=f"active_nav_tab_{st.session_state['target_tab']}",
+        label_visibility="collapsed"
+    )
+    if current_nav_tab and current_nav_tab != st.session_state["target_tab"]:
+        st.session_state["target_tab"] = current_nav_tab
+        st.rerun()
+
+    if current_nav_tab == "Summary Dashboard":
         st.markdown("<h3 style='color: #22d3ee; margin-top: 0;'>Executive SEO Audit Summary</h3>", unsafe_allow_html=True)
         st.markdown("""
         <div style="background: rgba(30, 41, 59, 0.4); border-left: 4px solid #22d3ee; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.95rem; color: #cbd5e1;">
             <strong>What is this summary?</strong> This dashboard provides a high-level overview of your target websites. It counts total audited pages, identifies technical SEO errors that could hurt your Google search rank, and measures overall cybersecurity compliance.
         </div>
         """, unsafe_allow_html=True)
-
-        high_crit_count = len(df_all_issues[df_all_issues.get('Severity', pd.Series()).isin(
-            ['High', 'Critical'])]) if not df_all_issues.empty else 0
-
-        render_metric_cards(len(domains), len(df_all_issues), high_crit_count, theme_mode=theme_mode)
 
         st.markdown("<h3 style='color: #22d3ee; margin-top: 2rem;'>Cybersecurity Score Summary</h3>", unsafe_allow_html=True)
         sec_summary_rows = []
@@ -463,7 +540,7 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
             status_counts['Status Code'] = status_counts['Status Code'].astype(str)
             st.bar_chart(status_counts.set_index('Status Code'))
 
-    with tab2:
+    elif current_nav_tab == "Domain Info":
         st.markdown("<h3 style='color: #22d3ee; margin-top: 0;'>Domain & WHOIS Ownership Details</h3>", unsafe_allow_html=True)
         st.markdown("""
         <div style="background: rgba(30, 41, 59, 0.4); border-left: 4px solid #22d3ee; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.95rem; color: #cbd5e1;">
@@ -472,7 +549,7 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
         """, unsafe_allow_html=True)
         st.dataframe(df_all_domain, use_container_width=True, hide_index=True)
 
-    with tab3:
+    elif current_nav_tab == "Crawled Pages":
         st.markdown("<h3 style='color: #22d3ee; margin-top: 0;'>Crawled Web Page Catalog</h3>", unsafe_allow_html=True)
         st.markdown("""
         <div style="background: rgba(30, 41, 59, 0.4); border-left: 4px solid #22d3ee; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.95rem; color: #cbd5e1;">
@@ -481,19 +558,40 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
         """, unsafe_allow_html=True)
         st.dataframe(df_all_pages, use_container_width=True, hide_index=True)
 
-    with tab4:
+    elif current_nav_tab == "SEO Issues":
         st.markdown("<h3 style='color: #22d3ee; margin-top: 0;'>Identified SEO Issues & Vulnerabilities</h3>", unsafe_allow_html=True)
         st.markdown("""
         <div style="background: rgba(30, 41, 59, 0.4); border-left: 4px solid #22d3ee; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.95rem; color: #cbd5e1;">
             <strong>What are SEO Issues?</strong> Issues highlight missing title tags, duplicate meta descriptions, broken links, or missing image alt attributes that prevent search engines like Google from indexing your content effectively.
         </div>
         """, unsafe_allow_html=True)
+
+        is_highlighted = st.session_state.get("highlight_critical", False)
+        if is_highlighted:
+            col_h1, col_h2 = st.columns([4, 1])
+            with col_h1:
+                st.markdown(f"""
+                <div style="background: rgba(239, 68, 68, 0.15); border-left: 4px solid #ef4444; border-radius: 10px; padding: 12px 18px; margin-bottom: 1.25rem; color: #fca5a5; font-size: 0.95rem; font-weight: 600;">
+                    Highlighting High & Critical Issues ({high_crit_count} found)
+                </div>
+                """, unsafe_allow_html=True)
+            with col_h2:
+                def reset_issue_filter():
+                    st.session_state["highlight_critical"] = False
+                st.button("Show All Issues", key="btn_show_all_issues", use_container_width=True, on_click=reset_issue_filter)
+
         if not df_all_issues.empty:
-            st.dataframe(df_all_issues, use_container_width=True, hide_index=True)
+            if is_highlighted:
+                df_display = df_all_issues[df_all_issues.get('Severity', pd.Series()).isin(['High', 'Critical'])]
+                if df_display.empty:
+                    df_display = df_all_issues
+            else:
+                df_display = df_all_issues
+            st.dataframe(df_display, use_container_width=True, hide_index=True)
         else:
             st.info("No critical SEO issues found on the analyzed pages.")
 
-    with tab5:
+    elif current_nav_tab == "Technical Audit":
         st.markdown("<h3 style='color: #22d3ee; margin-top: 0;'>Technical Audit & Core Web Vitals</h3>", unsafe_allow_html=True)
         st.markdown("""
         <div style="background: rgba(30, 41, 59, 0.4); border-left: 4px solid #22d3ee; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.95rem; color: #cbd5e1;">
@@ -564,7 +662,7 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
             rec_html += '</div>'
             st.markdown(rec_html, unsafe_allow_html=True)
 
-    with tab6:
+    elif current_nav_tab == "Security Scorecard":
         st.markdown("<h3 style='color: #22d3ee; margin-top: 0;'>Cybersecurity & Risk Scorecard</h3>", unsafe_allow_html=True)
         st.markdown("""
         <div style="background: rgba(30, 41, 59, 0.4); border-left: 4px solid #22d3ee; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.95rem; color: #cbd5e1;">

@@ -10,6 +10,7 @@ base = "dark"
 enableXsrfProtection = true
 enableCORS = true
 maxUploadSize = 10
+enableWebsocketCompression = false
 
 [browser]
 gatherUsageStats = false

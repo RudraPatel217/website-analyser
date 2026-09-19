@@ -84,13 +84,12 @@ def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode
                 <span class="browser-address">{display_url}</span>
             </div>
             <div style="width: 100%; min-height: 260px; background: {container_bg}; padding: 3rem 2rem; text-align: center;">
-                <div style="font-size: 3.2rem; margin-bottom: 0.75rem;">⚡ 🌐</div>
                 <h4 style="color: {card_title_color}; margin: 0 0 0.5rem 0; font-size: 1.3rem; font-weight: 700;">Instant Domain Snapshot Active</h4>
                 <p style="font-size: 0.95rem; color: {card_text_color}; max-width: 480px; margin: 0 auto 1.5rem auto; line-height: 1.6;">
                     Verified target connection established for <strong>{display_url}</strong>. Real-time DOM and crawler ready for full audit.
                 </p>
                 <a href="{target_link}" target="_blank" style="display: inline-block; background: {btn_bg}; color: {btn_color}; border: 1px solid {btn_border}; border-radius: 8px; padding: 8px 20px; font-weight: 600; text-decoration: none;">
-                    Visit Live Site ↗
+                    Visit Live Site
                 </a>
             </div>
         </div>
@@ -106,12 +105,12 @@ def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode
             <span class="browser-dot green"></span>
             <img src="{favicon_url}" style="width: 14px; height: 14px; margin-left: 8px; margin-right: 6px; vertical-align: -2px;" onerror="this.style.display='none';" />
             <span class="browser-address">{display_url}</span>
-            <a href="{target_link}" target="_blank" style="color: {card_text_color}; font-size: 0.78rem; text-decoration: none; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); margin-left: 6px; white-space: nowrap;">Open ↗</a>
+            <a href="{target_link}" target="_blank" style="color: {card_text_color}; font-size: 0.78rem; text-decoration: none; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); margin-left: 6px; white-space: nowrap;">Open</a>
         </div>
         <div style="width: 100%; min-height: 300px; max-height: 520px; overflow-y: auto; background: {container_bg}; position: relative;">
             <div id="preview-loader-{safe_id}" style="position: absolute; top: 0; left: 0; width: 100%; height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: {container_bg}; z-index: 1; transition: opacity 0.3s ease;">
                 <div style="width: 32px; height: 32px; border: 3px solid rgba(34, 211, 238, 0.2); border-top: 3px solid #22d3ee; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px;"></div>
-                <div style="color: {card_title_color}; font-size: 0.92rem; font-weight: 600; letter-spacing: 0.3px;">⚡ Fast Preview (1-2s)...</div>
+                <div style="color: {card_title_color}; font-size: 0.92rem; font-weight: 600; letter-spacing: 0.3px;">Fast Preview (1-2s)...</div>
             </div>
             <img id="preview-img-{safe_id}" src="{screenshot_url}"
                 onload="var l=document.getElementById('preview-loader-{safe_id}');if(l){{l.style.opacity='0';setTimeout(function(){{l.style.display='none';}},200);}}"
@@ -120,13 +119,12 @@ def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode
                 style="width: 100%; height: auto; display: block; min-height: 220px; position: relative; z-index: 2;"
                 alt="Visual Preview for {display_url}" />
             <div id="preview-fallback-{safe_id}" style="display: none; padding: 3.5rem 2rem; text-align: center; position: relative; z-index: 3;">
-                <div style="font-size: 3rem; margin-bottom: 0.75rem;">🌐</div>
                 <h4 style="color: {card_title_color}; margin: 0 0 0.5rem 0; font-size: 1.25rem; font-weight: 700;">Live Connection Established</h4>
                 <p style="font-size: 0.95rem; color: {card_text_color}; max-width: 480px; margin: 0 auto 1.5rem auto; line-height: 1.6;">
                     Target website verified for <strong>{display_url}</strong>. Ready for in-depth SEO & security crawl.
                 </p>
                 <a href="{target_link}" target="_blank" style="display: inline-block; background: {btn_bg}; color: {btn_color}; border: 1px solid {btn_border}; border-radius: 8px; padding: 8px 18px; font-weight: 600; text-decoration: none;">
-                    Visit Live Site ↗
+                    Visit Live Site
                 </a>
             </div>
             <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" style="display:none;" onload="
@@ -161,40 +159,32 @@ def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode
     """, unsafe_allow_html=True)
 
 
-def render_metric_cards(total_domains, total_issues, high_crit_issues, theme_mode="corporate"):
-    if theme_mode == "obsidian":
-        c1_color = "#c084fc"
-        c2_color = "#38bdf8"
-        c3_color = "#f87171"
-    else:  # corporate
-        c1_color = "#38bdf8"
-        c2_color = "#818cf8"
-        c3_color = "#f87171"
-
+def render_metric_cards(total_domains, total_issues, high_crit_issues, on_domains_click=None, on_issues_click=None, on_critical_click=None, theme_mode="corporate"):
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.markdown(f"""
-        <div class="metric-card">
-            <div class="metric-label">Total Domains Analyzed</div>
-            <div class="metric-value" style="color: {c1_color};">{total_domains}</div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.button(
+            f"TOTAL DOMAINS ANALYZED\n\n{total_domains}",
+            key="btn_metric_domains",
+            use_container_width=True,
+            on_click=on_domains_click
+        )
 
     with col2:
-        st.markdown(f"""
-        <div class="metric-card">
-            <div class="metric-label">Total SEO Issues</div>
-            <div class="metric-value" style="color: {c2_color};">{total_issues}</div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.button(
+            f"TOTAL SEO ISSUES\n\n{total_issues}",
+            key="btn_metric_seo_issues",
+            use_container_width=True,
+            on_click=on_issues_click
+        )
 
     with col3:
-        st.markdown(f"""
-        <div class="metric-card">
-            <div class="metric-label">High & Critical Issues</div>
-            <div class="metric-value" style="color: {c3_color};">{high_crit_issues}</div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.button(
+            f"HIGH & CRITICAL ISSUES\n\n{high_crit_issues}",
+            key="btn_metric_critical_issues",
+            use_container_width=True,
+            on_click=on_critical_click,
+            args=(high_crit_issues,) if on_critical_click else None
+        )
 
 
 def render_ready_to_scan(theme_mode="corporate"):
