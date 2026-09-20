@@ -111,75 +111,66 @@ def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode
     favicon_url = f"https://www.google.com/s2/favicons?domain={clean_host}&sz=64"
 
     # Instant Domain Visual Preview Card (Loads in 0.0 seconds, 100% reliable)
-    snapshot_card_html = f"""
-    <div style="padding: 2.5rem 1.5rem; text-align: center; background: {sec_bg}; border-radius: 0 0 14px 14px;">
-        <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 1.25rem;">
-            <div style="position: relative; display: inline-block;">
-                <img src="{favicon_url}" style="width: 52px; height: 52px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); background: #ffffff; padding: 4px;" onerror="this.src='https://www.google.com/s2/favicons?domain=example.com&sz=64';" />
-                <span style="position: absolute; bottom: -2px; right: -2px; width: 14px; height: 14px; background: {dot_status}; border: 2px solid {container_bg}; border-radius: 50%;"></span>
-            </div>
-        </div>
-        <h3 style="color: {card_title_color}; margin: 0 0 0.4rem 0; font-size: 1.4rem; font-weight: 800;">{clean_host}</h3>
-        <p style="color: {card_text_color}; font-size: 0.95rem; max-width: 520px; margin: 0 auto 1.5rem auto; line-height: 1.6;">
-            Target connection verified. SSL certificates, DNS records, and crawling endpoints are primed for comprehensive SEO audit.
-        </p>
-        <div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 1.75rem;">
-            <span style="background: {badge_bg}; color: {badge_color}; border: 1px solid {badge_border}; border-radius: 20px; padding: 4px 14px; font-size: 0.8rem; font-weight: 600;">
-                🟢 Online (200 OK)
-            </span>
-            <span style="background: {badge_bg}; color: {badge_color}; border: 1px solid {badge_border}; border-radius: 20px; padding: 4px 14px; font-size: 0.8rem; font-weight: 600;">
-                🔒 SSL Encrypted
-            </span>
-            <span style="background: {badge_bg}; color: {badge_color}; border: 1px solid {badge_border}; border-radius: 20px; padding: 4px 14px; font-size: 0.8rem; font-weight: 600;">
-                ⚡ Fast Scan Ready
-            </span>
-        </div>
-        <a href="{target_link}" target="_blank"
-           style="display: inline-block; background: {btn_bg}; color: {btn_color}; border: 1px solid {btn_border}; border-radius: 10px; padding: 10px 24px; font-weight: 700; text-decoration: none; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
-            Visit Live Site ↗
-        </a>
-    </div>
-    """
+    snapshot_card_html = (
+        f'<div style="padding: 2.5rem 1.5rem; text-align: center; background: {sec_bg}; border-radius: 0 0 14px 14px;">'
+        f'<div style="display: flex; justify-content: center; align-items: center; margin-bottom: 1.25rem;">'
+        f'<div style="position: relative; display: inline-block;">'
+        f'<img src="{favicon_url}" style="width: 52px; height: 52px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); background: #ffffff; padding: 4px;" onerror="this.src=\'https://www.google.com/s2/favicons?domain=example.com&sz=64\';" />'
+        f'<span style="position: absolute; bottom: -2px; right: -2px; width: 14px; height: 14px; background: {dot_status}; border: 2px solid {container_bg}; border-radius: 50%;"></span>'
+        f'</div>'
+        f'</div>'
+        f'<h3 style="color: {card_title_color}; margin: 0 0 0.4rem 0; font-size: 1.4rem; font-weight: 800;">{clean_host}</h3>'
+        f'<p style="color: {card_text_color}; font-size: 0.95rem; max-width: 520px; margin: 0 auto 1.5rem auto; line-height: 1.6;">'
+        f'Target connection verified. SSL certificates, DNS records, and crawling endpoints are primed for comprehensive SEO audit.'
+        f'</p>'
+        f'<div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 1.75rem;">'
+        f'<span style="background: {badge_bg}; color: {badge_color}; border: 1px solid {badge_border}; border-radius: 20px; padding: 4px 14px; font-size: 0.8rem; font-weight: 600;">🟢 Online (200 OK)</span>'
+        f'<span style="background: {badge_bg}; color: {badge_color}; border: 1px solid {badge_border}; border-radius: 20px; padding: 4px 14px; font-size: 0.8rem; font-weight: 600;">🔒 SSL Encrypted</span>'
+        f'<span style="background: {badge_bg}; color: {badge_color}; border: 1px solid {badge_border}; border-radius: 20px; padding: 4px 14px; font-size: 0.8rem; font-weight: 600;">⚡ Fast Scan Ready</span>'
+        f'</div>'
+        f'<a href="{target_link}" target="_blank" style="display: inline-block; background: {btn_bg}; color: {btn_color}; border: 1px solid {btn_border}; border-radius: 10px; padding: 10px 24px; font-weight: 700; text-decoration: none; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">'
+        f'Visit Live Site ↗'
+        f'</a>'
+        f'</div>'
+    )
 
     if screenshot_url == "instant":
-        st.markdown(f"""
-        <div class="browser-frame">
-            <div class="browser-header">
-                <span class="browser-dot red"></span>
-                <span class="browser-dot yellow"></span>
-                <span class="browser-dot green"></span>
-                <img src="{favicon_url}" style="width: 14px; height: 14px; margin-left: 8px; margin-right: 6px; vertical-align: -2px;" onerror="this.style.display='none';" />
-                <span class="browser-address">{display_url}</span>
-                <a href="{target_link}" target="_blank" style="color: {open_btn_color}; font-size: 0.78rem; text-decoration: none; padding: 2px 10px; border-radius: 6px; border: 1px solid {open_btn_border}; margin-left: 6px; font-weight: 600; white-space: nowrap;">Open ↗</a>
-            </div>
-            {snapshot_card_html}
-        </div>
-        """, unsafe_allow_html=True)
+        full_html = (
+            f'<div class="browser-frame">'
+            f'<div class="browser-header">'
+            f'<span class="browser-dot red"></span>'
+            f'<span class="browser-dot yellow"></span>'
+            f'<span class="browser-dot green"></span>'
+            f'<img src="{favicon_url}" style="width: 14px; height: 14px; margin-left: 8px; margin-right: 6px; vertical-align: -2px;" onerror="this.style.display=\'none\';" />'
+            f'<span class="browser-address">{display_url}</span>'
+            f'<a href="{target_link}" target="_blank" style="color: {open_btn_color}; font-size: 0.78rem; text-decoration: none; padding: 2px 10px; border-radius: 6px; border: 1px solid {open_btn_border}; margin-left: 6px; font-weight: 600; white-space: nowrap;">Open ↗</a>'
+            f'</div>'
+            f'{snapshot_card_html}'
+            f'</div>'
+        )
+        st.markdown(full_html, unsafe_allow_html=True)
         return
 
     # Visual capture with pure HTML instant fallback (zero scripts, zero brackets, zero delay)
-    st.markdown(f"""
-    <div class="browser-frame">
-        <div class="browser-header">
-            <span class="browser-dot red"></span>
-            <span class="browser-dot yellow"></span>
-            <span class="browser-dot green"></span>
-            <img src="{favicon_url}" style="width: 14px; height: 14px; margin-left: 8px; margin-right: 6px; vertical-align: -2px;" onerror="this.style.display='none';" />
-            <span class="browser-address">{display_url}</span>
-            <a href="{target_link}" target="_blank" style="color: {open_btn_color}; font-size: 0.78rem; text-decoration: none; padding: 2px 10px; border-radius: 6px; border: 1px solid {open_btn_border}; margin-left: 6px; font-weight: 600; white-space: nowrap;">Open ↗</a>
-        </div>
-        <div style="width: 100%; background: {container_bg}; position: relative; overflow: hidden;">
-            <img src="{screenshot_url}"
-                 style="width: 100%; height: auto; max-height: 480px; object-fit: cover; object-position: top; display: block;"
-                 alt="Preview for {clean_host}"
-                 loading="lazy"
-                 onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';" />
-            <div style="display: none;">
-                {snapshot_card_html}
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    full_html = (
+        f'<div class="browser-frame">'
+        f'<div class="browser-header">'
+        f'<span class="browser-dot red"></span>'
+        f'<span class="browser-dot yellow"></span>'
+        f'<span class="browser-dot green"></span>'
+        f'<img src="{favicon_url}" style="width: 14px; height: 14px; margin-left: 8px; margin-right: 6px; vertical-align: -2px;" onerror="this.style.display=\'none\';" />'
+        f'<span class="browser-address">{display_url}</span>'
+        f'<a href="{target_link}" target="_blank" style="color: {open_btn_color}; font-size: 0.78rem; text-decoration: none; padding: 2px 10px; border-radius: 6px; border: 1px solid {open_btn_border}; margin-left: 6px; font-weight: 600; white-space: nowrap;">Open ↗</a>'
+        f'</div>'
+        f'<div style="width: 100%; background: {container_bg}; position: relative; overflow: hidden;">'
+        f'<img src="{screenshot_url}" style="width: 100%; height: auto; max-height: 480px; object-fit: cover; object-position: top; display: block;" alt="Preview for {clean_host}" loading="lazy" onerror="this.style.display=\'none\'; if(this.nextElementSibling) this.nextElementSibling.style.display=\'block\';" />'
+        f'<div style="display: none;">'
+        f'{snapshot_card_html}'
+        f'</div>'
+        f'</div>'
+        f'</div>'
+    )
+    st.markdown(full_html, unsafe_allow_html=True)
 
 
 
