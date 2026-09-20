@@ -101,23 +101,52 @@ def inject_premium_styles(theme_mode="corporate"):
             font-weight: 700 !important;
         }
 
-        /* Inputs & Textareas */
+        /* Inputs, Textareas & Selects (Corporate Dark Mode) */
+        div[data-testid="stTextArea"] textarea,
+        div[data-testid="stTextArea"] div[data-baseweb="textarea"],
+        div[data-testid="stTextArea"] div[data-baseweb="base-input"],
+        div[data-testid="stTextInput"] input,
+        div[data-testid="stTextInput"] div[data-baseweb="input"],
+        div[data-testid="stTextInput"] div[data-baseweb="base-input"],
         div[data-baseweb="textarea"],
+        div[data-baseweb="textarea"] > div,
         div[data-baseweb="input"],
-        div[data-baseweb="select"] > div {
-            background-color: rgba(15, 23, 42, 0.92) !important;
+        div[data-baseweb="input"] > div,
+        div[data-baseweb="base-input"],
+        div[data-baseweb="base-input"] > div,
+        div[data-baseweb="select"] > div,
+        div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
+            background-color: #0f172a !important;
+            background: #0f172a !important;
             border: 1.5px solid rgba(59, 130, 246, 0.35) !important;
             border-radius: 12px !important;
             color: #f8fafc !important;
+            -webkit-text-fill-color: #f8fafc !important;
             transition: all 0.25s ease !important;
         }
         textarea, input {
             color: #f8fafc !important;
             -webkit-text-fill-color: #f8fafc !important;
+            background-color: transparent !important;
+            font-size: 0.95rem !important;
+        }
+        textarea::placeholder, input::placeholder {
+            color: #64748b !important;
+            -webkit-text-fill-color: #64748b !important;
+        }
+        div[data-testid="stSelectbox"] div[data-baseweb="select"] span,
+        div[data-testid="stSelectbox"] div[data-baseweb="select"] div {
+            color: #f8fafc !important;
+            -webkit-text-fill-color: #f8fafc !important;
+        }
+        div[data-testid="stSelectbox"] svg {
+            fill: #94a3b8 !important;
         }
         div[data-baseweb="textarea"]:focus-within,
         div[data-baseweb="input"]:focus-within,
-        div[data-baseweb="select"] > div:focus-within {
+        div[data-baseweb="select"] > div:focus-within,
+        div[data-testid="stTextArea"] textarea:focus,
+        div[data-testid="stTextInput"] input:focus {
             border-color: #3b82f6 !important;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25) !important;
         }
@@ -448,24 +477,52 @@ def inject_premium_styles(theme_mode="corporate"):
             -webkit-text-fill-color: #1E293B !important;
         }
 
-        /* Inputs & Textareas — clean white, slate border */
+        /* Inputs, Textareas & Selects (Light Mode) */
+        div[data-testid="stTextArea"] textarea,
+        div[data-testid="stTextArea"] div[data-baseweb="textarea"],
+        div[data-testid="stTextArea"] div[data-baseweb="base-input"],
+        div[data-testid="stTextInput"] input,
+        div[data-testid="stTextInput"] div[data-baseweb="input"],
+        div[data-testid="stTextInput"] div[data-baseweb="base-input"],
         div[data-baseweb="textarea"],
+        div[data-baseweb="textarea"] > div,
         div[data-baseweb="input"],
-        div[data-baseweb="select"] > div {
+        div[data-baseweb="input"] > div,
+        div[data-baseweb="base-input"],
+        div[data-baseweb="base-input"] > div,
+        div[data-baseweb="select"] > div,
+        div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
             background-color: #FFFFFF !important;
+            background: #FFFFFF !important;
             border: 1.5px solid #CBD5E1 !important;
             border-radius: 10px !important;
             color: #0F172A !important;
+            -webkit-text-fill-color: #0F172A !important;
             transition: all 0.2s ease !important;
         }
         textarea, input {
             color: #0F172A !important;
             -webkit-text-fill-color: #0F172A !important;
+            background-color: transparent !important;
             font-size: 0.95rem !important;
+        }
+        textarea::placeholder, input::placeholder {
+            color: #94A3B8 !important;
+            -webkit-text-fill-color: #94A3B8 !important;
+        }
+        div[data-testid="stSelectbox"] div[data-baseweb="select"] span,
+        div[data-testid="stSelectbox"] div[data-baseweb="select"] div {
+            color: #0F172A !important;
+            -webkit-text-fill-color: #0F172A !important;
+        }
+        div[data-testid="stSelectbox"] svg {
+            fill: #64748B !important;
         }
         div[data-baseweb="textarea"]:focus-within,
         div[data-baseweb="input"]:focus-within,
-        div[data-baseweb="select"] > div:focus-within {
+        div[data-baseweb="select"] > div:focus-within,
+        div[data-testid="stTextArea"] textarea:focus,
+        div[data-testid="stTextInput"] input:focus {
             border-color: #4F46E5 !important;
             box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
         }
