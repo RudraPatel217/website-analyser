@@ -146,11 +146,11 @@ with st.container(border=True):
     
     service_healthy, _ = check_service_health()
     preview_options = [
-        "Ultra-Fast Visual Capture (Recommended)",
-        "Instant Domain Snapshot (0s)"
+        "Instant Domain Snapshot (0s)",
+        "Ultra-Fast Visual Capture"
     ]
     if service_healthy:
-        preview_options.insert(0, "Local Puppeteer Engine (Port 3000)")
+        preview_options.append("Local Puppeteer Engine (Port 3000)")
 
     col_source, col_c1, col_c2 = st.columns(3)
     with col_source:
