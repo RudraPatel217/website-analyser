@@ -107,7 +107,7 @@ def set_theme(mode):
 def clear_scan_results():
     st.session_state["audit_results"] = None
 
-if "theme_mode" not in st.session_state or st.session_state["theme_mode"] not in ["corporate", "obsidian"]:
+if "theme_mode" not in st.session_state or st.session_state["theme_mode"] not in ["corporate", "light"]:
     st.session_state["theme_mode"] = "corporate"
 
 theme_mode = st.session_state["theme_mode"]
@@ -116,25 +116,22 @@ theme_mode = st.session_state["theme_mode"]
 inject_premium_styles(theme_mode)
 inject_header_element(theme_mode)
 
-# Render 2-Theme Segmented Bar for Pure Dark Modes
-col_space_l, col_t1, col_t2, col_space_r = st.columns([1, 2, 2, 1])
-with col_t1:
-    is_active = (theme_mode == "corporate")
-    label = "Corporate Trust (Navy) [Active]" if is_active else "Corporate Trust (Navy)"
-    st.button(label, key="theme_btn_corporate", use_container_width=True, on_click=set_theme, args=("corporate",))
-with col_t2:
-    is_active = (theme_mode == "obsidian")
-    label = "Obsidian Midnight (Purple) [Active]" if is_active else "Obsidian Midnight (Purple)"
-    st.button(label, key="theme_btn_obsidian", use_container_width=True, on_click=set_theme, args=("obsidian",))
+# Floating pill theme toggle — top-right corner
+toggle_col_l, toggle_col_r = st.columns([9, 1])
+with toggle_col_r:
+    if theme_mode == "light":
+        st.button("Dark Mode", key="theme_toggle_btn", use_container_width=False, on_click=set_theme, args=("corporate",))
+    else:
+        st.button("Light Mode", key="theme_toggle_btn", use_container_width=False, on_click=set_theme, args=("light",))
 
 # Input Panel configured inside native bordered container
 with st.container(border=True):
-    if theme_mode == "corporate":
+    if theme_mode == "light":
+        header_color = "#1E293B"
+        border_color = "#E2E8F0"
+    else:  # corporate dark
         header_color = "#38bdf8"
         border_color = "rgba(59, 130, 246, 0.25)"
-    else:  # obsidian
-        header_color = "#c084fc"
-        border_color = "rgba(139, 92, 246, 0.25)"
 
     st.markdown(
         f"<h3 style='margin-top: 0; color: {header_color}; font-weight: 700; font-size: 1.3rem; border-bottom: 1px solid {border_color}; padding-bottom: 0.75rem; margin-bottom: 1rem;'>Website Audit Setup</h3>",
@@ -307,7 +304,7 @@ if run_analysis:
                     log_idx = min(p // (100 // len(logs)), len(logs) - 1)
                     current_log = logs[log_idx]
 
-                    render_scan_progress(scan_placeholder, domain, current_log, p)
+                    render_scan_progress(scan_placeholder, domain, current_log, p, theme_mode=theme_mode)
                     if sleep_time > 0:
                         time.sleep(sleep_time)
 
