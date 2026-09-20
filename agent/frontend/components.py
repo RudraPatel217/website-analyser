@@ -78,6 +78,9 @@ def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode
     display_url = domain.replace("https://", "").replace("http://", "").rstrip("/")
     target_link = domain if (domain.startswith("http://") or domain.startswith("https://")) else f"https://{domain}"
     safe_id = re.sub(r'[^a-zA-Z0-9_-]', '_', domain)
+    encoded_target = domain if (domain.startswith("http://") or domain.startswith("https://")) else f"https://{domain}"
+    from urllib.parse import quote as url_quote
+    enc = url_quote(encoded_target, safe="")
 
     if theme_mode == "light":
         container_bg = "#F8FAFC"
@@ -90,7 +93,9 @@ def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode
         loader_text_color = "#4F46E5"
         open_btn_border = "rgba(100,116,139,0.2)"
         open_btn_color = "#64748B"
-    else:  # corporate (dark default)
+        unavail_bg = "#F8FAFC"
+        unavail_border = "#E2E8F0"
+    else:  # corporate dark
         container_bg = "#0f172a"
         card_title_color = "#38bdf8"
         card_text_color = "#94a3b8"
@@ -101,8 +106,19 @@ def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode
         loader_text_color = "#38bdf8"
         open_btn_border = "rgba(255,255,255,0.1)"
         open_btn_color = card_text_color
+        unavail_bg = "rgba(30,41,59,0.6)"
+        unavail_border = "rgba(59,130,246,0.25)"
 
     favicon_url = f"https://www.google.com/s2/favicons?domain={clean_host}&sz=32"
+
+    # Build a waterfall of screenshot providers to try in JS
+    # All are free-tier, no API key required, and don't return CAPTCHA pages
+    providers_js = f"""[
+        "https://mini.s-shot.ru/1024x768/PNG/1024/Z100/?{encoded_target}",
+        "https://api.thumbnail.ws/api/abc123/thumbnail/get?url={enc}&width=800",
+        "https://screenshotapi.net/api/v1/screenshot?url={enc}&width=1280&height=800&fresh=true",
+        "https://image.thum.io/get/width/900/crop/600/noanimate/{encoded_target}"
+    ]"""
 
     if screenshot_url == "instant":
         st.markdown(f"""
@@ -127,7 +143,8 @@ def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode
         """, unsafe_allow_html=True)
         return
 
-    fb_val = fallback_url if fallback_url else ""
+    # Full waterfall with JS-based CAPTCHA detection
+    # Logic: try each provider in order; if image loads but is portrait (likely CAPTCHA), skip to next
     st.markdown(f"""
     <div class="browser-frame">
         <div class="browser-header">
@@ -138,59 +155,100 @@ def render_browser_preview(domain, screenshot_url, fallback_url=None, theme_mode
             <span class="browser-address">{display_url}</span>
             <a href="{target_link}" target="_blank" style="color: {open_btn_color}; font-size: 0.78rem; text-decoration: none; padding: 2px 8px; border-radius: 4px; border: 1px solid {open_btn_border}; margin-left: 6px; white-space: nowrap;">Open</a>
         </div>
-        <div style="width: 100%; min-height: 300px; max-height: 520px; overflow-y: auto; background: {container_bg}; position: relative;">
-            <div id="preview-loader-{safe_id}" style="position: absolute; top: 0; left: 0; width: 100%; height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: {container_bg}; z-index: 1; transition: opacity 0.3s ease;">
-                <div style="width: 32px; height: 32px; {loader_spinner} border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px;"></div>
-                <div style="color: {loader_text_color}; font-size: 0.92rem; font-weight: 600; letter-spacing: 0.3px;">Fast Preview (1-2s)...</div>
+        <div id="preview-container-{safe_id}" style="width: 100%; min-height: 320px; max-height: 520px; overflow-y: auto; background: {container_bg}; position: relative;">
+            <!-- Loading spinner -->
+            <div id="preview-loader-{safe_id}" style="position: absolute; top: 0; left: 0; width: 100%; height: 320px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: {container_bg}; z-index: 10;">
+                <div style="width: 36px; height: 36px; {loader_spinner} border-radius: 50%; animation: spin 0.9s linear infinite; margin-bottom: 14px;"></div>
+                <div style="color: {loader_text_color}; font-size: 0.9rem; font-weight: 600; letter-spacing: 0.3px;" id="preview-status-{safe_id}">Loading preview...</div>
             </div>
-            <img id="preview-img-{safe_id}" src="{screenshot_url}"
-                onload="var l=document.getElementById('preview-loader-{safe_id}');if(l){{l.style.opacity='0';setTimeout(function(){{l.style.display='none';}},200);}}"
-                onerror="window.handlePreviewErr_{safe_id}();"
-                loading="eager" decoding="async"
-                style="width: 100%; height: auto; display: block; min-height: 220px; position: relative; z-index: 2;"
+            <!-- Preview image (hidden until loaded) -->
+            <img id="preview-img-{safe_id}"
+                style="width: 100%; height: auto; display: none; position: relative; z-index: 5;"
                 alt="Visual Preview for {display_url}" />
-            <div id="preview-fallback-{safe_id}" style="display: none; padding: 3.5rem 2rem; text-align: center; position: relative; z-index: 3;">
-                <h4 style="color: {card_title_color}; margin: 0 0 0.5rem 0; font-size: 1.25rem; font-weight: 700;">Live Connection Established</h4>
-                <p style="font-size: 0.95rem; color: {card_text_color}; max-width: 480px; margin: 0 auto 1.5rem auto; line-height: 1.6;">
-                    Target website verified for <strong>{display_url}</strong>. Ready for in-depth SEO &amp; security crawl.
+            <!-- "Preview Unavailable" fallback card (hidden until all providers fail) -->
+            <div id="preview-unavail-{safe_id}" style="display: none; padding: 3rem 2rem; text-align: center; background: {unavail_bg}; min-height: 280px; align-items: center; justify-content: center; flex-direction: column; position: absolute; top: 0; left: 0; width: 100%; box-sizing: border-box; z-index: 8;">
+                <img src="{favicon_url}" style="width: 48px; height: 48px; margin-bottom: 1rem; border-radius: 10px; border: 1px solid {unavail_border};" onerror="this.style.display='none';" />
+                <h4 style="color: {card_title_color}; margin: 0 0 0.5rem 0; font-size: 1.2rem; font-weight: 700;">{clean_host}</h4>
+                <p style="color: {card_text_color}; font-size: 0.9rem; max-width: 420px; margin: 0 auto 1.25rem auto; line-height: 1.5;">
+                    Live screenshot unavailable — the site may block automated previews. Visit it directly:
                 </p>
-                <a href="{target_link}" target="_blank" style="display: inline-block; background: {btn_bg}; color: {btn_color}; border: 1px solid {btn_border}; border-radius: 8px; padding: 8px 18px; font-weight: 600; text-decoration: none;">
-                    Visit Live Site
+                <a href="{target_link}" target="_blank"
+                   style="display: inline-block; background: {btn_bg}; color: {btn_color}; border: 1.5px solid {btn_border}; border-radius: 8px; padding: 9px 22px; font-weight: 700; text-decoration: none; font-size: 0.92rem;">
+                    Open {clean_host}
                 </a>
             </div>
-            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" style="display:none;" onload="
-                window.handlePreviewErr_{safe_id} = function() {{
-                    var img = document.getElementById('preview-img-{safe_id}');
-                    var l = document.getElementById('preview-loader-{safe_id}');
-                    var fb = document.getElementById('preview-fallback-{safe_id}');
-                    var fbUrl = '{fb_val}';
-                    if (img && fbUrl && !img.dataset.tried) {{
-                        img.dataset.tried = '1';
-                        img.src = fbUrl;
-                    }} else {{
-                        if (img) img.style.display = 'none';
-                        if (l) l.style.display = 'none';
-                        if (fb) fb.style.display = 'block';
-                    }}
-                }};
-                setTimeout(function() {{
-                    var img = document.getElementById('preview-img-{safe_id}');
-                    var l = document.getElementById('preview-loader-{safe_id}');
-                    if (l && l.style.display !== 'none') {{
-                        if (img && img.complete && img.naturalWidth > 0) {{
-                            l.style.display = 'none';
-                        }} else {{
-                            window.handlePreviewErr_{safe_id}();
-                        }}
-                    }}
-                }}, 2600);
-            " />
         </div>
     </div>
+    <script>
+    (function() {{
+        var providers = {providers_js};
+        var idx = 0;
+        var img = document.getElementById('preview-img-{safe_id}');
+        var loader = document.getElementById('preview-loader-{safe_id}');
+        var status = document.getElementById('preview-status-{safe_id}');
+        var unavail = document.getElementById('preview-unavail-{safe_id}');
+
+        function isBotBlockedImage(imgEl) {{
+            // CAPTCHA/bot-block pages tend to be portrait or very small (< 300px wide content)
+            // Real website screenshots are wider than they are tall (landscape)
+            var w = imgEl.naturalWidth;
+            var h = imgEl.naturalHeight;
+            if (w === 0 || h === 0) return true;
+            // If aspect ratio is portrait-ish (height > 1.5x width), likely a CAPTCHA/error page
+            if (h > w * 1.5) return true;
+            // If extremely small, likely an error placeholder
+            if (w < 100 || h < 100) return true;
+            return false;
+        }}
+
+        function tryNextProvider() {{
+            if (idx >= providers.length) {{
+                // All providers exhausted — show unavailable card
+                if (loader) {{ loader.style.display = 'none'; }}
+                if (unavail) {{ unavail.style.display = 'flex'; }}
+                return;
+            }}
+            var src = providers[idx];
+            idx++;
+            if (status) {{ status.textContent = 'Loading preview... (attempt ' + idx + '/' + providers.length + ')'; }}
+            img.src = src;
+        }}
+
+        img.onload = function() {{
+            if (isBotBlockedImage(img)) {{
+                // Looks like a CAPTCHA page — try the next provider
+                img.src = '';
+                setTimeout(tryNextProvider, 200);
+                return;
+            }}
+            // Valid screenshot loaded!
+            if (loader) {{ loader.style.display = 'none'; }}
+            img.style.display = 'block';
+        }};
+
+        img.onerror = function() {{
+            // Provider failed — try the next one
+            setTimeout(tryNextProvider, 300);
+        }};
+
+        // Set a global timeout: if nothing loads after 12 seconds, show unavailable card
+        setTimeout(function() {{
+            if (img.style.display === 'none' && (unavail && unavail.style.display === 'none')) {{
+                if (loader) {{ loader.style.display = 'none'; }}
+                if (unavail) {{ unavail.style.display = 'flex'; }}
+            }}
+        }}, 12000);
+
+        // Start waterfall
+        tryNextProvider();
+    }})();
+    </script>
     """, unsafe_allow_html=True)
 
 
+
 def render_metric_cards(total_domains, total_issues, high_crit_issues, on_domains_click=None, on_issues_click=None, on_critical_click=None, theme_mode="corporate"):
+
     col1, col2, col3 = st.columns(3)
     with col1:
         st.button(

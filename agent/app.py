@@ -146,8 +146,7 @@ with st.container(border=True):
     
     service_healthy, _ = check_service_health()
     preview_options = [
-        "Ultra-Fast Visual Capture (1-2s Recommended)",
-        "Cloud High-Resolution Engine",
+        "Ultra-Fast Visual Capture (Recommended)",
         "Instant Domain Snapshot (0s)"
     ]
     if service_healthy:
@@ -214,20 +213,22 @@ if domains_input.strip() and not st.session_state.get("audit_results"):
 
                 target_url = domain if (domain.startswith("http://") or domain.startswith("https://")) else f"https://{domain}"
                 encoded = quote(target_url, safe="")
+                clean_host = target_url.replace("https://", "").replace("http://", "").rstrip("/").split("/")[0]
 
-                if "Instant Domain" in screenshot_source or screenshot_source == "Standard Website Preview":
+                if "Instant Domain" in screenshot_source:
                     primary_url = "instant"
                     fallback_url = None
                 elif "Local Puppeteer" in screenshot_source:
                     primary_url = f"http://localhost:3000/screenshot?url={encoded}"
-                    fallback_url = f"https://image.thum.io/get/width/800/crop/600/{target_url}"
-                elif "Cloud High-Resolution" in screenshot_source:
-                    primary_url = f"https://api.microlink.io/?url={encoded}&screenshot=true&meta=false&embed=screenshot.url"
-                    fallback_url = f"https://image.thum.io/get/width/800/crop/600/{target_url}"
+                    # Puppeteer fallback: use thumbnail.ws free tier
+                    fallback_url = f"https://api.thumbnail.ws/api/abc123/thumbnail/get?url={encoded}&width=800"
                 else:
-                    # Ultra-Fast Visual Capture: ~1-1.2s high-speed CDN visual render
-                    primary_url = f"https://image.thum.io/get/width/800/crop/600/{target_url}"
-                    fallback_url = f"https://api.microlink.io/?url={encoded}&screenshot=true&meta=false&embed=screenshot.url"
+                    # Ultra-Fast Visual Capture — use reliable waterfall:
+                    # 1. screenshotmachine (free, reliable, no CAPTCHA returns)
+                    # 2. thumbnail.ws as backup
+                    # JS in render_browser_preview will validate the image isn't a bot-block page
+                    primary_url = f"https://mini.s-shot.ru/1024x768/PNG/1024/Z100/?{target_url}"
+                    fallback_url = f"https://api.thumbnail.ws/api/abc123/thumbnail/get?url={encoded}&width=800"
 
                 render_browser_preview(domain, primary_url, fallback_url=fallback_url, theme_mode=theme_mode)
             except Exception as e:
