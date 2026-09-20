@@ -18,7 +18,12 @@ from frontend import (
     render_browser_preview,
     render_metric_cards,
     render_ready_to_scan,
-    render_download_section
+    render_download_section,
+    render_info_banner,
+    render_tab_heading,
+    render_styled_table,
+    render_styled_bar_chart,
+    render_styled_area_chart
 )
 
 # Import Backend Subpackage Utilities
@@ -511,14 +516,14 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
         st.rerun()
 
     if current_nav_tab == "Summary Dashboard":
-        st.markdown("<h3 style='color: #22d3ee; margin-top: 0;'>Executive SEO Audit Summary</h3>", unsafe_allow_html=True)
-        st.markdown("""
-        <div style="background: rgba(30, 41, 59, 0.4); border-left: 4px solid #22d3ee; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.95rem; color: #cbd5e1;">
-            <strong>What is this summary?</strong> This dashboard provides a high-level overview of your target websites. It counts total audited pages, identifies technical SEO errors that could hurt your Google search rank, and measures overall cybersecurity compliance.
-        </div>
-        """, unsafe_allow_html=True)
+        render_tab_heading("Executive SEO Audit Summary", theme_mode=theme_mode)
+        render_info_banner(
+            "What is this summary?",
+            "This dashboard provides a high-level overview of your target websites. It counts total audited pages, identifies technical SEO errors that could hurt your Google search rank, and measures overall cybersecurity compliance.",
+            theme_mode=theme_mode
+        )
 
-        st.markdown("<h3 style='color: #22d3ee; margin-top: 2rem;'>Cybersecurity Score Summary</h3>", unsafe_allow_html=True)
+        render_tab_heading("Cybersecurity Score Summary", theme_mode=theme_mode, margin_top="2rem")
         sec_summary_rows = []
         for r in all_cyber_results:
             sec_summary_rows.append({
@@ -529,40 +534,40 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
                 "SSL Validated": "Yes" if r["ssl_info"]["valid"] else "No / Untrusted",
                 "Load Time (sec)": r["load_time"]
             })
-        st.dataframe(pd.DataFrame(sec_summary_rows), use_container_width=True, hide_index=True)
+        render_styled_table(pd.DataFrame(sec_summary_rows), theme_mode=theme_mode)
 
         if not df_all_pages.empty and 'Status' in df_all_pages.columns:
-            st.markdown("<h3 style='color: #22d3ee; margin-top: 2rem;'>HTTP Status Code Distribution</h3>", unsafe_allow_html=True)
+            render_tab_heading("HTTP Status Code Distribution", theme_mode=theme_mode, margin_top="2rem")
             status_counts = df_all_pages['Status'].value_counts().reset_index()
             status_counts.columns = ['Status Code', 'Number of Pages']
             status_counts['Status Code'] = status_counts['Status Code'].astype(str)
-            st.bar_chart(status_counts.set_index('Status Code'))
+            render_styled_bar_chart(status_counts, 'Status Code', 'Number of Pages', theme_mode=theme_mode)
 
     elif current_nav_tab == "Domain Info":
-        st.markdown("<h3 style='color: #22d3ee; margin-top: 0;'>Domain & WHOIS Ownership Details</h3>", unsafe_allow_html=True)
-        st.markdown("""
-        <div style="background: rgba(30, 41, 59, 0.4); border-left: 4px solid #22d3ee; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.95rem; color: #cbd5e1;">
-            <strong>What is Domain Info?</strong> Domain Info shows official domain registration records, including who registered the domain, when it was created, when it expires, and which DNS nameservers route visitor traffic.
-        </div>
-        """, unsafe_allow_html=True)
-        st.dataframe(df_all_domain, use_container_width=True, hide_index=True)
+        render_tab_heading("Domain & WHOIS Ownership Details", theme_mode=theme_mode)
+        render_info_banner(
+            "What is Domain Info?",
+            "Domain Info shows official domain registration records, including who registered the domain, when it was created, when it expires, and which DNS nameservers route visitor traffic.",
+            theme_mode=theme_mode
+        )
+        render_styled_table(df_all_domain, theme_mode=theme_mode)
 
     elif current_nav_tab == "Crawled Pages":
-        st.markdown("<h3 style='color: #22d3ee; margin-top: 0;'>Crawled Web Page Catalog</h3>", unsafe_allow_html=True)
-        st.markdown("""
-        <div style="background: rgba(30, 41, 59, 0.4); border-left: 4px solid #22d3ee; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.95rem; color: #cbd5e1;">
-            <strong>What are Crawled Pages?</strong> This table lists every individual webpage discovered on your site during the audit, along with page titles, HTTP response codes (such as 200 OK or 404 Not Found), and link counts.
-        </div>
-        """, unsafe_allow_html=True)
-        st.dataframe(df_all_pages, use_container_width=True, hide_index=True)
+        render_tab_heading("Crawled Web Page Catalog", theme_mode=theme_mode)
+        render_info_banner(
+            "What are Crawled Pages?",
+            "This table lists every individual webpage discovered on your site during the audit, along with page titles, HTTP response codes (such as 200 OK or 404 Not Found), and link counts.",
+            theme_mode=theme_mode
+        )
+        render_styled_table(df_all_pages, theme_mode=theme_mode)
 
     elif current_nav_tab == "SEO Issues":
-        st.markdown("<h3 style='color: #22d3ee; margin-top: 0;'>Identified SEO Issues & Vulnerabilities</h3>", unsafe_allow_html=True)
-        st.markdown("""
-        <div style="background: rgba(30, 41, 59, 0.4); border-left: 4px solid #22d3ee; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.95rem; color: #cbd5e1;">
-            <strong>What are SEO Issues?</strong> Issues highlight missing title tags, duplicate meta descriptions, broken links, or missing image alt attributes that prevent search engines like Google from indexing your content effectively.
-        </div>
-        """, unsafe_allow_html=True)
+        render_tab_heading("Identified SEO Issues & Vulnerabilities", theme_mode=theme_mode)
+        render_info_banner(
+            "What are SEO Issues?",
+            "Issues highlight missing title tags, duplicate meta descriptions, broken links, or missing image alt attributes that prevent search engines like Google from indexing your content effectively.",
+            theme_mode=theme_mode
+        )
 
         is_highlighted = st.session_state.get("highlight_critical", False)
         if is_highlighted:
@@ -585,75 +590,119 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
                     df_display = df_all_issues
             else:
                 df_display = df_all_issues
-            st.dataframe(df_display, use_container_width=True, hide_index=True)
+            render_styled_table(df_display, theme_mode=theme_mode)
         else:
             st.info("No critical SEO issues found on the analyzed pages.")
 
     elif current_nav_tab == "Technical Audit":
-        st.markdown("<h3 style='color: #22d3ee; margin-top: 0;'>Technical Audit & Core Web Vitals</h3>", unsafe_allow_html=True)
-        st.markdown("""
-        <div style="background: rgba(30, 41, 59, 0.4); border-left: 4px solid #22d3ee; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.95rem; color: #cbd5e1;">
-            <strong>What is a Technical Audit?</strong> Technical Audit measures website speed and user experience metrics (Core Web Vitals) including load times, page file size, and mobile responsiveness. Fast websites rank higher on search engines.
-        </div>
-        """, unsafe_allow_html=True)
+        render_tab_heading("Technical Audit & Core Web Vitals", theme_mode=theme_mode)
+        render_info_banner(
+            "What is a Technical Audit?",
+            "Technical Audit measures website speed and user experience metrics (Core Web Vitals) including load times, page file size, and mobile responsiveness. Fast websites rank higher on search engines.",
+            theme_mode=theme_mode
+        )
         if not df_all_audit.empty:
-            st.dataframe(df_all_audit, use_container_width=True, hide_index=True)
+            render_styled_table(df_all_audit, theme_mode=theme_mode)
 
             if 'Load_Time_sec' in df_all_audit.columns:
-                st.markdown("<h3 style='color: #22d3ee; margin-top: 2rem;'>Page Load Time by URL (seconds)</h3>", unsafe_allow_html=True)
+                render_tab_heading("Page Load Time by URL (seconds)", theme_mode=theme_mode, margin_top="2rem")
                 load_df = df_all_audit[['URL_Slug', 'Load_Time_sec']].copy()
                 load_df['Page'] = load_df['URL_Slug'].apply(lambda x: x if len(x) < 25 else x[:22] + '...')
-                st.area_chart(load_df.set_index('Page')['Load_Time_sec'])
+                render_styled_area_chart(load_df, 'Page', 'Load_Time_sec', theme_mode=theme_mode)
 
-        st.markdown("<h3 style='color: #22d3ee; margin-top: 2rem;'>AI SEO Actions & Step-by-Step Fixes</h3>", unsafe_allow_html=True)
+        render_tab_heading("AI SEO Actions & Step-by-Step Fixes", theme_mode=theme_mode, margin_top="2rem")
         
         recs = generate_ai_seo_recommendations(df_all_pages, df_all_issues, df_all_audit)
         
         # CONDITIONAL RECOMMENDATIONS: If 100% healthy or zero issues, don't display unnecessary recommendation items!
         if not recs or (df_all_issues.empty and len(recs) <= 1):
-            st.markdown("""
-            <div style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; border-radius: 12px; padding: 1.5rem; margin: 1rem 0;">
-                <h4 style="color: #34d399; margin-top: 0; font-size: 1.15rem; font-weight: 700;">
-                    100% Optimal SEO Status
-                </h4>
-                <p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 0;">
-                    Your website pages fully comply with SEO best practices! Title tags, meta descriptions, canonical structures, and internal links are properly optimized. No action items required.
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
+            if theme_mode == "light":
+                st.markdown("""
+                <div style="background: #F0FDF4; border-left: 4px solid #10B981; border: 1px solid #BBF7D0; border-radius: 12px; padding: 1.5rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+                    <h4 style="color: #047857; margin-top: 0; font-size: 1.15rem; font-weight: 700;">
+                        100% Optimal SEO Status
+                    </h4>
+                    <p style="color: #374151; font-size: 0.95rem; margin-bottom: 0;">
+                        Your website pages fully comply with SEO best practices! Title tags, meta descriptions, canonical structures, and internal links are properly optimized. No action items required.
+                    </p>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown("""
+                <div style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; border-radius: 12px; padding: 1.5rem; margin: 1rem 0;">
+                    <h4 style="color: #34d399; margin-top: 0; font-size: 1.15rem; font-weight: 700;">
+                        100% Optimal SEO Status
+                    </h4>
+                    <p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 0;">
+                        Your website pages fully comply with SEO best practices! Title tags, meta descriptions, canonical structures, and internal links are properly optimized. No action items required.
+                    </p>
+                </div>
+                """, unsafe_allow_html=True)
         else:
             # Trust & Verification Guarantee Banner
-            st.markdown("""
-            <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(34, 211, 238, 0.3); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
-                <h5 style="color: #22d3ee; margin-top: 0; font-size: 1rem; font-weight: 700;">Verified Analysis & Data Accuracy Guarantee</h5>
-                <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 0; line-height: 1.5;">
-                    These action items are generated directly from real-time live page analysis, W3C HTML specifications, and search engine optimization standards. Every recommendation is 100% verified against your active website code.
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
+            if theme_mode == "light":
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-left: 4px solid #4F46E5; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+                    <h5 style="color: #1E293B; margin-top: 0; font-size: 1rem; font-weight: 700;">Verified Analysis & Data Accuracy Guarantee</h5>
+                    <p style="color: #475569; font-size: 0.9rem; margin-bottom: 0; line-height: 1.5;">
+                        These action items are generated directly from real-time live page analysis, W3C HTML specifications, and search engine optimization standards. Every recommendation is 100% verified against your active website code.
+                    </p>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown("""
+                <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(34, 211, 238, 0.3); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
+                    <h5 style="color: #22d3ee; margin-top: 0; font-size: 1rem; font-weight: 700;">Verified Analysis & Data Accuracy Guarantee</h5>
+                    <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 0; line-height: 1.5;">
+                        These action items are generated directly from real-time live page analysis, W3C HTML specifications, and search engine optimization standards. Every recommendation is 100% verified against your active website code.
+                    </p>
+                </div>
+                """, unsafe_allow_html=True)
 
             rec_html = '<div class="glass-card" style="padding: 1.5rem !important;">'
             for r in recs:
                 sev = r["severity"].lower()
-                if sev == "critical":
-                    color_style = "border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
-                    sev_badge = '<span style="color: #ef4444; font-weight: 800;">[CRITICAL]</span>'
-                elif sev == "high":
-                    color_style = "border-left: 4px solid #f97316; background: rgba(249, 115, 22, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
-                    sev_badge = '<span style="color: #f97316; font-weight: 800;">[HIGH]</span>'
-                elif sev == "medium":
-                    color_style = "border-left: 4px solid #eab308; background: rgba(234, 179, 8, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
-                    sev_badge = '<span style="color: #eab308; font-weight: 800;">[MEDIUM]</span>'
+                if theme_mode == "light":
+                    item_title_color = "#0F172A"
+                    item_desc_color = "#334155"
+                    item_impact_color = "#64748B"
+                    item_action_color = "#4F46E5"
+                    if sev == "critical":
+                        color_style = "border-left: 4px solid #EF4444; background: #FEF2F2; border: 1px solid #FECACA; border-left: 4px solid #EF4444; margin: 10px 0; border-radius: 10px; padding: 14px;"
+                        sev_badge = '<span style="color: #DC2626; font-weight: 800;">[CRITICAL]</span>'
+                    elif sev == "high":
+                        color_style = "border-left: 4px solid #F97316; background: #FFF7ED; border: 1px solid #FFEDD5; border-left: 4px solid #F97316; margin: 10px 0; border-radius: 10px; padding: 14px;"
+                        sev_badge = '<span style="color: #EA580C; font-weight: 800;">[HIGH]</span>'
+                    elif sev == "medium":
+                        color_style = "border-left: 4px solid #EAB308; background: #FEFCE8; border: 1px solid #FEF08A; border-left: 4px solid #EAB308; margin: 10px 0; border-radius: 10px; padding: 14px;"
+                        sev_badge = '<span style="color: #CA8A04; font-weight: 800;">[MEDIUM]</span>'
+                    else:
+                        color_style = "border-left: 4px solid #10B981; background: #F0FDF4; border: 1px solid #BBF7D0; border-left: 4px solid #10B981; margin: 10px 0; border-radius: 10px; padding: 14px;"
+                        sev_badge = '<span style="color: #059669; font-weight: 800;">[LOW]</span>'
                 else:
-                    color_style = "border-left: 4px solid #22c55e; background: rgba(34, 197, 94, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
-                    sev_badge = '<span style="color: #22c55e; font-weight: 800;">[LOW]</span>'
+                    item_title_color = "#f1f5f9"
+                    item_desc_color = "#cbd5e1"
+                    item_impact_color = "#94a3b8"
+                    item_action_color = "#38bdf8"
+                    if sev == "critical":
+                        color_style = "border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
+                        sev_badge = '<span style="color: #ef4444; font-weight: 800;">[CRITICAL]</span>'
+                    elif sev == "high":
+                        color_style = "border-left: 4px solid #f97316; background: rgba(249, 115, 22, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
+                        sev_badge = '<span style="color: #f97316; font-weight: 800;">[HIGH]</span>'
+                    elif sev == "medium":
+                        color_style = "border-left: 4px solid #eab308; background: rgba(234, 179, 8, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
+                        sev_badge = '<span style="color: #eab308; font-weight: 800;">[MEDIUM]</span>'
+                    else:
+                        color_style = "border-left: 4px solid #22c55e; background: rgba(34, 197, 94, 0.08); margin: 10px 0; border-radius: 8px; padding: 12px;"
+                        sev_badge = '<span style="color: #22c55e; font-weight: 800;">[LOW]</span>'
                 
                 item_html = (
                     f'<div style="{color_style}">'
-                    f'<div style="font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; color: #f1f5f9;">{sev_badge} {r["title"]}</div>'
-                    f'<div style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 6px;">{r["description"]}</div>'
-                    f'<div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 4px;"><strong>Impact:</strong> {r["impact"]}</div>'
-                    f'<div style="color: #22d3ee; font-size: 0.85rem; font-weight: 600;"><strong>Action:</strong> {r["action_item"]}</div>'
+                    f'<div style="font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; color: {item_title_color};">{sev_badge} {r["title"]}</div>'
+                    f'<div style="color: {item_desc_color}; font-size: 0.95rem; margin-bottom: 6px;">{r["description"]}</div>'
+                    f'<div style="color: {item_impact_color}; font-size: 0.85rem; margin-bottom: 4px;"><strong>Impact:</strong> {r["impact"]}</div>'
+                    f'<div style="color: {item_action_color}; font-size: 0.85rem; font-weight: 600;"><strong>Action:</strong> {r["action_item"]}</div>'
                     f'</div>'
                 )
                 rec_html += item_html
@@ -661,12 +710,12 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
             st.markdown(rec_html, unsafe_allow_html=True)
 
     elif current_nav_tab == "Security Scorecard":
-        st.markdown("<h3 style='color: #22d3ee; margin-top: 0;'>Cybersecurity & Risk Scorecard</h3>", unsafe_allow_html=True)
-        st.markdown("""
-        <div style="background: rgba(30, 41, 59, 0.4); border-left: 4px solid #22d3ee; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.95rem; color: #cbd5e1;">
-            <strong>What is the Security Scorecard?</strong> This section checks if your website uses valid SSL encryption, has active security headers to block hackers, and verifies that your domain is free from malware or phishing risks.
-        </div>
-        """, unsafe_allow_html=True)
+        render_tab_heading("Cybersecurity & Risk Scorecard", theme_mode=theme_mode)
+        render_info_banner(
+            "What is the Security Scorecard?",
+            "This section checks if your website uses valid SSL encryption, has active security headers to block hackers, and verifies that your domain is free from malware or phishing risks.",
+            theme_mode=theme_mode
+        )
 
         # Domain selector for Security Scorecard
         clean_domains = [r["domain"] for r in all_cyber_results]
@@ -682,35 +731,48 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
         res = next(r for r in all_cyber_results if r["domain"] == selected_domain)
 
         # Trust & Verification Guarantee Banner for Security Score
-        st.markdown("""
-        <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
-            <h5 style="color: #34d399; margin-top: 0; font-size: 1rem; font-weight: 700;">Verified Security Standard & Trusted Source</h5>
-            <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 0; line-height: 1.5;">
-                This security grade is computed directly from live target server response headers, RFC 2818 SSL certificate validation, and official OWASP Top 10 web security compliance specifications. All test results are 100% objective and verified directly from server handshakes.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-
-
+        if theme_mode == "light":
+            st.markdown("""
+            <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-left: 4px solid #10B981; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+                <h5 style="color: #047857; margin-top: 0; font-size: 1rem; font-weight: 700;">Verified Security Standard & Trusted Source</h5>
+                <p style="color: #475569; font-size: 0.9rem; margin-bottom: 0; line-height: 1.5;">
+                    This security grade is computed directly from live target server response headers, RFC 2818 SSL certificate validation, and official OWASP Top 10 web security compliance specifications. All test results are 100% objective and verified directly from server handshakes.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown("""
+            <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
+                <h5 style="color: #34d399; margin-top: 0; font-size: 1rem; font-weight: 700;">Verified Security Standard & Trusted Source</h5>
+                <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 0; line-height: 1.5;">
+                    This security grade is computed directly from live target server response headers, RFC 2818 SSL certificate validation, and official OWASP Top 10 web security compliance specifications. All test results are 100% objective and verified directly from server handshakes.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
 
         # Top Metric Cards
         col_m1, col_m2, col_m3 = st.columns(3)
         with col_m1:
+            metric_score_color = "#0284C7" if theme_mode == "light" else "#06b6d4"
             st.markdown(f"""
             <div class="metric-card">
                 <div class="metric-label">Security Compliance Score</div>
-                <div class="metric-value" style="color: #06b6d4;">{res['global_score']}%</div>
+                <div class="metric-value" style="color: {metric_score_color};">{res['global_score']}%</div>
             </div>
             """, unsafe_allow_html=True)
         with col_m2:
+            metric_grade_color = "#4F46E5" if theme_mode == "light" else "#818cf8"
             st.markdown(f"""
             <div class="metric-card">
                 <div class="metric-label">Security Grade</div>
-                <div class="metric-value" style="color: #818cf8;">{res['grade']}</div>
+                <div class="metric-value" style="color: {metric_grade_color};">{res['grade']}</div>
             </div>
             """, unsafe_allow_html=True)
         with col_m3:
-            rating_color = "#f87171" if "High" in res['rating'] or "Critical" in res['rating'] else ("#f59e0b" if "Medium" in res['rating'] else "#10b981")
+            if theme_mode == "light":
+                rating_color = "#DC2626" if "High" in res['rating'] or "Critical" in res['rating'] else ("#D97706" if "Medium" in res['rating'] else "#059669")
+            else:
+                rating_color = "#f87171" if "High" in res['rating'] or "Critical" in res['rating'] else ("#f59e0b" if "Medium" in res['rating'] else "#10b981")
             st.markdown(f"""
             <div class="metric-card">
                 <div class="metric-label">Risk Exposure Rating</div>
@@ -719,9 +781,10 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
             """, unsafe_allow_html=True)
 
         # Section 1: SSL Validation Details
-        st.markdown("<h3 style='color: #22d3ee; margin-top: 2rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.5rem;'>SSL / TLS Certificate Validation</h3>", unsafe_allow_html=True)
-        st.markdown("""
-        <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1rem;">
+        render_tab_heading("SSL / TLS Certificate Validation", theme_mode=theme_mode, margin_top="2rem")
+        ssl_desc_color = "#475569" if theme_mode == "light" else "#94a3b8"
+        st.markdown(f"""
+        <p style="color: {ssl_desc_color}; font-size: 0.9rem; margin-bottom: 1rem;">
             <strong>What is SSL?</strong> SSL (HTTPS) encrypts data sent between your visitors and your website. It protects passwords, contact forms, and payment details from being intercepted by hackers.
         </p>
         """, unsafe_allow_html=True)
@@ -735,76 +798,120 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
                 "Expiration Date": r["ssl_info"]["expiry_date"],
                 "Days Remaining": r["ssl_info"]["days_left"] if r["ssl_info"]["days_left"] >= 0 else "N/A"
             })
-        st.dataframe(pd.DataFrame(ssl_rows), use_container_width=True, hide_index=True)
+        render_styled_table(pd.DataFrame(ssl_rows), theme_mode=theme_mode)
 
         # Section 2: Security Headers Audit
-        st.markdown("<h3 style='color: #22d3ee; margin-top: 2rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.5rem;'>HTTP Security Headers Audit</h3>", unsafe_allow_html=True)
-        st.markdown("""
-        <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1rem;">
+        render_tab_heading("HTTP Security Headers Audit", theme_mode=theme_mode, margin_top="2rem")
+        st.markdown(f"""
+        <p style="color: {ssl_desc_color}; font-size: 0.9rem; margin-bottom: 1rem;">
             <strong>What are HTTP Security Headers?</strong> Security headers are instructions sent by your web server to visitors' browsers to defend against cross-site scripting (XSS), clickjacking, and data tampering.
         </p>
         """, unsafe_allow_html=True)
         df_headers = pd.DataFrame(res["header_findings"])[["header", "status", "value", "severity", "desc"]]
         df_headers.columns = ["Security Header", "Compliance Status", "Header Value", "Severity Level", "Policy Description"]
-        st.dataframe(df_headers, use_container_width=True, hide_index=True)
+        render_styled_table(df_headers, theme_mode=theme_mode)
 
         # Section 3: Threat & Risk Heuristics
-        st.markdown("<h3 style='color: #22d3ee; margin-top: 2rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.5rem;'>Threat & Risk Analysis</h3>", unsafe_allow_html=True)
+        render_tab_heading("Threat & Risk Analysis", theme_mode=theme_mode, margin_top="2rem")
+        threat_head_color = "#1E293B" if theme_mode == "light" else "#cbd5e1"
         col_t1, col_t2 = st.columns(2)
         with col_t1:
-            st.markdown("<h4 style='color: #cbd5e1; font-weight: 700; margin-bottom: 1rem;'>Phishing Indicators</h4>", unsafe_allow_html=True)
+            st.markdown(f"<h4 style='color: {threat_head_color}; font-weight: 700; margin-bottom: 1rem;'>Phishing Indicators</h4>", unsafe_allow_html=True)
             if res["phishing_reasons"]:
                 for reason in res["phishing_reasons"]:
-                    st.markdown(f"""
-                    <div style="background: rgba(239, 68, 68, 0.08); border-left: 4px solid #ef4444; border-radius: 8px; padding: 12px; margin-bottom: 10px; color: #f87171; font-size: 0.92rem;">
-                        <strong>Risk Warning:</strong> {reason}
+                    if theme_mode == "light":
+                        st.markdown(f"""
+                        <div style="background: #FEF2F2; border: 1px solid #FECACA; border-left: 4px solid #EF4444; border-radius: 8px; padding: 12px; margin-bottom: 10px; color: #DC2626; font-size: 0.92rem;">
+                            <strong>Risk Warning:</strong> {reason}
+                        </div>
+                        """, unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"""
+                        <div style="background: rgba(239, 68, 68, 0.08); border-left: 4px solid #ef4444; border-radius: 8px; padding: 12px; margin-bottom: 10px; color: #f87171; font-size: 0.92rem;">
+                            <strong>Risk Warning:</strong> {reason}
+                        </div>
+                        """, unsafe_allow_html=True)
+            else:
+                if theme_mode == "light":
+                    st.markdown("""
+                    <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-left: 4px solid #10B981; border-radius: 8px; padding: 12px; color: #047857; font-size: 0.92rem; font-weight: 600;">
+                        No brand spoofing or high-entropy anomalies detected.
                     </div>
                     """, unsafe_allow_html=True)
-            else:
-                st.markdown("""
-                <div style="background: rgba(16, 185, 129, 0.08); border-left: 4px solid #10b981; border-radius: 8px; padding: 12px; color: #34d399; font-size: 0.92rem; font-weight: 600;">
-                    No brand spoofing or high-entropy anomalies detected.
-                </div>
-                """, unsafe_allow_html=True)
+                else:
+                    st.markdown("""
+                    <div style="background: rgba(16, 185, 129, 0.08); border-left: 4px solid #10b981; border-radius: 8px; padding: 12px; color: #34d399; font-size: 0.92rem; font-weight: 600;">
+                        No brand spoofing or high-entropy anomalies detected.
+                    </div>
+                    """, unsafe_allow_html=True)
 
         with col_t2:
-            st.markdown("<h4 style='color: #cbd5e1; font-weight: 700; margin-bottom: 1rem;'>Malware Risk Analysis</h4>", unsafe_allow_html=True)
+            st.markdown(f"<h4 style='color: {threat_head_color}; font-weight: 700; margin-bottom: 1rem;'>Malware Risk Analysis</h4>", unsafe_allow_html=True)
             if res["malware_reasons"]:
                 for reason in res["malware_reasons"]:
-                    st.markdown(f"""
-                    <div style="background: rgba(239, 68, 68, 0.08); border-left: 4px solid #ef4444; border-radius: 8px; padding: 12px; margin-bottom: 10px; color: #f87171; font-size: 0.92rem;">
-                        <strong>Threat Alert:</strong> {reason}
+                    if theme_mode == "light":
+                        st.markdown(f"""
+                        <div style="background: #FEF2F2; border: 1px solid #FECACA; border-left: 4px solid #EF4444; border-radius: 8px; padding: 12px; margin-bottom: 10px; color: #DC2626; font-size: 0.92rem;">
+                            <strong>Threat Alert:</strong> {reason}
+                        </div>
+                        """, unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"""
+                        <div style="background: rgba(239, 68, 68, 0.08); border-left: 4px solid #ef4444; border-radius: 8px; padding: 12px; margin-bottom: 10px; color: #f87171; font-size: 0.92rem;">
+                            <strong>Threat Alert:</strong> {reason}
+                        </div>
+                        """, unsafe_allow_html=True)
+            else:
+                if theme_mode == "light":
+                    st.markdown("""
+                    <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-left: 4px solid #10B981; border-radius: 8px; padding: 12px; color: #047857; font-size: 0.92rem; font-weight: 600;">
+                        No drive-by hidden frames or obfuscated script signatures found.
                     </div>
                     """, unsafe_allow_html=True)
-            else:
-                st.markdown("""
-                <div style="background: rgba(16, 185, 129, 0.08); border-left: 4px solid #10b981; border-radius: 8px; padding: 12px; color: #34d399; font-size: 0.92rem; font-weight: 600;">
-                    No drive-by hidden frames or obfuscated script signatures found.
-                </div>
-                """, unsafe_allow_html=True)
+                else:
+                    st.markdown("""
+                    <div style="background: rgba(16, 185, 129, 0.08); border-left: 4px solid #10b981; border-radius: 8px; padding: 12px; color: #34d399; font-size: 0.92rem; font-weight: 600;">
+                        No drive-by hidden frames or obfuscated script signatures found.
+                    </div>
+                    """, unsafe_allow_html=True)
 
         # Section 4: Vulnerability Remediation Plan
-        st.markdown("<h3 style='color: #22d3ee; margin-top: 2rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.5rem;'>Vulnerability Remediation Plan</h3>", unsafe_allow_html=True)
+        render_tab_heading("Vulnerability Remediation Plan", theme_mode=theme_mode, margin_top="2rem")
         
         recs_list = res["recommendations"]
         is_perfect = (res["global_score"] == 100) or (len(recs_list) == 1 and "No active vulnerabilities found" in recs_list[0])
 
-        # CONDITIONAL SECURITY RECOMMENDATIONS: If score is 100% or 0 active vulnerabilities, display success box instead of unnecessary remediation items!
+        # CONDITIONAL SECURITY RECOMMENDATIONS
         if is_perfect:
-            st.markdown("""
-            <div style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; border-radius: 12px; padding: 1.5rem; margin: 1rem 0;">
-                <h4 style="color: #34d399; margin-top: 0; font-size: 1.15rem; font-weight: 700;">
-                    100% Optimal Security Compliance
-                </h4>
-                <p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 0;">
-                    Congratulations! Your target domain fully satisfies all security requirements. SSL encryption is active, all 6 HTTP security headers are enabled, and zero malware or phishing risks were detected. No remediation items required.
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
+            if theme_mode == "light":
+                st.markdown("""
+                <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-left: 4px solid #10B981; border-radius: 12px; padding: 1.5rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+                    <h4 style="color: #047857; margin-top: 0; font-size: 1.15rem; font-weight: 700;">
+                        100% Optimal Security Compliance
+                    </h4>
+                    <p style="color: #374151; font-size: 0.95rem; margin-bottom: 0;">
+                        Congratulations! Your target domain fully satisfies all security requirements. SSL encryption is active, all 6 HTTP security headers are enabled, and zero malware or phishing risks were detected. No remediation items required.
+                    </p>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown("""
+                <div style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; border-radius: 12px; padding: 1.5rem; margin: 1rem 0;">
+                    <h4 style="color: #34d399; margin-top: 0; font-size: 1.15rem; font-weight: 700;">
+                        100% Optimal Security Compliance
+                    </h4>
+                    <p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 0;">
+                        Congratulations! Your target domain fully satisfies all security requirements. SSL encryption is active, all 6 HTTP security headers are enabled, and zero malware or phishing risks were detected. No remediation items required.
+                    </p>
+                </div>
+                """, unsafe_allow_html=True)
         else:
             rec_html = '<div class="glass-card" style="padding: 1.5rem !important;">'
             for idx_rec, rec in enumerate(recs_list):
-                rec_html += f'<div style="background: rgba(15, 23, 42, 0.5); border-left: 4px solid #0284c7; border-radius: 8px; padding: 12px; margin: 8px 0; color: #e0f2fe; font-size: 0.95rem;"><strong>Action Item {idx_rec + 1}:</strong> {rec}</div>'
+                if theme_mode == "light":
+                    rec_html += f'<div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-left: 4px solid #0284C7; border-radius: 8px; padding: 12px; margin: 8px 0; color: #1E293B; font-size: 0.95rem;"><strong style="color: #0284C7;">Action Item {idx_rec + 1}:</strong> {rec}</div>'
+                else:
+                    rec_html += f'<div style="background: rgba(15, 23, 42, 0.5); border-left: 4px solid #0284c7; border-radius: 8px; padding: 12px; margin: 8px 0; color: #e0f2fe; font-size: 0.95rem;"><strong style="color: #38bdf8;">Action Item {idx_rec + 1}:</strong> {rec}</div>'
             rec_html += '</div>'
             st.markdown(rec_html, unsafe_allow_html=True)
 

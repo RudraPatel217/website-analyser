@@ -473,34 +473,57 @@ def inject_premium_styles(theme_mode="corporate"):
             -webkit-text-fill-color: #4F46E5 !important;
         }
 
-        /* Navigation Segmented Control (Light) — white pill bar */
-        div[data-testid="stSegmentedControl"] {
+        /* Navigation Segmented Control (Light Mode SaaS Pill Bar) */
+        .stApp div[data-testid="stSegmentedControl"],
+        .stApp div[data-testid="stSegmentedControl"] > div,
+        .stApp div[data-testid="stSegmentedControl"] [data-baseweb="button-group"],
+        .stApp div[data-testid="stSegmentedControl"] [role="radiogroup"] {
             margin: 1.5rem 0 1.75rem 0 !important;
             background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
             border: 1px solid #E2E8F0 !important;
             border-radius: 14px !important;
             padding: 4px !important;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05) !important;
         }
-        div[data-testid="stSegmentedControl"] button {
-            background: transparent !important;
+        .stApp div[data-testid="stSegmentedControl"] button {
+            background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
             border: none !important;
             border-radius: 10px !important;
             padding: 9px 18px !important;
-            font-weight: 500 !important;
+            font-weight: 600 !important;
             color: #64748B !important;
             -webkit-text-fill-color: #64748B !important;
             font-size: 0.9rem !important;
             transition: all 0.2s ease !important;
         }
-        div[data-testid="stSegmentedControl"] button[aria-checked="true"] {
+        .stApp div[data-testid="stSegmentedControl"] button * {
+            color: #64748B !important;
+            -webkit-text-fill-color: #64748B !important;
+        }
+        .stApp div[data-testid="stSegmentedControl"] button[aria-checked="true"],
+        .stApp div[data-testid="stSegmentedControl"] button[data-checked="true"] {
             background: #4F46E5 !important;
-            color: #ffffff !important;
-            -webkit-text-fill-color: #ffffff !important;
+            background-color: #4F46E5 !important;
+            border-color: #4F46E5 !important;
+            color: #FFFFFF !important;
+            -webkit-text-fill-color: #FFFFFF !important;
             box-shadow: 0 2px 8px rgba(79, 70, 229, 0.35) !important;
             font-weight: 700 !important;
         }
-        div[data-testid="stSegmentedControl"] button:hover:not([aria-checked="true"]) {
+        .stApp div[data-testid="stSegmentedControl"] button[aria-checked="true"] * {
+            color: #FFFFFF !important;
+            -webkit-text-fill-color: #FFFFFF !important;
+            font-weight: 700 !important;
+        }
+        .stApp div[data-testid="stSegmentedControl"] button:hover:not([aria-checked="true"]) {
             background: #F1F5F9 !important;
+            background-color: #F1F5F9 !important;
+            color: #1E293B !important;
+            -webkit-text-fill-color: #1E293B !important;
+        }
+        .stApp div[data-testid="stSegmentedControl"] button:hover:not([aria-checked="true"]) * {
             color: #1E293B !important;
             -webkit-text-fill-color: #1E293B !important;
         }
@@ -795,21 +818,48 @@ def inject_premium_styles(theme_mode="corporate"):
             color: #4F46E5 !important;
         }
 
-        /* DataFrames (light) */
-        div[data-testid="stDataFrame"] {
+        /* DataFrames & Tables (Light Mode) */
+        .stApp div[data-testid="stDataFrame"],
+        .stApp div[data-testid="stTable"],
+        .stApp div[data-testid="stDataFrame"] > div {
             border: 1px solid #E2E8F0 !important;
-            border-radius: 12px !important;
+            border-radius: 14px !important;
+            background-color: #FFFFFF !important;
             background: #FFFFFF !important;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05) !important;
         }
+
+        /* Charts in Light Mode */
+        .stApp div[data-testid="stVegaLiteChart"],
+        .stApp div[data-testid="stArrowVegaLiteChart"] {
+            background-color: #FFFFFF !important;
+            background: #FFFFFF !important;
+            border: 1px solid #E2E8F0 !important;
+            border-radius: 14px !important;
+            padding: 1.25rem !important;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05) !important;
+        }
+        .stApp div[data-testid="stVegaLiteChart"] text,
+        .stApp div[data-testid="stArrowVegaLiteChart"] text {
+            fill: #475569 !important;
+        }
+        .stApp div[data-testid="stVegaLiteChart"] line,
+        .stApp div[data-testid="stArrowVegaLiteChart"] line {
+            stroke: #E2E8F0 !important;
+        }
+
+        /* Expanders in Light Mode */
         div[data-testid="stExpander"] {
             background: #FFFFFF !important;
             border: 1px solid #E2E8F0 !important;
             border-radius: 12px !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
         }
 
         /* Info & success boxes in light mode */
         div[data-testid="stAlert"] {
-            border-radius: 10px !important;
+            border-radius: 12px !important;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
         }
 
         /* Slider track (light) */

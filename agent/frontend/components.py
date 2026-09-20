@@ -1,4 +1,37 @@
+import html
+import altair as alt
+import pandas as pd
 import streamlit as st
+
+def render_info_banner(title, description, theme_mode="corporate"):
+    if theme_mode == "light":
+        bg = "#FFFFFF"
+        border = "#E2E8F0"
+        border_left = "#4F46E5"
+        text_color = "#475569"
+        title_color = "#1E293B"
+        shadow = "0 1px 3px rgba(0,0,0,0.04)"
+    else:  # corporate dark
+        bg = "rgba(30, 41, 59, 0.45)"
+        border = "rgba(59, 130, 246, 0.2)"
+        border_left = "#38bdf8"
+        text_color = "#cbd5e1"
+        title_color = "#f8fafc"
+        shadow = "0 4px 15px rgba(0,0,0,0.2)"
+
+    banner_html = (
+        f'<div style="background: {bg}; border: 1px solid {border}; border-left: 4px solid {border_left}; padding: 1.1rem 1.4rem; border-radius: 12px; margin-bottom: 1.5rem; font-size: 0.95rem; color: {text_color}; box-shadow: {shadow}; line-height: 1.6;">'
+        f'<strong style="color: {title_color};">{title}</strong> {description}'
+        f'</div>'
+    )
+    st.markdown(banner_html, unsafe_allow_html=True)
+
+
+def render_tab_heading(title, theme_mode="corporate", margin_top="0"):
+    color = "#0F172A" if theme_mode == "light" else "#38bdf8"
+    heading_html = f'<h3 style="color: {color}; margin-top: {margin_top}; font-weight: 700; font-size: 1.35rem; margin-bottom: 1rem;">{title}</h3>'
+    st.markdown(heading_html, unsafe_allow_html=True)
+
 
 def render_scan_progress(placeholder, domain, current_log, progress_percentage, theme_mode="corporate"):
     """Renders the animated scan progress card — adapts to dark or light theme."""
@@ -247,3 +280,189 @@ def render_download_section(theme_mode="corporate"):
         <p style="color: {desc_color}; font-size: 0.92rem; margin-bottom: 0;">Download a consolidated Microsoft Excel spreadsheet containing Domain configurations, Crawled Pages, technical details and parsed SEO issues.</p>
     </div>
     """, unsafe_allow_html=True)
+
+
+def render_styled_table(df, theme_mode="corporate", max_height="450px"):
+    """Renders a fully theme-adaptive, high-contrast, responsive SaaS table."""
+    if df is None or df.empty:
+        st.info("No records to display.")
+        return
+
+    is_light = (theme_mode == "light")
+
+    if is_light:
+        container_style = (
+            f"background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 14px; "
+            f"overflow: auto; max-height: {max_height}; "
+            f"box-shadow: 0 1px 4px rgba(0,0,0,0.05); margin-bottom: 1.5rem;"
+        )
+        table_style = (
+            "width: 100%; border-collapse: separate; border-spacing: 0; "
+            "font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; "
+            "font-size: 0.88rem; text-align: left;"
+        )
+        th_style = (
+            "background: #F8FAFC; color: #475569; font-weight: 700; font-size: 0.76rem; "
+            "text-transform: uppercase; letter-spacing: 0.6px; padding: 12px 16px; "
+            "border-bottom: 2px solid #E2E8F0; position: sticky; top: 0; z-index: 2; white-space: nowrap;"
+        )
+        td_base = (
+            "padding: 12px 16px; border-bottom: 1px solid #F1F5F9; color: #0F172A; "
+            "vertical-align: middle; white-space: nowrap;"
+        )
+        row_even_bg = "#FFFFFF"
+        row_odd_bg = "#FAFAFA"
+    else:  # corporate dark
+        container_style = (
+            f"background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(59, 130, 246, 0.25); "
+            f"border-radius: 14px; overflow: auto; max-height: {max_height}; "
+            f"box-shadow: 0 8px 30px rgba(0,0,0,0.35); margin-bottom: 1.5rem;"
+        )
+        table_style = (
+            "width: 100%; border-collapse: separate; border-spacing: 0; "
+            "font-family: 'Plus Jakarta Sans', sans-serif; "
+            "font-size: 0.88rem; text-align: left;"
+        )
+        th_style = (
+            "background: rgba(30, 41, 59, 0.95); color: #38bdf8; font-weight: 700; font-size: 0.76rem; "
+            "text-transform: uppercase; letter-spacing: 0.6px; padding: 12px 16px; "
+            "border-bottom: 2px solid rgba(59, 130, 246, 0.35); position: sticky; top: 0; z-index: 2; white-space: nowrap;"
+        )
+        td_base = (
+            "padding: 12px 16px; border-bottom: 1px solid rgba(59, 130, 246, 0.12); color: #f8fafc; "
+            "vertical-align: middle; white-space: nowrap;"
+        )
+        row_even_bg = "rgba(15, 23, 42, 0.6)"
+        row_odd_bg = "rgba(30, 41, 59, 0.4)"
+
+    def format_cell(col_name, val):
+        if pd.isna(val) or val is None:
+            return '<span style="color: #94A3B8;">—</span>'
+        val_str = str(val).strip()
+        clean_val = html.escape(val_str)
+        col_lower = str(col_name).lower()
+
+        # Format URL / Domain Link
+        if ("url" in col_lower or "domain" in col_lower or "link" in col_lower) and val_str.startswith(("http://", "https://")):
+            text_disp = clean_val if len(clean_val) < 45 else clean_val[:42] + "..."
+            link_color = "#4F46E5" if is_light else "#60a5fa"
+            return f'<a href="{clean_val}" target="_blank" style="color: {link_color}; text-decoration: none; font-weight: 600; font-family: monospace;">{text_disp} ↗</a>'
+
+        # Format Status Code Badge
+        if col_lower in ["status", "status code", "status_code"]:
+            if val_str in ["200", "200.0", "200 OK"]:
+                return '<span style="background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; border-radius: 9999px; padding: 2px 10px; font-weight: 700; font-size: 0.78rem;">200 OK</span>'
+            elif val_str in ["404", "404.0", "404 Not Found"]:
+                return '<span style="background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; border-radius: 9999px; padding: 2px 10px; font-weight: 700; font-size: 0.78rem;">404 Not Found</span>'
+            elif val_str.startswith("3"):
+                return f'<span style="background: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; border-radius: 9999px; padding: 2px 10px; font-weight: 700; font-size: 0.78rem;">{clean_val}</span>'
+            elif val_str.startswith(("4", "5")):
+                return f'<span style="background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; border-radius: 9999px; padding: 2px 10px; font-weight: 700; font-size: 0.78rem;">{clean_val}</span>'
+
+        # Format Severity Badge
+        if col_lower in ["severity", "severity level"]:
+            if val_str.lower() in ["critical", "high"]:
+                return f'<span style="background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; border-radius: 9999px; padding: 2px 10px; font-weight: 700; font-size: 0.78rem;">{clean_val}</span>'
+            elif val_str.lower() in ["medium", "warning"]:
+                return f'<span style="background: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; border-radius: 9999px; padding: 2px 10px; font-weight: 700; font-size: 0.78rem;">{clean_val}</span>'
+            elif val_str.lower() in ["low", "info"]:
+                return f'<span style="background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; border-radius: 9999px; padding: 2px 10px; font-weight: 700; font-size: 0.78rem;">{clean_val}</span>'
+
+        # Format SSL / Compliance Status
+        if col_lower in ["ssl validated", "ssl status", "compliance status"]:
+            if any(w in val_str.lower() for w in ["yes", "valid", "trusted", "present", "passed"]):
+                return f'<span style="background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; border-radius: 9999px; padding: 2px 10px; font-weight: 700; font-size: 0.78rem;">✓ {clean_val}</span>'
+            elif any(w in val_str.lower() for w in ["no", "invalid", "untrusted", "missing", "failed"]):
+                return f'<span style="background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; border-radius: 9999px; padding: 2px 10px; font-weight: 700; font-size: 0.78rem;">✗ {clean_val}</span>'
+
+        # Format Security Grade
+        if col_lower in ["security grade", "grade"]:
+            if val_str.startswith("A"):
+                return f'<span style="background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; border-radius: 6px; padding: 2px 10px; font-weight: 800; font-size: 0.85rem;">{clean_val}</span>'
+            elif val_str.startswith("B"):
+                return f'<span style="background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; border-radius: 6px; padding: 2px 10px; font-weight: 800; font-size: 0.85rem;">{clean_val}</span>'
+            elif val_str.startswith("C"):
+                return f'<span style="background: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; border-radius: 6px; padding: 2px 10px; font-weight: 800; font-size: 0.85rem;">{clean_val}</span>'
+            else:
+                return f'<span style="background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; border-radius: 6px; padding: 2px 10px; font-weight: 800; font-size: 0.85rem;">{clean_val}</span>'
+
+        # Format Score / Percentage
+        if col_lower in ["security score", "global_score"]:
+            score_color = "#4F46E5" if is_light else "#38bdf8"
+            return f'<strong style="color: {score_color}; font-size: 0.95rem;">{clean_val}</strong>'
+
+        return clean_val
+
+    headers_html = "".join([f'<th style="{th_style}">{html.escape(str(col))}</th>' for col in df.columns])
+    
+    rows_html = []
+    for idx, row in df.iterrows():
+        row_bg = row_even_bg if idx % 2 == 0 else row_odd_bg
+        cells_html = "".join([
+            f'<td style="{td_base}">{format_cell(col, row[col])}</td>'
+            for col in df.columns
+        ])
+        rows_html.append(f'<tr style="background: {row_bg};">{cells_html}</tr>')
+
+    all_rows = "".join(rows_html)
+    full_table_html = (
+        f'<div style="{container_style}">'
+        f'<table style="{table_style}">'
+        f'<thead><tr>{headers_html}</tr></thead>'
+        f'<tbody>{all_rows}</tbody>'
+        f'</table>'
+        f'</div>'
+    )
+    st.markdown(full_table_html, unsafe_allow_html=True)
+
+
+def render_styled_bar_chart(df, x_col, y_col, theme_mode="corporate", height=280):
+    """Renders a responsive, clean theme-adapted Altair bar chart."""
+    if df is None or df.empty:
+        return
+
+    is_light = (theme_mode == "light")
+    bar_color = "#4F46E5" if is_light else "#38BDF8"
+    text_color = "#475569" if is_light else "#94A3B8"
+    grid_color = "#E2E8F0" if is_light else "rgba(59, 130, 246, 0.15)"
+
+    chart = alt.Chart(df).mark_bar(cornerRadiusTop=8, color=bar_color).encode(
+        x=alt.X(f"{x_col}:N", title=x_col, axis=alt.Axis(labelColor=text_color, titleColor=text_color, grid=False, labelAngle=0)),
+        y=alt.Y(f"{y_col}:Q", title=y_col, axis=alt.Axis(labelColor=text_color, titleColor=text_color, gridColor=grid_color))
+    ).properties(
+        height=height
+    ).configure_view(
+        strokeWidth=0,
+        fill="transparent"
+    ).configure_axis(
+        domainColor=grid_color
+    )
+    st.altair_chart(chart, use_container_width=True)
+
+
+def render_styled_area_chart(df, x_col, y_col, theme_mode="corporate", height=280):
+    """Renders a responsive, clean theme-adapted Altair area chart."""
+    if df is None or df.empty:
+        return
+
+    is_light = (theme_mode == "light")
+    area_color = "#4F46E5" if is_light else "#38BDF8"
+    text_color = "#475569" if is_light else "#94A3B8"
+    grid_color = "#E2E8F0" if is_light else "rgba(59, 130, 246, 0.15)"
+
+    chart = alt.Chart(df).mark_area(
+        color=area_color,
+        opacity=0.35,
+        line={'color': area_color, 'strokeWidth': 2}
+    ).encode(
+        x=alt.X(f"{x_col}:N", title=x_col, axis=alt.Axis(labelColor=text_color, titleColor=text_color, grid=False, labelAngle=-25)),
+        y=alt.Y(f"{y_col}:Q", title=y_col, axis=alt.Axis(labelColor=text_color, titleColor=text_color, gridColor=grid_color))
+    ).properties(
+        height=height
+    ).configure_view(
+        strokeWidth=0,
+        fill="transparent"
+    ).configure_axis(
+        domainColor=grid_color
+    )
+    st.altair_chart(chart, use_container_width=True)
