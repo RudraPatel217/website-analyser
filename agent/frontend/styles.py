@@ -102,51 +102,79 @@ def inject_premium_styles(theme_mode="corporate"):
         }
 
         /* Inputs, Textareas & Selects (Corporate Dark Mode) */
-        div[data-testid="stTextArea"] textarea,
-        div[data-testid="stTextArea"] div[data-baseweb="textarea"],
-        div[data-testid="stTextArea"] div[data-baseweb="base-input"],
-        div[data-testid="stTextInput"] input,
-        div[data-testid="stTextInput"] div[data-baseweb="input"],
-        div[data-testid="stTextInput"] div[data-baseweb="base-input"],
-        div[data-baseweb="textarea"],
-        div[data-baseweb="textarea"] > div,
-        div[data-baseweb="input"],
-        div[data-baseweb="input"] > div,
-        div[data-baseweb="base-input"],
-        div[data-baseweb="base-input"] > div,
-        div[data-baseweb="select"] > div,
-        div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
+        .stApp .stTextArea,
+        .stApp .stTextInput,
+        .stApp .stSelectbox,
+        .stApp div[data-testid="stTextArea"],
+        .stApp div[data-testid="stTextInput"],
+        .stApp div[data-testid="stSelectbox"],
+        .stApp div[data-testid="stTextArea"] > div,
+        .stApp div[data-testid="stTextInput"] > div,
+        .stApp div[data-testid="stSelectbox"] > div,
+        .stApp div[data-testid="stTextArea"] div[data-baseweb="textarea"],
+        .stApp div[data-testid="stTextArea"] div[data-baseweb="base-input"],
+        .stApp div[data-testid="stTextInput"] div[data-baseweb="input"],
+        .stApp div[data-testid="stTextInput"] div[data-baseweb="base-input"],
+        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"],
+        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"] > div,
+        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"] div[role="combobox"],
+        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"] div[role="combobox"] > div,
+        .stApp div[data-baseweb="textarea"],
+        .stApp div[data-baseweb="textarea"] > div,
+        .stApp div[data-baseweb="input"],
+        .stApp div[data-baseweb="input"] > div,
+        .stApp div[data-baseweb="base-input"],
+        .stApp div[data-baseweb="base-input"] > div,
+        .stApp div[data-baseweb="select"],
+        .stApp div[data-baseweb="select"] > div,
+        .stApp div[data-baseweb="select"] div {
             background-color: #0f172a !important;
             background: #0f172a !important;
+            color: #f8fafc !important;
+            -webkit-text-fill-color: #f8fafc !important;
+        }
+
+        .stApp div[data-testid="stTextArea"] div[data-baseweb="textarea"],
+        .stApp div[data-testid="stTextInput"] div[data-baseweb="input"],
+        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
             border: 1.5px solid rgba(59, 130, 246, 0.35) !important;
             border-radius: 12px !important;
-            color: #f8fafc !important;
-            -webkit-text-fill-color: #f8fafc !important;
             transition: all 0.25s ease !important;
         }
-        textarea, input {
+
+        .stApp textarea,
+        .stApp input {
             color: #f8fafc !important;
             -webkit-text-fill-color: #f8fafc !important;
-            background-color: transparent !important;
+            background-color: #0f172a !important;
+            background: #0f172a !important;
             font-size: 0.95rem !important;
         }
-        textarea::placeholder, input::placeholder {
+
+        .stApp textarea::placeholder,
+        .stApp input::placeholder {
             color: #64748b !important;
             -webkit-text-fill-color: #64748b !important;
         }
-        div[data-testid="stSelectbox"] div[data-baseweb="select"] span,
-        div[data-testid="stSelectbox"] div[data-baseweb="select"] div {
+
+        .stApp div[data-testid="stSelectbox"] span,
+        .stApp div[data-testid="stSelectbox"] div,
+        .stApp div[data-baseweb="select"] span,
+        .stApp div[data-baseweb="select"] div,
+        .stApp div[data-baseweb="select"] [role="combobox"] {
             color: #f8fafc !important;
             -webkit-text-fill-color: #f8fafc !important;
         }
-        div[data-testid="stSelectbox"] svg {
+
+        .stApp div[data-testid="stSelectbox"] svg {
             fill: #94a3b8 !important;
         }
-        div[data-baseweb="textarea"]:focus-within,
-        div[data-baseweb="input"]:focus-within,
-        div[data-baseweb="select"] > div:focus-within,
-        div[data-testid="stTextArea"] textarea:focus,
-        div[data-testid="stTextInput"] input:focus {
+
+        .stApp div[data-baseweb="textarea"]:focus-within,
+        .stApp div[data-baseweb="input"]:focus-within,
+        .stApp div[data-baseweb="select"] > div:focus-within,
+        .stApp div[data-testid="stTextArea"] textarea:focus,
+        .stApp div[data-testid="stTextInput"] input:focus {
             border-color: #3b82f6 !important;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25) !important;
         }
@@ -478,51 +506,80 @@ def inject_premium_styles(theme_mode="corporate"):
         }
 
         /* Inputs, Textareas & Selects (Light Mode) */
-        div[data-testid="stTextArea"] textarea,
-        div[data-testid="stTextArea"] div[data-baseweb="textarea"],
-        div[data-testid="stTextArea"] div[data-baseweb="base-input"],
-        div[data-testid="stTextInput"] input,
-        div[data-testid="stTextInput"] div[data-baseweb="input"],
-        div[data-testid="stTextInput"] div[data-baseweb="base-input"],
-        div[data-baseweb="textarea"],
-        div[data-baseweb="textarea"] > div,
-        div[data-baseweb="input"],
-        div[data-baseweb="input"] > div,
-        div[data-baseweb="base-input"],
-        div[data-baseweb="base-input"] > div,
-        div[data-baseweb="select"] > div,
-        div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
+        .stApp .stTextArea,
+        .stApp .stTextInput,
+        .stApp .stSelectbox,
+        .stApp div[data-testid="stTextArea"],
+        .stApp div[data-testid="stTextInput"],
+        .stApp div[data-testid="stSelectbox"],
+        .stApp div[data-testid="stTextArea"] > div,
+        .stApp div[data-testid="stTextInput"] > div,
+        .stApp div[data-testid="stSelectbox"] > div,
+        .stApp div[data-testid="stTextArea"] div[data-baseweb="textarea"],
+        .stApp div[data-testid="stTextArea"] div[data-baseweb="base-input"],
+        .stApp div[data-testid="stTextInput"] div[data-baseweb="input"],
+        .stApp div[data-testid="stTextInput"] div[data-baseweb="base-input"],
+        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"],
+        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"] > div,
+        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"] div[role="combobox"],
+        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"] div[role="combobox"] > div,
+        .stApp div[data-baseweb="textarea"],
+        .stApp div[data-baseweb="textarea"] > div,
+        .stApp div[data-baseweb="input"],
+        .stApp div[data-baseweb="input"] > div,
+        .stApp div[data-baseweb="base-input"],
+        .stApp div[data-baseweb="base-input"] > div,
+        .stApp div[data-baseweb="select"],
+        .stApp div[data-baseweb="select"] > div,
+        .stApp div[data-baseweb="select"] div {
             background-color: #FFFFFF !important;
             background: #FFFFFF !important;
+            color: #0F172A !important;
+            -webkit-text-fill-color: #0F172A !important;
+        }
+
+        .stApp div[data-testid="stTextArea"] div[data-baseweb="textarea"],
+        .stApp div[data-testid="stTextInput"] div[data-baseweb="input"],
+        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
             border: 1.5px solid #CBD5E1 !important;
             border-radius: 10px !important;
-            color: #0F172A !important;
-            -webkit-text-fill-color: #0F172A !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
             transition: all 0.2s ease !important;
         }
-        textarea, input {
+
+        .stApp textarea,
+        .stApp input {
             color: #0F172A !important;
             -webkit-text-fill-color: #0F172A !important;
-            background-color: transparent !important;
+            background-color: #FFFFFF !important;
+            background: #FFFFFF !important;
             font-size: 0.95rem !important;
         }
-        textarea::placeholder, input::placeholder {
+
+        .stApp textarea::placeholder,
+        .stApp input::placeholder {
             color: #94A3B8 !important;
             -webkit-text-fill-color: #94A3B8 !important;
         }
-        div[data-testid="stSelectbox"] div[data-baseweb="select"] span,
-        div[data-testid="stSelectbox"] div[data-baseweb="select"] div {
+
+        .stApp div[data-testid="stSelectbox"] span,
+        .stApp div[data-testid="stSelectbox"] div,
+        .stApp div[data-baseweb="select"] span,
+        .stApp div[data-baseweb="select"] div,
+        .stApp div[data-baseweb="select"] [role="combobox"] {
             color: #0F172A !important;
             -webkit-text-fill-color: #0F172A !important;
         }
-        div[data-testid="stSelectbox"] svg {
+
+        .stApp div[data-testid="stSelectbox"] svg {
             fill: #64748B !important;
         }
-        div[data-baseweb="textarea"]:focus-within,
-        div[data-baseweb="input"]:focus-within,
-        div[data-baseweb="select"] > div:focus-within,
-        div[data-testid="stTextArea"] textarea:focus,
-        div[data-testid="stTextInput"] input:focus {
+
+        .stApp div[data-baseweb="textarea"]:focus-within,
+        .stApp div[data-baseweb="input"]:focus-within,
+        .stApp div[data-baseweb="select"] > div:focus-within,
+        .stApp div[data-testid="stTextArea"] textarea:focus,
+        .stApp div[data-testid="stTextInput"] input:focus {
             border-color: #4F46E5 !important;
             box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
         }
