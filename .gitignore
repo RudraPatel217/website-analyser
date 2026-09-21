@@ -67,6 +67,8 @@ lerna-debug.log*
 *.csv
 *.pdf
 *.log
+*interview_guide*
+*CONFIDENTIAL*
 *.sqlite
 *.sqlite3
 *.db
