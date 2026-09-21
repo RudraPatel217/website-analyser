@@ -144,9 +144,10 @@ with st.container(border=True):
     
     domains_input = st.text_area(
         "Target Website URLs (enter one domain per line):",
-        value="https://jeenweb.com",
+        value="",
+        placeholder="https://websitename.com",
         height=100,
-        help="Type or paste the web addresses of the websites you want to analyze (for example: https://jeenweb.com). You can audit multiple websites at once by placing each URL on a new line."
+        help="Type or paste the web addresses of the websites you want to analyze (for example: https://websitename.com). You can audit multiple websites at once by placing each URL on a new line."
     )
     
     service_healthy, _ = check_service_health()

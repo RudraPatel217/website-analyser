@@ -1,116 +1,272 @@
-# 🌐 Domain Intelligence Agent & SEO Auditor
+# Domain Intelligence Agent & SEO Auditor
 
-[![Live Application](https://img.shields.io/badge/Live_App-website--analyser.streamlit.app-FF4B4B?style=for-the-badge&logo=Streamlit&logoColor=white)](https://website-analyser.streamlit.app/)
-[![Python 3.13+](https://img.shields.io/badge/Python-3.13+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
-[![Puppeteer](https://img.shields.io/badge/Puppeteer-40B5A4?style=for-the-badge&logo=Puppeteer&logoColor=white)](https://pptr.dev/)
-[![Security: SSRF Protected](https://img.shields.io/badge/Security-SSRF%20Protected-brightgreen.svg?style=for-the-badge)](SECURITY.md)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![Live Application](https://img.shields.io/badge/Live_App-website--analyser.streamlit.app-FF4B4B?style=flat-square&logo=Streamlit&logoColor=white)](https://website-analyser.streamlit.app/)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![Puppeteer](https://img.shields.io/badge/Puppeteer-40B5A4?style=flat-square&logo=Puppeteer&logoColor=white)](https://pptr.dev/)
+[![Security: SSRF Protected](https://img.shields.io/badge/Security-SSRF%20Protected-brightgreen.svg?style=flat-square)](SECURITY.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
-An enterprise-grade, multi-website SEO Auditor and Domain Intelligence Tool. This application combines a fast Python-based crawler with multi-tiered cloud screenshot engines and cybersecurity protections, rendering an interactive, glassmorphic Streamlit dashboard for real-time diagnostics and comprehensive Excel reporting.
+An end-to-end website audit and domain intelligence platform. The application combines a Python-based crawler, WHOIS and DNS query engines, cybersecurity risk diagnostics, multi-engine visual preview generation, and an interactive Streamlit frontend with comprehensive Excel report export.
 
----
-
-## 🔗 Official Live Application & Demo
-
-You can use the fully deployed web application directly in your browser without any manual setup
+Developed by [RudraPatel217](https://github.com/RudraPatel217).
 
 ---
 
-## 🚀 Key Features
+## Live Application
 
-*   **Multi-Domain Crawling:** Audit single or multiple target domains simultaneously (default domain: `https://jeenweb.com`).
-*   **Deep SEO Crawler:** Evaluates on-page SEO factors (Titles, Metas, H1, Canonical tags, OpenGraph tags, JSON-LD Schema structure) and calculates internal/external link profiles.
-*   **Domain Intelligence Analytics:** Automatically resolves WHOIS data, nameservers, registrar creation/expiration dates, DNS MX records, and verifies SSL status.
-*   **Multi-Tiered Screenshot Engine:** Flexible website visual previews supporting **Microlink Cloud API** (zero-config cloud default), **WordPress mShot API**, **Thum.io**, **GTmetrix API v2.0**, and **Local Puppeteer Service**.
-*   **Cybersecurity & Risk Scorecard:** Evaluates 4 core security pillars (SSL/TLS validation, 6 HTTP Security Headers, Brand & Phishing protection, Malware HTML heuristics) with transparent scoring calculations.
-*   **Enterprise Security & SSRF Protection:** Real-time DNS inspection blocking requests targeting loopback (`127.0.0.1`), private networks (`10.x`, `172.16-31.x`, `192.168.x`), and cloud metadata (`169.254.169.254`).
-*   **Glassmorphic UI Theme:** Styled with custom Google Fonts (`Plus Jakarta Sans`), radial gradients, modern metric cards, and responsive hover effects.
-*   **Multi-Sheet Excel Exporter:** Download consolidated Excel workbooks containing domain analytics, crawled pages, technical metrics, security audits, and structured recommendations.
+The hosted version of this application is available online at:
+https://website-analyser-rudra.streamlit.app
+
+You can test single or multi-domain audits directly in the browser without installing local dependencies.
 
 ---
 
-## 🎨 Premium UI Aesthetics
+## Architecture Overview
 
-The application overrides default Streamlit components with a custom, tailored CSS interface:
-*   **Typography:** The layout uses the premium `Plus Jakarta Sans` Google Font.
-*   **Glassmorphic Panels:** Cards feature blurred backdrops (`backdrop-filter: blur(16px)`), subtle borders, and deep shadows for a high-end feel.
-*   **Live Scanning Loader:** When a crawl begins, a custom radial loader and log-stream component render the agent's real-time action telemetry.
-*   **Responsive Previews:** Displayed website screenshots are rendered inside mock desktop browser frames.
+The system consists of two core components:
 
----
+1. **Frontend & Agent Core (Python / Streamlit):**
+   - Interactive user interface with dark and light themes.
+   - Multi-domain asynchronous crawler and SEO analyzer.
+   - WHOIS registrar lookup, DNS MX record resolution, and SSL inspection.
+   - Cybersecurity scorecard evaluating security headers and suspicious patterns.
+   - Report generator producing structured multi-tab Excel files.
 
-## 📷 Flexible Screenshot Solutions
-
-The agent provides 5 multi-tiered screenshot engines for maximum reliability:
-
-| Screenshot Source | Works on Cloud Deployments? | Requires Local Setup? | Best Used For |
-| :--- | :---: | :---: | :--- |
-| **Microlink Cloud API** | ✅ Yes | ❌ No | **Default Cloud Engine** (Streamlit Cloud, Render, Railway). Zero setup required! |
-| **WordPress mShot API** | ✅ Yes | ❌ No | Fast, lightweight public preview fallback. |
-| **Thum.io API** | ✅ Yes | ❌ No | Fast secondary public fallback option. |
-| **GTmetrix API v2.0** | ✅ Yes | ❌ No | Premium authorized speed & layout audit preview. |
-| **Local Puppeteer Service** | ❌ Local/Docker Only | ✅ Yes | High-precision full desktop renders on local machine. |
-
-> [!TIP]
-> **Automatic Cloud Fallback:** If *Local Puppeteer Service* is selected on a cloud platform (where local Node.js is not running), the application automatically falls back to **Microlink Cloud API** so website previews always render without errors!
+2. **Backend Screenshot Microservice (Node.js / Express / Puppeteer):**
+   - Headless browser service listening on port 3000.
+   - Renders pixel-accurate desktop screenshots of target websites.
+   - Hardened with Server-Side Request Forgery (SSRF) verification, concurrency queues, and IP rate limiting.
 
 ---
 
-## 🛡️ Security Hardening
+## System Requirements
 
-This project is hardened against common security threats:
-*   **SSRF Shielding:** Prevents users from scanning internal servers or cloud metadata.
-*   **Express Rate Limiting:** Capped at rate limits in `server.js` (with local loopback bypass).
-*   **Browser Sandboxing:** Puppeteer isolates page execution, blocking `file://` scheme navigations and automated file downloads.
-*   **Streamlit Protection:** XSRF protection enabled and telemetry disabled in `.streamlit/config.toml`.
+Before running the application locally, ensure your computer has the following tools installed:
 
-For complete details, see [SECURITY.md](SECURITY.md).
+- **Git:** For repository cloning.
+- **Python 3.10 or higher** (Python 3.13 supported): For the frontend dashboard and crawling engine.
+- **Node.js (v18 or higher recommended) and npm:** For the local Puppeteer backend screenshot service.
+- **Google Chrome or Microsoft Edge** (Optional): Puppeteer will automatically detect system browsers or download Chromium.
 
 ---
 
-## 📂 Project Structure
+## Local Setup and Installation
+
+Follow these step-by-step instructions to set up the project on your local machine.
+
+### Step 1: Clone the Repository
+
+Open your terminal or command prompt and clone the repository:
+
+```bash
+git clone https://github.com/RudraPatel217/website-analyser.git
+cd website-analyser
+```
+
+### Step 2: Set Up Python Virtual Environment (Frontend / Core)
+
+Create and activate a virtual environment to isolate project dependencies:
+
+**On Windows:**
+```cmd
+python -m venv venv
+venv\Scripts\activate
+```
+
+**On macOS and Linux:**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+Upgrade pip and install the required Python packages:
+
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### Step 3: Set Up the Backend Screenshot Service
+
+Navigate into the screenshot service directory and install its npm dependencies:
+
+```bash
+cd screenshot-service
+npm install
+cd ..
+```
+
+### Step 4: Environment Configuration (Optional)
+
+The application works out of the box with zero external configuration. If you wish to use optional third-party integrations (such as GTmetrix API or BuiltWith API), create a `.env` file in the root folder:
+
+```env
+GTMETRIX_API_KEY=your_gtmetrix_api_key_here
+BUILTWITH_API_KEY=your_builtwith_api_key_here
+RATE_LIMIT_DELAY=2
+```
+
+---
+
+## Running the Services
+
+You can start the frontend and backend services either separately in two terminal windows or together using startup scripts.
+
+### Method 1: Start Services Manually (Recommended for Development)
+
+#### 1. Start the Backend Screenshot Service (Port 3000)
+
+In your first terminal, start the Node.js Express server:
+
+```bash
+cd screenshot-service
+npm start
+```
+
+You should see:
+```
+Puppeteer Screenshot Service running on port 3000
+Health check endpoint: http://localhost:3000/health
+```
+
+#### 2. Start the Frontend Streamlit Application (Port 8501)
+
+In a second terminal, activate your virtual environment from the project root and start Streamlit:
+
+**On Windows:**
+```cmd
+venv\Scripts\activate
+streamlit run app.py
+```
+
+**On macOS / Linux:**
+```bash
+source venv/bin/activate
+streamlit run app.py
+```
+
+Streamlit will print the local URL:
+```
+Local URL: http://localhost:8501
+Network URL: http://192.168.x.x:8501
+```
+
+Open `http://localhost:8501` in your browser to view the application.
+
+---
+
+### Method 2: One-Click Startup Scripts
+
+Automated scripts are included in the root directory:
+
+- **Windows:** Double-click or run `start.bat`:
+  ```cmd
+  start.bat
+  ```
+- **macOS / Linux:** Run the shell script:
+  ```bash
+  chmod +x start.sh
+  ./start.sh
+  ```
+  The script automatically checks for the screenshot service, launches it in the background, and starts the Streamlit application.
+
+---
+
+### Method 3: Run with Docker Compose
+
+If you have Docker and Docker Compose installed:
+
+```bash
+docker compose up --build
+```
+
+The application will be accessible at `http://localhost:8501`.
+
+---
+
+## How to Use the Application
+
+1. Open the dashboard in your web browser (`http://localhost:8501`).
+2. In the **Website Audit Setup** box, enter the target websites you want to inspect inside the text area (one URL per line). The input field displays `https://websitename.com` as a placeholder example.
+3. Configure your audit parameters:
+   - **Website Visual Preview Engine:** Choose between Instant Domain Snapshot, Ultra-Fast Visual Capture, or Local Puppeteer Engine (Port 3000).
+   - **Max pages to scan per domain:** Adjust slider from 5 to 300 pages (default: 25).
+   - **Scan Speed:** Select Accelerated Simulation (~5 min/website) or Thorough Deep Scan (~10 min/website).
+4. Click **Start Full Multi-Website Analysis**.
+5. Inspect live crawl telemetry, page audits, security scores, and domain records in the interactive tabs.
+6. Click **Download Full Multi-Website Intelligence Report (.xlsx)** to save the complete workbook.
+
+---
+
+## Key Features
+
+- **Multi-Domain Auditing:** Audit single or multiple domains concurrently.
+- **Deep Technical SEO Inspection:** Crawls internal links, extracts page titles, meta descriptions, H1 headings, canonical URLs, OpenGraph metadata, and structured JSON-LD schemas.
+- **Domain Intelligence & DNS:** Queries WHOIS registrar info, domain creation/expiration dates, nameservers, DNS MX mail records, and SSL certificate validity.
+- **Multi-Tier Visual Previews:**
+  - Local Puppeteer engine running on port 3000 for local high-fidelity snapshots.
+  - Ultra-Fast Visual Capture and cloud screenshot fallbacks for zero-setup cloud environments.
+- **Cybersecurity & Heuristic Risk Scoring:** Audits SSL/TLS configuration, HTTP security headers (HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy), brand spoofing, and HTML heuristics.
+- **SSRF Hardening:** Protects scanning endpoints by blocking requests to private networks, loopback addresses (`127.0.0.1`, `localhost`), and cloud metadata services (`169.254.169.254`).
+- **Consolidated Excel Reports:** Generates five structured worksheets for Domain Info, Crawled Pages, SEO Issues, Cybersecurity Audit, and Technical Audit.
+
+---
+
+## Visual Preview Engine Comparison
+
+| Engine | Local Machine | Cloud Deployments | Description |
+| :--- | :--- | :--- | :--- |
+| **Instant Domain Snapshot** | Supported | Supported | Zero-latency lightweight preview. |
+| **Ultra-Fast Visual Capture** | Supported | Supported | Fast public snapshot waterfall for cloud hosting. |
+| **Local Puppeteer Service** | Supported | Requires Node.js | Pixel-accurate local headless Chrome render on port 3000. |
+
+---
+
+## Project Structure
 
 ```
-├── .gitignore                  # Git exclude rule list
-├── Dockerfile                  # Production Docker container definition
-├── docker-compose.yml          # Docker Compose configuration
-├── requirements.txt            # Python dependencies list
-├── SECURITY.md                 # Security safeguards and guidelines
-├── agent/                      # Core Streamlit app directory
-│   ├── app.py                  # Streamlit frontend entrypoint & main application
-│   ├── config.py               # Configuration module
-│   ├── .streamlit/             # Streamlit theme & security configuration
-│   │   └── config.toml         # Custom dark theme & XSRF security settings
-│   ├── backend/                # Scraper, WHOIS, DNS, and Excel helper scripts
-│   │   ├── crawler.py          # BFS web crawler & SEO validation
-│   │   ├── cyber_scanner.py    # SSL, Security headers, and SSRF domain validator
+├── .gitignore                  # Git ignore file
+├── Dockerfile                  # Container build instructions
+├── docker-compose.yml          # Docker Compose service definition
+├── requirements.txt            # Python dependencies
+├── SECURITY.md                 # Security policies and SSRF documentation
+├── start.bat                   # Windows one-click startup script
+├── start.sh                    # Linux/macOS unified startup script
+├── app.py                      # Root entrypoint redirecting to agent
+├── agent/                      # Main application package
+│   ├── app.py                  # Streamlit dashboard interface and audit flow
+│   ├── config.py               # Secret and environment variable loader
+│   ├── backend/                # Scraper, DNS, security, and report modules
+│   │   ├── crawler.py          # BFS multi-page crawler and link extractor
+│   │   ├── cyber_scanner.py    # SSL, HTTP headers, and SSRF validator
 │   │   ├── gtmetrix.py         # GTmetrix API runner
-│   │   ├── report_generator.py # Excel sheet compiler (openpyxl)
-│   │   ├── seo_analyzer.py     # Fallback analyses and dataset generator
-│   │   └── whois_dns.py        # WHOIS registrar lookup & DNS query handler
-│   └── frontend/               # Custom UI stylesheet injects & components
-│       ├── components.py       # Render methods for metrics, previews, loaders
-│       └── styles.py           # Premium glassmorphic global styling
-└── screenshot-service/         # Express + Puppeteer screenshot microservice
+│   │   ├── puppeteer_manager.py# Local Node.js service health and process manager
+│   │   ├── report_generator.py # Excel workbook generator (openpyxl)
+│   │   ├── seo_analyzer.py     # SEO metrics and issue detection
+│   │   └── whois_dns.py        # WHOIS registrar and DNS MX resolution
+│   └── frontend/               # UI components and custom styles
+│       ├── components.py       # Metrics, loaders, and preview containers
+│       └── styles.py           # Custom CSS and themes
+└── screenshot-service/         # Express + Puppeteer microservice
     ├── package.json            # Node.js dependencies
-    └── server.js               # Rate-limited & SSRF-protected Puppeteer server
+    └── server.js               # Rate-limited screenshot server
 ```
 
 ---
 
-## 📊 Exported Report Details
+## Excel Report Breakdown
 
-The generated download `.xlsx` report contains five specialized tabs:
-1.  **Domain_Info:** Domain Registrar details, expiry status, MX Records, Robots/Sitemap discovery.
-2.  **Crawled_Pages:** Listing of all explored pages with Titles, Meta descriptions, H1 headers, and HTTP status codes.
-3.  **SEO_Issues:** Full log of detected warnings/critical bugs with severity and recommended fixes.
-4.  **Cybersecurity_Audit:** SSL certificate details, HTTP Security Headers compliance, and vulnerability score.
-5.  **Technical_Audit:** Extended metrics including page load time (s), page size (KB), missing image alt tag counts, and Core Web Vitals.
+The downloaded `.xlsx` report contains five sheets:
+
+1. **Domain_Info:** Domain registration dates, registrar, DNS MX records, robots.txt, and sitemap detection.
+2. **Crawled_Pages:** Comprehensive list of URLs scanned with HTTP status codes, titles, meta tags, and H1 elements.
+3. **SEO_Issues:** Prioritized warnings and critical errors with specific recommendations for remediation.
+4. **Cybersecurity_Audit:** SSL validity, missing security headers, phishing heuristics, and weighted risk scores.
+5. **Technical_Audit:** Page load duration, missing image alt attributes, page sizes, and link profile counts.
 
 ---
 
-## 📄 License
+## License
 
-Distributed under the MIT License. See `LICENSE` for details.
-
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
