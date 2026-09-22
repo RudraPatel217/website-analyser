@@ -33,9 +33,10 @@ The system consists of two core components:
    - Cybersecurity scorecard evaluating security headers and suspicious patterns.
    - Report generator producing structured multi-tab Excel files.
 
-2. **Backend Screenshot Microservice (Node.js / Express / Puppeteer):**
-   - Headless browser service listening on port 3000.
+2. **Backend Screenshot & Render Microservice (Node.js / Express / Puppeteer):**
+   - Headless browser service listening on port 3000 (`/screenshot` and `/render` endpoints).
    - Renders pixel-accurate desktop screenshots of target websites.
+   - Executes headless Chrome with anti-detection flags (`--disable-blink-features=AutomationControlled`) to solve WAF/bot challenges (such as Cloudflare on LeetCode) and return fully rendered page HTML, titles, and metadata to the crawler.
    - Hardened with Server-Side Request Forgery (SSRF) verification, concurrency queues, and IP rate limiting.
 
 ---
@@ -115,7 +116,7 @@ You can start the frontend and backend services either separately in two termina
 
 ### Method 1: Start Services Manually (Recommended for Development)
 
-#### 1. Start the Backend Screenshot Service (Port 3000)
+#### 1. Start the Backend Screenshot & Render Service (Port 3000)
 
 In your first terminal, start the Node.js Express server:
 
@@ -126,8 +127,10 @@ npm start
 
 You should see:
 ```
-Puppeteer Screenshot Service running on port 3000
+🔒 Robust Screenshot service running on port 3000
 Health check endpoint: http://localhost:3000/health
+Screenshot endpoint:   http://localhost:3000/screenshot?url=https://example.com
+Page render endpoint:  http://localhost:3000/render?url=https://example.com
 ```
 
 #### 2. Start the Frontend Streamlit Application (Port 8501)
@@ -158,18 +161,19 @@ Open `http://localhost:8501` in your browser to view the application.
 
 ### Method 2: One-Click Startup Scripts
 
-Automated scripts are included in the root directory:
+Automated unified scripts are included in the root directory that automatically start both the Node.js Puppeteer service (port 3000) and the Streamlit application together:
 
 - **Windows:** Double-click or run `start.bat`:
   ```cmd
   start.bat
   ```
+  *Launches the Puppeteer background service on port 3000, then starts the Streamlit dashboard.*
 - **macOS / Linux:** Run the shell script:
   ```bash
   chmod +x start.sh
   ./start.sh
   ```
-  The script automatically checks for the screenshot service, launches it in the background, and starts the Streamlit application.
+  *Launches the Puppeteer background service on port 3000, runs the Streamlit app, and gracefully stops background processes on exit.*
 
 ---
 
@@ -203,6 +207,10 @@ The application will be accessible at `http://localhost:8501`.
 
 - **Multi-Domain Auditing:** Audit single or multiple domains concurrently.
 - **Deep Technical SEO Inspection:** Crawls internal links, extracts page titles, meta descriptions, H1 headings, canonical URLs, OpenGraph metadata, and structured JSON-LD schemas.
+- **Intelligent Bot Protection & WAF Resolution:** Accurately detects Cloudflare, Akamai, and WAF firewall challenges (HTTP 403/429/503). Automatically delegates to the local headless Chrome rendering engine to solve Turnstile challenges and extract genuine page metadata.
+- **Zero False-Positive SEO Errors:** Guarantees that On-Page SEO tag audits (Title length, Meta Description length, H1 tags, Alt images) are only evaluated on authentic `200 OK` page content, completely preventing false warnings generated on anti-bot challenge or 4xx/5xx error pages.
+- **In-Short Diagnostic Explanations:** Issues and errors in the dashboard explicitly state in short why they are displayed (e.g. `Bot Protection (403)`: *"Displayed because website has bot protection that blocks automated scanners; no further page information is given"*).
+- **AI Recommendation Engine:** Heuristic reasoning engine that dynamically prioritizes remediation steps, including instructions to whitelist search engine bots (Googlebot, Bingbot) in Cloudflare/WAF firewall rules.
 - **Domain Intelligence & DNS:** Queries WHOIS registrar info, domain creation/expiration dates, nameservers, DNS MX mail records, and SSL certificate validity.
 - **Multi-Tier Visual Previews:**
   - Local Puppeteer engine running on port 3000 for local high-fidelity snapshots.
@@ -231,14 +239,15 @@ The application will be accessible at `http://localhost:8501`.
 ├── docker-compose.yml          # Docker Compose service definition
 ├── requirements.txt            # Python dependencies
 ├── SECURITY.md                 # Security policies and SSRF documentation
-├── start.bat                   # Windows one-click startup script
+├── start.bat                   # Windows one-click startup script (Streamlit + Puppeteer)
 ├── start.sh                    # Linux/macOS unified startup script
 ├── app.py                      # Root entrypoint redirecting to agent
 ├── agent/                      # Main application package
 │   ├── app.py                  # Streamlit dashboard interface and audit flow
 │   ├── config.py               # Secret and environment variable loader
 │   ├── backend/                # Scraper, DNS, security, and report modules
-│   │   ├── crawler.py          # BFS multi-page crawler and link extractor
+│   │   ├── ai_recommendations.py# Heuristic SEO recommendation engine
+│   │   ├── crawler.py          # BFS multi-page crawler with WAF detection & render fallback
 │   │   ├── cyber_scanner.py    # SSL, HTTP headers, and SSRF validator
 │   │   ├── gtmetrix.py         # GTmetrix API runner
 │   │   ├── puppeteer_manager.py# Local Node.js service health and process manager
@@ -248,9 +257,9 @@ The application will be accessible at `http://localhost:8501`.
 │   └── frontend/               # UI components and custom styles
 │       ├── components.py       # Metrics, loaders, and preview containers
 │       └── styles.py           # Custom CSS and themes
-└── screenshot-service/         # Express + Puppeteer microservice
+└── screenshot-service/         # Express + Puppeteer microservice (Port 3000)
     ├── package.json            # Node.js dependencies
-    └── server.js               # Rate-limited screenshot server
+    └── server.js               # Rate-limited screenshot & /render server
 ```
 
 ---

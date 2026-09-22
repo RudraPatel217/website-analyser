@@ -549,11 +549,14 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
         render_styled_table(pd.DataFrame(sec_summary_rows), theme_mode=theme_mode)
 
         if not df_all_pages.empty and 'Status' in df_all_pages.columns:
-            render_tab_heading("HTTP Status Code Distribution", theme_mode=theme_mode, margin_top="2rem")
-            status_counts = df_all_pages['Status'].value_counts().reset_index()
-            status_counts.columns = ['Status Code', 'Number of Pages']
-            status_counts['Status Code'] = status_counts['Status Code'].astype(str)
-            render_styled_bar_chart(status_counts, 'Status Code', 'Number of Pages', theme_mode=theme_mode)
+            try:
+                render_tab_heading("HTTP Status Code Distribution", theme_mode=theme_mode, margin_top="2rem")
+                status_counts = df_all_pages['Status'].value_counts().reset_index()
+                status_counts.columns = ['Status Code', 'Number of Pages']
+                status_counts['Status Code'] = status_counts['Status Code'].astype(str)
+                render_styled_bar_chart(status_counts, 'Status Code', 'Number of Pages', theme_mode=theme_mode)
+            except Exception:
+                pass
 
     elif current_nav_tab == "Domain Info":
         render_tab_heading("Domain & WHOIS Ownership Details", theme_mode=theme_mode)
@@ -635,10 +638,13 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
             render_styled_table(df_all_audit, theme_mode=theme_mode)
 
             if 'Load_Time_sec' in df_all_audit.columns:
-                render_tab_heading("Page Load Time by URL (seconds)", theme_mode=theme_mode, margin_top="2rem")
-                load_df = df_all_audit[['URL_Slug', 'Load_Time_sec']].copy()
-                load_df['Page'] = load_df['URL_Slug'].apply(lambda x: x if len(x) < 25 else x[:22] + '...')
-                render_styled_area_chart(load_df, 'Page', 'Load_Time_sec', theme_mode=theme_mode)
+                try:
+                    render_tab_heading("Page Load Time by URL (seconds)", theme_mode=theme_mode, margin_top="2rem")
+                    load_df = df_all_audit[['URL_Slug', 'Load_Time_sec']].copy()
+                    load_df['Page'] = load_df['URL_Slug'].apply(lambda x: x if len(x) < 25 else x[:22] + '...')
+                    render_styled_area_chart(load_df, 'Page', 'Load_Time_sec', theme_mode=theme_mode)
+                except Exception:
+                    pass
 
         render_tab_heading("AI SEO Actions & Step-by-Step Fixes", theme_mode=theme_mode, margin_top="2rem")
         

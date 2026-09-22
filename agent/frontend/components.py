@@ -417,8 +417,8 @@ def render_styled_table(df, theme_mode="corporate", max_height="450px"):
 
 
 def render_styled_bar_chart(df, x_col, y_col, theme_mode="corporate", height=280):
-    """Renders a responsive, clean theme-adapted Altair bar chart."""
-    if df is None or df.empty:
+    """Renders a responsive, clean theme-adapted Altair bar chart with graceful native fallback."""
+    if df is None or df.empty or x_col not in df.columns or y_col not in df.columns:
         return
 
     is_light = (theme_mode == "light")
@@ -426,23 +426,33 @@ def render_styled_bar_chart(df, x_col, y_col, theme_mode="corporate", height=280
     text_color = "#475569" if is_light else "#94A3B8"
     grid_color = "#E2E8F0" if is_light else "rgba(59, 130, 246, 0.15)"
 
-    chart = alt.Chart(df).mark_bar(cornerRadiusTop=8, color=bar_color).encode(
-        x=alt.X(f"{x_col}:N", title=x_col, axis=alt.Axis(labelColor=text_color, titleColor=text_color, grid=False, labelAngle=0)),
-        y=alt.Y(f"{y_col}:Q", title=y_col, axis=alt.Axis(labelColor=text_color, titleColor=text_color, gridColor=grid_color))
-    ).properties(
-        height=height
-    ).configure_view(
-        strokeWidth=0,
-        fill="transparent"
-    ).configure_axis(
-        domainColor=grid_color
-    )
-    st.altair_chart(chart, use_container_width=True)
+    try:
+        chart = alt.Chart(df).mark_bar(cornerRadiusTopLeft=8, cornerRadiusTopRight=8, color=bar_color).encode(
+            x=alt.X(f"{x_col}:N", title=x_col, axis=alt.Axis(labelColor=text_color, titleColor=text_color, grid=False, labelAngle=0)),
+            y=alt.Y(f"{y_col}:Q", title=y_col, axis=alt.Axis(labelColor=text_color, titleColor=text_color, gridColor=grid_color))
+        ).properties(
+            height=height
+        ).configure_view(
+            strokeWidth=0,
+            fill="transparent"
+        ).configure_axis(
+            domainColor=grid_color
+        )
+        st.altair_chart(chart, use_container_width=True)
+    except Exception:
+        # Guaranteed Zero-Crash Fallback: Streamlit native bar chart
+        try:
+            chart_df = df.copy()
+            chart_df[x_col] = chart_df[x_col].astype(str)
+            chart_df = chart_df.set_index(x_col)
+            st.bar_chart(chart_df[[y_col]], height=height, color=bar_color)
+        except Exception:
+            pass
 
 
 def render_styled_area_chart(df, x_col, y_col, theme_mode="corporate", height=280):
-    """Renders a responsive, clean theme-adapted Altair area chart."""
-    if df is None or df.empty:
+    """Renders a responsive, clean theme-adapted Altair area chart with graceful native fallback."""
+    if df is None or df.empty or x_col not in df.columns or y_col not in df.columns:
         return
 
     is_light = (theme_mode == "light")
@@ -450,19 +460,29 @@ def render_styled_area_chart(df, x_col, y_col, theme_mode="corporate", height=28
     text_color = "#475569" if is_light else "#94A3B8"
     grid_color = "#E2E8F0" if is_light else "rgba(59, 130, 246, 0.15)"
 
-    chart = alt.Chart(df).mark_area(
-        color=area_color,
-        opacity=0.35,
-        line={'color': area_color, 'strokeWidth': 2}
-    ).encode(
-        x=alt.X(f"{x_col}:N", title=x_col, axis=alt.Axis(labelColor=text_color, titleColor=text_color, grid=False, labelAngle=-25)),
-        y=alt.Y(f"{y_col}:Q", title=y_col, axis=alt.Axis(labelColor=text_color, titleColor=text_color, gridColor=grid_color))
-    ).properties(
-        height=height
-    ).configure_view(
-        strokeWidth=0,
-        fill="transparent"
-    ).configure_axis(
-        domainColor=grid_color
-    )
-    st.altair_chart(chart, use_container_width=True)
+    try:
+        chart = alt.Chart(df).mark_area(
+            color=area_color,
+            opacity=0.35,
+            line={'color': area_color, 'strokeWidth': 2}
+        ).encode(
+            x=alt.X(f"{x_col}:N", title=x_col, axis=alt.Axis(labelColor=text_color, titleColor=text_color, grid=False, labelAngle=-25)),
+            y=alt.Y(f"{y_col}:Q", title=y_col, axis=alt.Axis(labelColor=text_color, titleColor=text_color, gridColor=grid_color))
+        ).properties(
+            height=height
+        ).configure_view(
+            strokeWidth=0,
+            fill="transparent"
+        ).configure_axis(
+            domainColor=grid_color
+        )
+        st.altair_chart(chart, use_container_width=True)
+    except Exception:
+        # Guaranteed Zero-Crash Fallback: Streamlit native area chart
+        try:
+            chart_df = df.copy()
+            chart_df[x_col] = chart_df[x_col].astype(str)
+            chart_df = chart_df.set_index(x_col)
+            st.area_chart(chart_df[[y_col]], height=height, color=area_color)
+        except Exception:
+            pass
