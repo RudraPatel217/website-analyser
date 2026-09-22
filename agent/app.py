@@ -598,25 +598,34 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
                     st.session_state["highlight_critical"] = False
                 st.button("Show All Issues", key="btn_show_all_issues", use_container_width=True, on_click=reset_issue_filter)
 
-        if not df_all_issues.empty:
-            bot_issues_exist = any(
-                df_all_issues.get('Issue Name', pd.Series()).str.contains('Bot Protection|403', case=False, na=False)
+        # Check if any crawled pages or domains have normal bot protection
+        has_bot_protection_detected = False
+        if not df_all_pages.empty and 'Status' in df_all_pages.columns:
+            has_bot_protection_detected = any(
+                df_all_pages['Status'].astype(str).str.contains('Bot Protection|Protected', case=False, na=False)
             )
-            if bot_issues_exist:
-                box_bg = "rgba(59, 130, 246, 0.12)" if theme_mode != "light" else "#EFF6FF"
-                box_border = "#3b82f6" if theme_mode != "light" else "#60A5FA"
-                title_color = "#93c5fd" if theme_mode != "light" else "#1D4ED8"
-                text_color = "#e2e8f0" if theme_mode != "light" else "#1E293B"
-                st.markdown(f"""
-                <div style="background: {box_bg}; border-left: 4px solid {box_border}; border-radius: 10px; padding: 12px 18px; margin-bottom: 1.25rem; font-size: 0.92rem; line-height: 1.5;">
-                    <strong style="color: {title_color}; font-weight: 700;">🛡️ Why is 403 / Bot Protection displayed?</strong><br/>
-                    <span style="color: {text_color};">
-                        Displayed because this website uses bot protection (e.g. Cloudflare) that blocks automated scanners. 
-                        In your web browser the site works normally, but automated crawlers are blocked so no further page information is given.
-                    </span>
-                </div>
-                """, unsafe_allow_html=True)
+        if not has_bot_protection_detected and all_cyber_results:
+            has_bot_protection_detected = any(
+                "Bot Protected" in r.get("rating", "") or any(f.get("header") == "WAF & Bot Protection Defense" for f in r.get("header_findings", []))
+                for r in all_cyber_results
+            )
 
+        if has_bot_protection_detected:
+            box_bg = "rgba(16, 185, 129, 0.1)" if theme_mode != "light" else "#F0FDF4"
+            box_border = "#10B981" if theme_mode != "light" else "#10B981"
+            title_color = "#34d399" if theme_mode != "light" else "#047857"
+            text_color = "#e2e8f0" if theme_mode != "light" else "#1E293B"
+            st.markdown(f"""
+            <div style="background: {box_bg}; border-left: 4px solid {box_border}; border-radius: 10px; padding: 14px 18px; margin-bottom: 1.25rem; font-size: 0.92rem; line-height: 1.5;">
+                <strong style="color: {title_color}; font-weight: 700;">🛡️ Normal Bot Protection Active (Security Upgrade)</strong><br/>
+                <span style="color: {text_color};">
+                    This website has active enterprise bot protection (e.g. Cloudflare) that blocks unauthorized automated bots and scrapers. 
+                    This is <strong>not</strong> an error—it is an advanced cyber defense feature that upgrades your website's security score.
+                </span>
+            </div>
+            """, unsafe_allow_html=True)
+
+        if not df_all_issues.empty:
             if is_highlighted:
                 df_display = df_all_issues[df_all_issues.get('Severity', pd.Series()).isin(['High', 'Critical'])]
                 if df_display.empty:

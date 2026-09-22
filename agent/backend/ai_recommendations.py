@@ -128,16 +128,20 @@ def generate_ai_seo_recommendations(df_pages, df_issues, df_audit):
                 "action_item": "Inspect DNS records, verify SSL certificate configuration, check server loads and firewall access logs."
             })
 
-        # Bot Protection / WAF blocks
-        waf_issues = df_issues[df_issues["Issue Name"].str.contains("Bot Protection|WAF Block", case=False, na=False)]
-        if not waf_issues.empty:
+        # Bot Protection / WAF active
+        has_bot_protection = False
+        if not df_pages.empty and 'Status' in df_pages.columns:
+            has_bot_protection = any(
+                df_pages['Status'].astype(str).str.contains("Bot Protection|Protected", case=False, na=False)
+            )
+        if has_bot_protection:
             recs.append({
-                "category": "Crawling & Indexability",
-                "title": f"Verify WAF / Bot Firewall for Search Crawlers ({len(waf_issues)} URLs protected)",
-                "description": f"Target pages triggered anti-bot protection (e.g. Cloudflare). Regular browsers load the site normally, but automated requests received HTTP 403.",
-                "severity": "High",
-                "impact": "If legitimate search engine crawlers (Googlebot, Bingbot) are caught in bot challenges, your pages cannot be indexed.",
-                "action_item": "In your WAF/Cloudflare dashboard, ensure 'Verified Search Engine Bots' bypass is enabled and allowlist trusted crawler user agents."
+                "category": "Cybersecurity & Indexing",
+                "title": "Enterprise Bot Protection Active (Security Upgrade)",
+                "description": "Your website is protected by active bot protection (e.g. Cloudflare). Automated scrapers are blocked while legitimate human visitors browse normally.",
+                "severity": "Low",
+                "impact": "Shields your server bandwidth and content against unauthorized scrapers and bot abuse.",
+                "action_item": "In your WAF / Cloudflare dashboard, verify that 'Verified Search Engine Bots' bypass is toggled ON so Googlebot and Bingbot can crawl your pages seamlessly."
             })
             
     # Default recommendations if no issues were found

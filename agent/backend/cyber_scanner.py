@@ -172,9 +172,40 @@ def check_security_headers(url):
         response_time = (datetime.now() - start_time).total_seconds()
         status_code = resp.status_code
         resp_headers = resp.headers
-        
         server_header = resp_headers.get("Server", resp_headers.get("X-Powered-By", "Hidden/N/A"))
         
+        # Check for active WAF & Bot Protection signatures
+        server_lower = (server_header or "").lower()
+        has_cf = ('cf-ray' in resp_headers) or ('cf-mitigated' in resp_headers) or ('cloudflare' in server_lower)
+        has_waf = False
+        waf_name = "Cloudflare WAF"
+        if has_cf:
+            has_waf = True
+            waf_name = "Cloudflare Enterprise WAF"
+        elif 'akamai' in server_lower or 'x-akamai-transformed' in resp_headers:
+            has_waf = True
+            waf_name = "Akamai Bot Defense"
+        elif 'sucuri' in server_lower or 'x-sucuri-id' in resp_headers:
+            has_waf = True
+            waf_name = "Sucuri Cloud WAF"
+        elif 'imperva' in server_lower or 'x-iinfo' in resp_headers:
+            has_waf = True
+            waf_name = "Imperva Incapsula WAF"
+        elif status_code == 403:
+            has_waf = True
+            waf_name = "Normal Bot Protection & Firewall"
+
+        if has_waf:
+            findings.insert(0, {
+                "header": "WAF & Bot Protection Defense",
+                "status": "Active (Protected)",
+                "value": f"{waf_name} Enabled",
+                "desc": "Active web application firewall & bot protection blocks malicious bots, automated scrapers, and credential attacks.",
+                "severity": "Info"
+            })
+            # Bot protection upgrades the security posture
+            compliance_score = min(100, compliance_score + 25)
+
         for header_name, desc in headers_to_check.items():
             value = resp_headers.get(header_name)
             if value:
@@ -377,6 +408,11 @@ def run_cyber_scan(domain, original_url, html_content, whois_creation_str="N/A")
     phish_score, phish_reasons = check_phishing_heuristics(clean_host, whois_creation_str)
     malware_score, malware_reasons = check_malware_and_code_vulnerabilities(html_content, is_https)
     
+    # Detect active WAF & Bot Protection
+    has_bot_protection = any(
+        f.get("header") == "WAF & Bot Protection Defense" for f in header_findings
+    ) or status_code == 403 or (isinstance(html_content, str) and any(sig in html_content.lower() for sig in ['challenges.cloudflare.com', 'cf-browser-verification', 'turnstile', 'attention required! | cloudflare']))
+
     # Calculate global security compliance metric
     ssl_is_valid = bool(ssl_info.get("valid", False))
     ssl_deduction = 0 if ssl_is_valid else 25
@@ -385,15 +421,24 @@ def run_cyber_scan(domain, original_url, html_content, whois_creation_str="N/A")
     malware_deduction = malware_score * 0.25
     
     global_score = round(100 - (ssl_deduction + header_deduction + phish_deduction + malware_deduction))
+    
+    # UPGRADE SECURITY SCORE WITH BOT PROTECTION
+    # Bot protection is a powerful security feature that shields the site from scrapers and DDoS
+    if has_bot_protection:
+        if ssl_is_valid:
+            global_score = max(global_score, 96)
+        else:
+            global_score = min(100, global_score + 15)
+            
     global_score = max(0, min(100, global_score))
     
     # Map score to Security Grade
     if global_score >= 95:
         grade = "A+"
-        rating = "Optimal Security"
+        rating = "Optimal Security (Bot Protected)" if has_bot_protection else "Optimal Security"
     elif global_score >= 88:
         grade = "A"
-        rating = "Low Risk"
+        rating = "Low Risk (Bot Protected)" if has_bot_protection else "Low Risk"
     elif global_score >= 78:
         grade = "B"
         rating = "Low Risk"
@@ -409,6 +454,9 @@ def run_cyber_scan(domain, original_url, html_content, whois_creation_str="N/A")
         
     # Generate actionable remediation checklist
     recommendations = []
+    if has_bot_protection:
+        recommendations.append("Enterprise Bot Protection Active: Normal bot protection shields your website from automated scrapers, credential stuffing, and bot attacks.")
+        
     days_left_val = ssl_info.get("days_left", -1)
     
     if not ssl_is_valid:
