@@ -473,11 +473,18 @@ def inject_premium_styles(theme_mode="corporate"):
             -webkit-text-fill-color: #4F46E5 !important;
         }
 
-        /* Navigation Segmented Control (Light Mode SaaS Pill Bar) */
+        /* Navigation Segmented Control & Button Groups (Light Mode SaaS Pill Bar) */
         .stApp div[data-testid="stSegmentedControl"],
         .stApp div[data-testid="stSegmentedControl"] > div,
         .stApp div[data-testid="stSegmentedControl"] [data-baseweb="button-group"],
-        .stApp div[data-testid="stSegmentedControl"] [role="radiogroup"] {
+        .stApp div[data-testid="stSegmentedControl"] [role="radiogroup"],
+        .stApp div[data-testid="stButtonGroup"],
+        .stApp div[data-testid="stButtonGroup"] > div,
+        .stApp div.stButtonGroup,
+        .stApp div.stButtonGroup > div,
+        .stApp div[class*="st-key-active_nav_tab"],
+        .stApp div[class*="st-key-active_nav_tab"] > div,
+        .stApp [data-baseweb="button-group"] {
             margin: 1.5rem 0 1.75rem 0 !important;
             background: #FFFFFF !important;
             background-color: #FFFFFF !important;
@@ -486,44 +493,88 @@ def inject_premium_styles(theme_mode="corporate"):
             padding: 4px !important;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05) !important;
         }
-        .stApp div[data-testid="stSegmentedControl"] button {
+        .stApp div[data-testid="stSegmentedControl"] button,
+        .stApp div[data-testid="stButtonGroup"] button,
+        .stApp div.stButtonGroup button,
+        .stApp div[class*="st-key-active_nav_tab"] button,
+        .stApp [data-baseweb="button-group"] button {
             background: #FFFFFF !important;
             background-color: #FFFFFF !important;
-            border: none !important;
+            border: 1px solid transparent !important;
             border-radius: 10px !important;
             padding: 9px 18px !important;
             font-weight: 600 !important;
-            color: #64748B !important;
-            -webkit-text-fill-color: #64748B !important;
+            color: #475569 !important;
+            -webkit-text-fill-color: #475569 !important;
             font-size: 0.9rem !important;
             transition: all 0.2s ease !important;
         }
-        .stApp div[data-testid="stSegmentedControl"] button * {
-            color: #64748B !important;
-            -webkit-text-fill-color: #64748B !important;
+        .stApp div[data-testid="stSegmentedControl"] button *,
+        .stApp div[data-testid="stButtonGroup"] button *,
+        .stApp div.stButtonGroup button *,
+        .stApp div[class*="st-key-active_nav_tab"] button *,
+        .stApp [data-baseweb="button-group"] button * {
+            color: #475569 !important;
+            -webkit-text-fill-color: #475569 !important;
         }
         .stApp div[data-testid="stSegmentedControl"] button[aria-checked="true"],
-        .stApp div[data-testid="stSegmentedControl"] button[data-checked="true"] {
-            background: #4F46E5 !important;
-            background-color: #4F46E5 !important;
+        .stApp div[data-testid="stSegmentedControl"] button[data-checked="true"],
+        .stApp div[data-testid="stSegmentedControl"] button[aria-selected="true"],
+        .stApp div[data-testid="stButtonGroup"] button[aria-checked="true"],
+        .stApp div[data-testid="stButtonGroup"] button[data-checked="true"],
+        .stApp div[data-testid="stButtonGroup"] button[aria-selected="true"],
+        .stApp div.stButtonGroup button[aria-checked="true"],
+        .stApp div.stButtonGroup button[data-checked="true"],
+        .stApp div.stButtonGroup button[aria-selected="true"],
+        .stApp div[class*="st-key-active_nav_tab"] button[aria-checked="true"],
+        .stApp div[class*="st-key-active_nav_tab"] button[data-checked="true"],
+        .stApp div[class*="st-key-active_nav_tab"] button[aria-selected="true"],
+        .stApp [data-baseweb="button-group"] button[aria-checked="true"],
+        .stApp [data-baseweb="button-group"] button[data-checked="true"],
+        .stApp [data-baseweb="button-group"] button[aria-selected="true"] {
+            background: #EEF2FF !important;
+            background-color: #EEF2FF !important;
+            border: 1.5px solid #4F46E5 !important;
             border-color: #4F46E5 !important;
-            color: #FFFFFF !important;
-            -webkit-text-fill-color: #FFFFFF !important;
-            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.35) !important;
+            color: #4F46E5 !important;
+            -webkit-text-fill-color: #4F46E5 !important;
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.18) !important;
             font-weight: 700 !important;
         }
-        .stApp div[data-testid="stSegmentedControl"] button[aria-checked="true"] * {
-            color: #FFFFFF !important;
-            -webkit-text-fill-color: #FFFFFF !important;
+        .stApp div[data-testid="stSegmentedControl"] button[aria-checked="true"] *,
+        .stApp div[data-testid="stSegmentedControl"] button[data-checked="true"] *,
+        .stApp div[data-testid="stSegmentedControl"] button[aria-selected="true"] *,
+        .stApp div[data-testid="stButtonGroup"] button[aria-checked="true"] *,
+        .stApp div[data-testid="stButtonGroup"] button[data-checked="true"] *,
+        .stApp div[data-testid="stButtonGroup"] button[aria-selected="true"] *,
+        .stApp div.stButtonGroup button[aria-checked="true"] *,
+        .stApp div.stButtonGroup button[data-checked="true"] *,
+        .stApp div.stButtonGroup button[aria-selected="true"] *,
+        .stApp div[class*="st-key-active_nav_tab"] button[aria-checked="true"] *,
+        .stApp div[class*="st-key-active_nav_tab"] button[data-checked="true"] *,
+        .stApp div[class*="st-key-active_nav_tab"] button[aria-selected="true"] *,
+        .stApp [data-baseweb="button-group"] button[aria-checked="true"] *,
+        .stApp [data-baseweb="button-group"] button[data-checked="true"] *,
+        .stApp [data-baseweb="button-group"] button[aria-selected="true"] * {
+            color: #4F46E5 !important;
+            -webkit-text-fill-color: #4F46E5 !important;
             font-weight: 700 !important;
         }
-        .stApp div[data-testid="stSegmentedControl"] button:hover:not([aria-checked="true"]) {
+        .stApp div[data-testid="stSegmentedControl"] button:hover:not([aria-checked="true"]):not([data-checked="true"]):not([aria-selected="true"]),
+        .stApp div[data-testid="stButtonGroup"] button:hover:not([aria-checked="true"]):not([data-checked="true"]):not([aria-selected="true"]),
+        .stApp div.stButtonGroup button:hover:not([aria-checked="true"]):not([data-checked="true"]):not([aria-selected="true"]),
+        .stApp div[class*="st-key-active_nav_tab"] button:hover:not([aria-checked="true"]):not([data-checked="true"]):not([aria-selected="true"]),
+        .stApp [data-baseweb="button-group"] button:hover:not([aria-checked="true"]):not([data-checked="true"]):not([aria-selected="true"]) {
             background: #F1F5F9 !important;
             background-color: #F1F5F9 !important;
             color: #1E293B !important;
             -webkit-text-fill-color: #1E293B !important;
         }
-        .stApp div[data-testid="stSegmentedControl"] button:hover:not([aria-checked="true"]) * {
+        .stApp div[data-testid="stSegmentedControl"] button:hover:not([aria-checked="true"]):not([data-checked="true"]):not([aria-selected="true"]) *,
+        .stApp div[data-testid="stButtonGroup"] button:hover:not([aria-checked="true"]):not([data-checked="true"]):not([aria-selected="true"]) *,
+        .stApp div.stButtonGroup button:hover:not([aria-checked="true"]):not([data-checked="true"]):not([aria-selected="true"]) *,
+        .stApp div[class*="st-key-active_nav_tab"] button:hover:not([aria-checked="true"]):not([data-checked="true"]):not([aria-selected="true"]) *,
+        .stApp [data-baseweb="button-group"] button:hover:not([aria-checked="true"]):not([data-checked="true"]):not([aria-selected="true"]) * {
             color: #1E293B !important;
             -webkit-text-fill-color: #1E293B !important;
         }
