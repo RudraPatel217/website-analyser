@@ -204,7 +204,8 @@ app.get('/screenshot', async (req, res) => {
         '--no-first-run',
         '--no-default-browser-check',
         '--mute-audio',
-        '--disable-background-networking'
+        '--disable-background-networking',
+        '--disable-blink-features=AutomationControlled'
       ]
     };
     if (chromePath) {
@@ -214,6 +215,7 @@ app.get('/screenshot', async (req, res) => {
 
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 800, deviceScaleFactor: 1 });
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36');
 
     // Request interception for speed optimization & security
     await page.setRequestInterception(true);
@@ -281,6 +283,113 @@ app.get('/screenshot', async (req, res) => {
       } catch (e) {
         // Ignore browser close exception
       }
+    }
+  }
+});
+
+app.get('/render', async (req, res) => {
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Content-Type', 'application/json');
+
+  let targetUrl = req.query.url;
+  if (!targetUrl) return res.status(400).json({ error: 'Missing required "url" parameter.' });
+
+  if (!/^https?:\/\//i.test(targetUrl)) {
+    targetUrl = 'https://' + targetUrl;
+  }
+
+  const safetyCheck = await validateUrlSafety(targetUrl);
+  if (!safetyCheck.safe) {
+    return res.status(403).json({ error: `Security Error: ${safetyCheck.reason}` });
+  }
+
+  try {
+    await acquireSlot(15000);
+  } catch (err) {
+    return res.status(503).json({ error: err.message });
+  }
+
+  let browser = null;
+  try {
+    const chromePath = findChromeExecutable();
+    const launchOptions = {
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--disable-software-rasterizer',
+        '--no-zygote',
+        '--disable-file-downloads',
+        '--no-first-run',
+        '--no-default-browser-check',
+        '--mute-audio',
+        '--disable-background-networking',
+        '--disable-blink-features=AutomationControlled'
+      ]
+    };
+    if (chromePath) {
+      launchOptions.executablePath = chromePath;
+    }
+    browser = await puppeteer.launch(launchOptions);
+
+    const page = await browser.newPage();
+    await page.setViewport({ width: 1280, height: 800, deviceScaleFactor: 1 });
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36');
+
+    // Block unnecessary media to accelerate render speed
+    await page.setRequestInterception(true);
+    page.on('request', (request) => {
+      const reqUrl = request.url();
+      const resourceType = request.resourceType();
+
+      if (reqUrl.startsWith('file://') || reqUrl.startsWith('data:text/html')) {
+        return request.abort();
+      }
+      if (['media', 'font', 'image'].includes(resourceType)) {
+        return request.abort();
+      }
+      request.continue();
+    });
+
+    let navResp = null;
+    try {
+      navResp = await page.goto(safetyCheck.url, {
+        waitUntil: 'domcontentloaded',
+        timeout: 18000
+      });
+    } catch (e) {
+      // Fallback navigation
+      if (safetyCheck.url.startsWith('https://')) {
+        const httpUrl = safetyCheck.url.replace('https://', 'http://');
+        try {
+          navResp = await page.goto(httpUrl, { waitUntil: 'domcontentloaded', timeout: 12000 });
+        } catch (_) {}
+      }
+    }
+
+    // Brief stabilization pause for JS execution
+    await new Promise(r => setTimeout(r, 1500));
+
+    const html = await page.content();
+    const title = await page.title();
+    const status = navResp ? navResp.status() : 200;
+
+    return res.json({
+      status: status,
+      title: title,
+      html: html
+    });
+  } catch (error) {
+    console.error(`Error rendering page for ${targetUrl}:`, error.message);
+    return res.status(500).json({ error: 'Render error: ' + error.message });
+  } finally {
+    releaseSlot();
+    if (browser) {
+      try {
+        await browser.close();
+      } catch (e) {}
     }
   }
 });

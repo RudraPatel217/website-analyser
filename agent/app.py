@@ -363,11 +363,22 @@ if run_analysis:
                 
                 html_content = ""
                 headers = {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'Accept-Language': 'en-US,en;q=0.9'
                 }
                 try:
                     resp = requests.get(target_url, timeout=8, headers=headers, allow_redirects=True, verify=False)
-                    html_content = resp.text
+                    if resp.status_code == 403 and any(k in resp.headers for k in ['cf-ray', 'cf-mitigated']):
+                        try:
+                            from urllib.parse import quote
+                            r_rnd = requests.get(f"http://127.0.0.1:3000/render?url={quote(target_url)}", timeout=(1.5, 12.0))
+                            if r_rnd.status_code == 200:
+                                html_content = r_rnd.json().get('html', '')
+                        except Exception:
+                            html_content = resp.text
+                    else:
+                        html_content = resp.text
                 except Exception:
                     try:
                         fallback_scheme = "http://" if target_url.startswith("https://") else "https://"
@@ -585,6 +596,24 @@ if "audit_results" in st.session_state and st.session_state["audit_results"]:
                 st.button("Show All Issues", key="btn_show_all_issues", use_container_width=True, on_click=reset_issue_filter)
 
         if not df_all_issues.empty:
+            bot_issues_exist = any(
+                df_all_issues.get('Issue Name', pd.Series()).str.contains('Bot Protection|403', case=False, na=False)
+            )
+            if bot_issues_exist:
+                box_bg = "rgba(59, 130, 246, 0.12)" if theme_mode != "light" else "#EFF6FF"
+                box_border = "#3b82f6" if theme_mode != "light" else "#60A5FA"
+                title_color = "#93c5fd" if theme_mode != "light" else "#1D4ED8"
+                text_color = "#e2e8f0" if theme_mode != "light" else "#1E293B"
+                st.markdown(f"""
+                <div style="background: {box_bg}; border-left: 4px solid {box_border}; border-radius: 10px; padding: 12px 18px; margin-bottom: 1.25rem; font-size: 0.92rem; line-height: 1.5;">
+                    <strong style="color: {title_color}; font-weight: 700;">🛡️ Why is 403 / Bot Protection displayed?</strong><br/>
+                    <span style="color: {text_color};">
+                        Displayed because this website uses bot protection (e.g. Cloudflare) that blocks automated scanners. 
+                        In your web browser the site works normally, but automated crawlers are blocked so no further page information is given.
+                    </span>
+                </div>
+                """, unsafe_allow_html=True)
+
             if is_highlighted:
                 df_display = df_all_issues[df_all_issues.get('Severity', pd.Series()).isin(['High', 'Critical'])]
                 if df_display.empty:

@@ -127,6 +127,18 @@ def generate_ai_seo_recommendations(df_pages, df_issues, df_audit):
                 "impact": "Prevents search engine crawler indexation entirely and leads to drop out of search indexes.",
                 "action_item": "Inspect DNS records, verify SSL certificate configuration, check server loads and firewall access logs."
             })
+
+        # Bot Protection / WAF blocks
+        waf_issues = df_issues[df_issues["Issue Name"].str.contains("Bot Protection|WAF Block", case=False, na=False)]
+        if not waf_issues.empty:
+            recs.append({
+                "category": "Crawling & Indexability",
+                "title": f"Verify WAF / Bot Firewall for Search Crawlers ({len(waf_issues)} URLs protected)",
+                "description": f"Target pages triggered anti-bot protection (e.g. Cloudflare). Regular browsers load the site normally, but automated requests received HTTP 403.",
+                "severity": "High",
+                "impact": "If legitimate search engine crawlers (Googlebot, Bingbot) are caught in bot challenges, your pages cannot be indexed.",
+                "action_item": "In your WAF/Cloudflare dashboard, ensure 'Verified Search Engine Bots' bypass is enabled and allowlist trusted crawler user agents."
+            })
             
     # Default recommendations if no issues were found
     if not recs:
