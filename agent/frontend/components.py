@@ -350,7 +350,9 @@ def render_styled_table(df, theme_mode="corporate", max_height="450px"):
 
         # Format Status Code Badge
         if col_lower in ["status", "status code", "status_code"]:
-            if val_str in ["200", "200.0", "200 OK"]:
+            if "bot protection" in val_str.lower() or "protected" in val_str.lower():
+                return '<span style="background: #EEF2FF; color: #4F46E5; border: 1px solid #C7D2FE; border-radius: 9999px; padding: 2px 10px; font-weight: 700; font-size: 0.78rem;">🛡️ Normal Bot Protection</span>'
+            elif val_str in ["200", "200.0", "200 OK"]:
                 return '<span style="background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; border-radius: 9999px; padding: 2px 10px; font-weight: 700; font-size: 0.78rem;">200 OK</span>'
             elif val_str in ["404", "404.0", "404 Not Found"]:
                 return '<span style="background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; border-radius: 9999px; padding: 2px 10px; font-weight: 700; font-size: 0.78rem;">404 Not Found</span>'

@@ -1,6 +1,13 @@
+import os
 import pandas as pd
 
+def _ensure_dir(filename):
+    dir_name = os.path.dirname(filename)
+    if dir_name and not os.path.exists(dir_name):
+        os.makedirs(dir_name, exist_ok=True)
+
 def generate_excel_report(df_all_domain, df_all_pages, df_all_issues, df_all_audit, filename):
+    _ensure_dir(filename)
     with pd.ExcelWriter(filename, engine='openpyxl') as writer:
         df_all_domain.to_excel(
             writer, sheet_name='Domain_Info', index=False)
@@ -72,6 +79,7 @@ def generate_security_report(cyber_results, filename):
                 "Remediation Action Item": rec
             })
             
+    _ensure_dir(filename)
     with pd.ExcelWriter(filename, engine='openpyxl') as writer:
         pd.DataFrame(summary_data).to_excel(writer, sheet_name='Security_Summary', index=False)
         pd.DataFrame(ssl_data).to_excel(writer, sheet_name='SSL_Validation', index=False)
@@ -142,6 +150,7 @@ def generate_unified_report(df_all_domain, df_all_pages, df_all_issues, df_all_a
                 "Remediation Action Item": rec
             })
             
+    _ensure_dir(filename)
     with pd.ExcelWriter(filename, engine='openpyxl') as writer:
         df_all_domain.to_excel(writer, sheet_name='Domain_Info', index=False)
         df_all_pages.to_excel(writer, sheet_name='Crawled_Pages', index=False)
