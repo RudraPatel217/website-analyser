@@ -130,7 +130,7 @@ with toggle_col_r:
         st.button("Light Mode", key="theme_toggle_btn", use_container_width=False, on_click=set_theme, args=("light",))
 
 # Input Panel configured inside native bordered container
-with st.container(border=True):
+with st.container(border=True, key="setup_card"):
     if theme_mode == "light":
         header_color = "#1E293B"
         border_color = "#E2E8F0"

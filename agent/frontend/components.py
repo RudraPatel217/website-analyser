@@ -238,22 +238,23 @@ def render_metric_cards(total_domains, total_issues, high_crit_issues, on_domain
 
 def render_ready_to_scan(theme_mode="corporate"):
     if theme_mode == "light":
-        title_color = "#4F46E5"
-        desc_color = "#475569"
-        bg_color = "#EEF2FF"
-        border_color = "#C7D2FE"
-        accent_line = "border-left: 4px solid #4F46E5; border-radius: 0 16px 16px 0;"
+        title_color = "#1E293B"
+        desc_color = "#64748B"
+        bg_color = "#FFFFFF"
+        border_style = "border: 1px dashed #CBD5E1; border-radius: 18px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);"
+        badge_html = "<div style='display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 14px; background: #EEF2FF; color: #4F46E5; margin-bottom: 0.9rem; font-size: 1.4rem;'>⚡</div>"
     else:  # corporate dark
         title_color = "#38bdf8"
         desc_color = "#94a3b8"
         bg_color = "rgba(30, 41, 59, 0.6)"
-        border_color = "rgba(59, 130, 246, 0.35)"
-        accent_line = "border: 1px dashed rgba(59, 130, 246, 0.35); border-radius: 16px;"
+        border_style = "border: 1px dashed rgba(59, 130, 246, 0.35); border-radius: 18px;"
+        badge_html = "<div style='display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 14px; background: rgba(59, 130, 246, 0.15); color: #38bdf8; margin-bottom: 0.9rem; font-size: 1.4rem;'>⚡</div>"
 
     st.markdown(f"""
-    <div style="text-align: center; padding: 3rem 2rem; background: {bg_color}; {accent_line} margin-top: 2rem;">
-        <h3 style="color: {title_color}; margin-top: 0; font-weight: 700;">Ready to Run SEO Scan</h3>
-        <p style="color: {desc_color}; max-width: 600px; margin: 0 auto; font-size: 1.05rem; line-height: 1.6;">
+    <div style="text-align: center; padding: 2.75rem 2rem; background: {bg_color}; {border_style} margin-top: 1.75rem;">
+        {badge_html}
+        <h3 style="color: {title_color}; margin-top: 0; font-weight: 700; font-size: 1.25rem;">Ready to Run SEO Scan</h3>
+        <p style="color: {desc_color}; max-width: 580px; margin: 0 auto; font-size: 0.98rem; line-height: 1.6;">
             Provide one or more website URLs in the configuration card above, adjust your desired crawl limits, and launch the domain intelligence agent to start auditing.
         </p>
     </div>

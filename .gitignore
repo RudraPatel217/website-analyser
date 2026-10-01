@@ -104,3 +104,4 @@ db.lock
 *.tmp
 *.bak
 *.temp
+scratch/

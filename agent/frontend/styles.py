@@ -26,7 +26,10 @@ def inject_premium_styles(theme_mode="corporate"):
         label, p, li { color: #cbd5e1 !important; }
 
         /* Translucent Blue Cards */
-        .glass-card, div[data-testid="stVerticalBlockBorderWrapper"] {
+        .glass-card,
+        div.st-key-setup_card,
+        div[class*="st-key-setup_card"],
+        div[data-testid="stVerticalBlockBorderWrapper"] {
             background: rgba(30, 41, 59, 0.75) !important;
             border: 1px solid rgba(59, 130, 246, 0.25) !important;
             border-radius: 18px !important;
@@ -80,54 +83,93 @@ def inject_premium_styles(theme_mode="corporate"):
             -webkit-text-fill-color: transparent !important;
         }
 
-        /* Navigation Segmented Control (Corporate) */
-        div[data-testid="stSegmentedControl"] {
+        /* Navigation Segmented Control (Corporate Dark Mode) — Clean Single Row */
+        div[data-testid="stSegmentedControl"],
+        div[class*="st-key-active_nav_tab"] {
             margin: 1.5rem 0 1.75rem 0 !important;
+            display: flex !important;
+            justify-content: center !important;
+            width: 100% !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+        }
+        div[data-testid="stSegmentedControl"] > div,
+        div[data-testid="stSegmentedControl"] [data-baseweb="button-group"] {
+            display: inline-flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            align-items: center !important;
+            justify-content: center !important;
+            background: rgba(15, 23, 42, 0.75) !important;
+            border: 1px solid rgba(59, 130, 246, 0.3) !important;
+            border-radius: 14px !important;
+            padding: 4px !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+            overflow-x: auto !important;
+            max-width: 100% !important;
         }
         div[data-testid="stSegmentedControl"] button {
-            background: rgba(30, 41, 59, 0.55) !important;
-            border: 1px solid rgba(59, 130, 246, 0.25) !important;
-            border-radius: 12px !important;
-            padding: 10px 20px !important;
+            background: transparent !important;
+            border: 1px solid transparent !important;
+            border-radius: 10px !important;
+            padding: 8px 16px !important;
             font-weight: 600 !important;
             color: #cbd5e1 !important;
-            font-size: 0.95rem !important;
+            -webkit-text-fill-color: #cbd5e1 !important;
+            font-size: 0.9rem !important;
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
+            transition: all 0.2s ease !important;
         }
-        div[data-testid="stSegmentedControl"] button[aria-checked="true"] {
+        div[data-testid="stSegmentedControl"] button:hover {
+            background: rgba(30, 41, 59, 0.8) !important;
+            color: #f8fafc !important;
+            -webkit-text-fill-color: #f8fafc !important;
+        }
+        div[data-testid="stSegmentedControl"] button[aria-checked="true"],
+        div[data-testid="stSegmentedControl"] button[data-checked="true"],
+        div[data-testid="stSegmentedControl"] button[aria-selected="true"] {
             background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%) !important;
+            border: 1px solid #60a5fa !important;
             border-color: #60a5fa !important;
             color: #ffffff !important;
-            box-shadow: 0 4px 18px rgba(37, 99, 235, 0.45) !important;
+            -webkit-text-fill-color: #ffffff !important;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45) !important;
             font-weight: 700 !important;
+        }
+        div[data-testid="stSegmentedControl"] button[aria-checked="true"] *,
+        div[data-testid="stSegmentedControl"] button[data-checked="true"] *,
+        div[data-testid="stSegmentedControl"] button[aria-selected="true"] * {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            font-weight: 700 !important;
+        }
+        @media (max-width: 900px) {
+            div[data-testid="stSegmentedControl"] button {
+                padding: 6px 10px !important;
+                font-size: 0.82rem !important;
+            }
         }
 
         /* Inputs, Textareas & Selects (Corporate Dark Mode) */
         .stApp .stTextArea,
         .stApp .stTextInput,
-        .stApp .stSelectbox,
         .stApp div[data-testid="stTextArea"],
         .stApp div[data-testid="stTextInput"],
-        .stApp div[data-testid="stSelectbox"],
         .stApp div[data-testid="stTextArea"] > div,
         .stApp div[data-testid="stTextInput"] > div,
-        .stApp div[data-testid="stSelectbox"] > div,
         .stApp div[data-testid="stTextArea"] div[data-baseweb="textarea"],
         .stApp div[data-testid="stTextArea"] div[data-baseweb="base-input"],
         .stApp div[data-testid="stTextInput"] div[data-baseweb="input"],
         .stApp div[data-testid="stTextInput"] div[data-baseweb="base-input"],
-        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"],
-        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"] > div,
-        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"] div[role="combobox"],
-        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"] div[role="combobox"] > div,
         .stApp div[data-baseweb="textarea"],
         .stApp div[data-baseweb="textarea"] > div,
         .stApp div[data-baseweb="input"],
         .stApp div[data-baseweb="input"] > div,
         .stApp div[data-baseweb="base-input"],
-        .stApp div[data-baseweb="base-input"] > div,
-        .stApp div[data-baseweb="select"],
-        .stApp div[data-baseweb="select"] > div,
-        .stApp div[data-baseweb="select"] div {
+        .stApp div[data-baseweb="base-input"] > div {
             background-color: #0f172a !important;
             background: #0f172a !important;
             color: #f8fafc !important;
@@ -135,15 +177,58 @@ def inject_premium_styles(theme_mode="corporate"):
         }
 
         .stApp div[data-testid="stTextArea"] div[data-baseweb="textarea"],
-        .stApp div[data-testid="stTextInput"] div[data-baseweb="input"],
-        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
+        .stApp div[data-testid="stTextInput"] div[data-baseweb="input"] {
             border: 1.5px solid rgba(59, 130, 246, 0.35) !important;
             border-radius: 12px !important;
             transition: all 0.25s ease !important;
         }
 
+        /* Seamless Selectbox (Fixes any two-tone / split color mismatch in Dark Mode) */
+        .stApp .stSelectbox,
+        .stApp div[data-testid="stSelectbox"],
+        .stApp div[data-testid="stSelectbox"] > div {
+            background: transparent !important;
+            background-color: transparent !important;
+        }
+
+        .stApp div[data-testid="stSelectbox"] div[role="group"],
+        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"],
+        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
+            background-color: #0f172a !important;
+            background: #0f172a !important;
+            border: 1.5px solid rgba(59, 130, 246, 0.35) !important;
+            border-radius: 10px !important;
+            transition: all 0.25s ease !important;
+        }
+
+        .stApp div[data-testid="stSelectbox"] div[role="group"] *,
+        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"] * {
+            background: transparent !important;
+            background-color: transparent !important;
+        }
+
+        .stApp div[data-testid="stSelectbox"] input,
+        .stApp div[data-testid="stSelectbox"] input[role="combobox"] {
+            background: transparent !important;
+            background-color: transparent !important;
+            color: #f8fafc !important;
+            -webkit-text-fill-color: #f8fafc !important;
+            font-size: 0.95rem !important;
+            border: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        .stApp div[data-testid="stSelectbox"] button {
+            background: transparent !important;
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
         .stApp textarea,
-        .stApp input {
+        .stApp div[data-testid="stTextInput"] input {
             color: #f8fafc !important;
             -webkit-text-fill-color: #f8fafc !important;
             background-color: #0f172a !important;
@@ -172,7 +257,8 @@ def inject_premium_styles(theme_mode="corporate"):
 
         .stApp div[data-baseweb="textarea"]:focus-within,
         .stApp div[data-baseweb="input"]:focus-within,
-        .stApp div[data-baseweb="select"] > div:focus-within,
+        .stApp div[data-testid="stSelectbox"] div[role="group"]:focus-within,
+        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"] > div:focus-within,
         .stApp div[data-testid="stTextArea"] textarea:focus,
         .stApp div[data-testid="stTextInput"] input:focus {
             border-color: #3b82f6 !important;
@@ -417,15 +503,19 @@ def inject_premium_styles(theme_mode="corporate"):
         label { color: #374151 !important; font-weight: 500 !important; }
         p, li { color: #475569 !important; line-height: 1.7 !important; }
 
-        /* White card with elegant shadow — no glassmorphism */
-        .glass-card, div[data-testid="stVerticalBlockBorderWrapper"] {
+        /* White card with elegant shadow — Enterprise SaaS */
+        .glass-card,
+        div.st-key-setup_card,
+        div[class*="st-key-setup_card"],
+        div[data-testid="stVerticalBlockBorderWrapper"] {
             background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
             border: 1px solid #E2E8F0 !important;
-            border-radius: 16px !important;
-            padding: 1.8rem !important;
+            border-radius: 18px !important;
+            padding: 2rem !important;
             backdrop-filter: none !important;
             -webkit-backdrop-filter: none !important;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04) !important;
+            box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.03) !important;
             margin-bottom: 1.5rem !important;
         }
 
@@ -473,139 +563,97 @@ def inject_premium_styles(theme_mode="corporate"):
             -webkit-text-fill-color: #4F46E5 !important;
         }
 
-        /* Navigation Segmented Control & Button Groups (Light Mode SaaS Pill Bar) */
+        /* Navigation Segmented Control (Light Mode) — Clean Single Row, No Nested Boxes */
         .stApp div[data-testid="stSegmentedControl"],
-        .stApp div[data-testid="stSegmentedControl"] > div,
-        .stApp div[data-testid="stSegmentedControl"] [data-baseweb="button-group"],
-        .stApp div[data-testid="stSegmentedControl"] [role="radiogroup"],
-        .stApp div[data-testid="stButtonGroup"],
-        .stApp div[data-testid="stButtonGroup"] > div,
-        .stApp div.stButtonGroup,
-        .stApp div.stButtonGroup > div,
-        .stApp div[class*="st-key-active_nav_tab"],
-        .stApp div[class*="st-key-active_nav_tab"] > div,
-        .stApp [data-baseweb="button-group"] {
+        .stApp div[class*="st-key-active_nav_tab"] {
             margin: 1.5rem 0 1.75rem 0 !important;
+            background: transparent !important;
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            display: flex !important;
+            justify-content: center !important;
+            width: 100% !important;
+        }
+        .stApp div[data-testid="stSegmentedControl"] > div,
+        .stApp div[data-testid="stSegmentedControl"] [data-baseweb="button-group"] {
             background: #FFFFFF !important;
             background-color: #FFFFFF !important;
             border: 1px solid #E2E8F0 !important;
-            border-radius: 14px !important;
+            border-radius: 12px !important;
             padding: 4px !important;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05) !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+            display: inline-flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            align-items: center !important;
+            justify-content: center !important;
+            max-width: 100% !important;
+            overflow-x: auto !important;
         }
-        .stApp div[data-testid="stSegmentedControl"] button,
-        .stApp div[data-testid="stButtonGroup"] button,
-        .stApp div.stButtonGroup button,
-        .stApp div[class*="st-key-active_nav_tab"] button,
-        .stApp [data-baseweb="button-group"] button {
-            background: #FFFFFF !important;
-            background-color: #FFFFFF !important;
+        .stApp div[data-testid="stSegmentedControl"] button {
+            background: transparent !important;
+            background-color: transparent !important;
             border: 1px solid transparent !important;
-            border-radius: 10px !important;
-            padding: 9px 18px !important;
+            border-radius: 8px !important;
+            padding: 8px 16px !important;
             font-weight: 600 !important;
             color: #475569 !important;
             -webkit-text-fill-color: #475569 !important;
             font-size: 0.9rem !important;
             transition: all 0.2s ease !important;
+            white-space: nowrap !important;
+            box-shadow: none !important;
+            flex-shrink: 0 !important;
         }
-        .stApp div[data-testid="stSegmentedControl"] button *,
-        .stApp div[data-testid="stButtonGroup"] button *,
-        .stApp div.stButtonGroup button *,
-        .stApp div[class*="st-key-active_nav_tab"] button *,
-        .stApp [data-baseweb="button-group"] button * {
+        .stApp div[data-testid="stSegmentedControl"] button * {
             color: #475569 !important;
             -webkit-text-fill-color: #475569 !important;
         }
+        .stApp div[data-testid="stSegmentedControl"] button:hover {
+            background: #F1F5F9 !important;
+            background-color: #F1F5F9 !important;
+            color: #0F172A !important;
+            -webkit-text-fill-color: #0F172A !important;
+        }
+        .stApp div[data-testid="stSegmentedControl"] button:hover * {
+            color: #0F172A !important;
+            -webkit-text-fill-color: #0F172A !important;
+        }
         .stApp div[data-testid="stSegmentedControl"] button[aria-checked="true"],
         .stApp div[data-testid="stSegmentedControl"] button[data-checked="true"],
-        .stApp div[data-testid="stSegmentedControl"] button[aria-selected="true"],
-        .stApp div[data-testid="stButtonGroup"] button[aria-checked="true"],
-        .stApp div[data-testid="stButtonGroup"] button[data-checked="true"],
-        .stApp div[data-testid="stButtonGroup"] button[aria-selected="true"],
-        .stApp div.stButtonGroup button[aria-checked="true"],
-        .stApp div.stButtonGroup button[data-checked="true"],
-        .stApp div.stButtonGroup button[aria-selected="true"],
-        .stApp div[class*="st-key-active_nav_tab"] button[aria-checked="true"],
-        .stApp div[class*="st-key-active_nav_tab"] button[data-checked="true"],
-        .stApp div[class*="st-key-active_nav_tab"] button[aria-selected="true"],
-        .stApp [data-baseweb="button-group"] button[aria-checked="true"],
-        .stApp [data-baseweb="button-group"] button[data-checked="true"],
-        .stApp [data-baseweb="button-group"] button[aria-selected="true"] {
+        .stApp div[data-testid="stSegmentedControl"] button[aria-selected="true"] {
             background: #EEF2FF !important;
             background-color: #EEF2FF !important;
-            border: 1.5px solid #4F46E5 !important;
+            border: 1px solid #4F46E5 !important;
             border-color: #4F46E5 !important;
             color: #4F46E5 !important;
             -webkit-text-fill-color: #4F46E5 !important;
-            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.18) !important;
             font-weight: 700 !important;
+            box-shadow: 0 1px 4px rgba(79, 70, 229, 0.16) !important;
         }
         .stApp div[data-testid="stSegmentedControl"] button[aria-checked="true"] *,
         .stApp div[data-testid="stSegmentedControl"] button[data-checked="true"] *,
-        .stApp div[data-testid="stSegmentedControl"] button[aria-selected="true"] *,
-        .stApp div[data-testid="stButtonGroup"] button[aria-checked="true"] *,
-        .stApp div[data-testid="stButtonGroup"] button[data-checked="true"] *,
-        .stApp div[data-testid="stButtonGroup"] button[aria-selected="true"] *,
-        .stApp div.stButtonGroup button[aria-checked="true"] *,
-        .stApp div.stButtonGroup button[data-checked="true"] *,
-        .stApp div.stButtonGroup button[aria-selected="true"] *,
-        .stApp div[class*="st-key-active_nav_tab"] button[aria-checked="true"] *,
-        .stApp div[class*="st-key-active_nav_tab"] button[data-checked="true"] *,
-        .stApp div[class*="st-key-active_nav_tab"] button[aria-selected="true"] *,
-        .stApp [data-baseweb="button-group"] button[aria-checked="true"] *,
-        .stApp [data-baseweb="button-group"] button[data-checked="true"] *,
-        .stApp [data-baseweb="button-group"] button[aria-selected="true"] * {
+        .stApp div[data-testid="stSegmentedControl"] button[aria-selected="true"] * {
             color: #4F46E5 !important;
             -webkit-text-fill-color: #4F46E5 !important;
             font-weight: 700 !important;
         }
-        .stApp div[data-testid="stSegmentedControl"] button:hover:not([aria-checked="true"]):not([data-checked="true"]):not([aria-selected="true"]),
-        .stApp div[data-testid="stButtonGroup"] button:hover:not([aria-checked="true"]):not([data-checked="true"]):not([aria-selected="true"]),
-        .stApp div.stButtonGroup button:hover:not([aria-checked="true"]):not([data-checked="true"]):not([aria-selected="true"]),
-        .stApp div[class*="st-key-active_nav_tab"] button:hover:not([aria-checked="true"]):not([data-checked="true"]):not([aria-selected="true"]),
-        .stApp [data-baseweb="button-group"] button:hover:not([aria-checked="true"]):not([data-checked="true"]):not([aria-selected="true"]) {
-            background: #F1F5F9 !important;
-            background-color: #F1F5F9 !important;
-            color: #1E293B !important;
-            -webkit-text-fill-color: #1E293B !important;
-        }
-        .stApp div[data-testid="stSegmentedControl"] button:hover:not([aria-checked="true"]):not([data-checked="true"]):not([aria-selected="true"]) *,
-        .stApp div[data-testid="stButtonGroup"] button:hover:not([aria-checked="true"]):not([data-checked="true"]):not([aria-selected="true"]) *,
-        .stApp div.stButtonGroup button:hover:not([aria-checked="true"]):not([data-checked="true"]):not([aria-selected="true"]) *,
-        .stApp div[class*="st-key-active_nav_tab"] button:hover:not([aria-checked="true"]):not([data-checked="true"]):not([aria-selected="true"]) *,
-        .stApp [data-baseweb="button-group"] button:hover:not([aria-checked="true"]):not([data-checked="true"]):not([aria-selected="true"]) * {
-            color: #1E293B !important;
-            -webkit-text-fill-color: #1E293B !important;
+        @media (max-width: 900px) {
+            .stApp div[data-testid="stSegmentedControl"] button {
+                padding: 6px 10px !important;
+                font-size: 0.82rem !important;
+            }
         }
 
         /* Inputs, Textareas & Selects (Light Mode) */
         .stApp .stTextArea,
         .stApp .stTextInput,
-        .stApp .stSelectbox,
         .stApp div[data-testid="stTextArea"],
         .stApp div[data-testid="stTextInput"],
-        .stApp div[data-testid="stSelectbox"],
         .stApp div[data-testid="stTextArea"] > div,
-        .stApp div[data-testid="stTextInput"] > div,
-        .stApp div[data-testid="stSelectbox"] > div,
-        .stApp div[data-testid="stTextArea"] div[data-baseweb="textarea"],
-        .stApp div[data-testid="stTextArea"] div[data-baseweb="base-input"],
-        .stApp div[data-testid="stTextInput"] div[data-baseweb="input"],
-        .stApp div[data-testid="stTextInput"] div[data-baseweb="base-input"],
-        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"],
-        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"] > div,
-        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"] div[role="combobox"],
-        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"] div[role="combobox"] > div,
-        .stApp div[data-baseweb="textarea"],
-        .stApp div[data-baseweb="textarea"] > div,
-        .stApp div[data-baseweb="input"],
-        .stApp div[data-baseweb="input"] > div,
-        .stApp div[data-baseweb="base-input"],
-        .stApp div[data-baseweb="base-input"] > div,
-        .stApp div[data-baseweb="select"],
-        .stApp div[data-baseweb="select"] > div,
-        .stApp div[data-baseweb="select"] div {
+        .stApp div[data-testid="stTextInput"] > div {
             background-color: #FFFFFF !important;
             background: #FFFFFF !important;
             color: #0F172A !important;
@@ -613,21 +661,73 @@ def inject_premium_styles(theme_mode="corporate"):
         }
 
         .stApp div[data-testid="stTextArea"] div[data-baseweb="textarea"],
-        .stApp div[data-testid="stTextInput"] div[data-baseweb="input"],
+        .stApp div[data-testid="stTextInput"] div[data-baseweb="input"] {
+            border: 1.5px solid #CBD5E1 !important;
+            border-radius: 12px !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+            transition: all 0.2s ease !important;
+            background-color: #FFFFFF !important;
+            background: #FFFFFF !important;
+            overflow: hidden !important;
+        }
+
+        /* Seamless Selectbox (Fixes any two-tone / split color mismatch in Light Mode) */
+        .stApp .stSelectbox,
+        .stApp div[data-testid="stSelectbox"],
+        .stApp div[data-testid="stSelectbox"] > div {
+            background: transparent !important;
+            background-color: transparent !important;
+        }
+
+        .stApp div[data-testid="stSelectbox"] div[role="group"],
+        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"],
         .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
+            background-color: #FFFFFF !important;
+            background: #FFFFFF !important;
             border: 1.5px solid #CBD5E1 !important;
             border-radius: 10px !important;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
             transition: all 0.2s ease !important;
         }
 
+        .stApp div[data-testid="stSelectbox"] div[role="group"] *,
+        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"] * {
+            background: transparent !important;
+            background-color: transparent !important;
+        }
+
+        .stApp div[data-testid="stSelectbox"] input,
+        .stApp div[data-testid="stSelectbox"] input[role="combobox"] {
+            background: transparent !important;
+            background-color: transparent !important;
+            color: #0F172A !important;
+            -webkit-text-fill-color: #0F172A !important;
+            font-size: 0.95rem !important;
+            border: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        .stApp div[data-testid="stSelectbox"] button {
+            background: transparent !important;
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
         .stApp textarea,
-        .stApp input {
+        .stApp div[data-testid="stTextInput"] input,
+        .stApp div[data-baseweb="textarea"] textarea {
             color: #0F172A !important;
             -webkit-text-fill-color: #0F172A !important;
             background-color: #FFFFFF !important;
             background: #FFFFFF !important;
             font-size: 0.95rem !important;
+            border: none !important;
+            border-width: 0 !important;
+            outline: none !important;
+            box-shadow: none !important;
         }
 
         .stApp textarea::placeholder,
@@ -645,29 +745,46 @@ def inject_premium_styles(theme_mode="corporate"):
             -webkit-text-fill-color: #0F172A !important;
         }
 
-        .stApp div[data-testid="stSelectbox"] svg {
-            fill: #64748B !important;
+        .stApp div[data-testid="stSelectbox"] svg,
+        .stApp div[data-baseweb="select"] svg {
+            fill: #475569 !important;
+            color: #475569 !important;
         }
 
         .stApp div[data-baseweb="textarea"]:focus-within,
         .stApp div[data-baseweb="input"]:focus-within,
-        .stApp div[data-baseweb="select"] > div:focus-within,
+        .stApp div[data-testid="stSelectbox"] div[role="group"]:focus-within,
+        .stApp div[data-testid="stSelectbox"] div[data-baseweb="select"] > div:focus-within,
         .stApp div[data-testid="stTextArea"] textarea:focus,
         .stApp div[data-testid="stTextInput"] input:focus {
             border-color: #4F46E5 !important;
             box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
         }
 
-        /* Primary buttons — solid indigo */
+        /* Slider in Light Mode */
+        .stApp div[data-testid="stSlider"] [role="slider"] {
+            background-color: #4F46E5 !important;
+            border: 2px solid #FFFFFF !important;
+            box-shadow: 0 2px 6px rgba(79, 70, 229, 0.4) !important;
+        }
+        .stApp div[data-testid="stSlider"] div[data-baseweb="slider"] div[style*="background"] {
+            background-color: #4F46E5 !important;
+        }
+        .stApp div[data-testid="stSlider"] label {
+            color: #334155 !important;
+            font-weight: 600 !important;
+        }
+
+        /* Primary buttons — solid indigo gradient */
         div.stButton > button {
-            background: #4F46E5 !important;
+            background: linear-gradient(135deg, #4F46E5 0%, #3B82F6 100%) !important;
             color: #ffffff !important;
             border: none !important;
-            border-radius: 10px !important;
-            padding: 13px 28px !important;
-            font-size: 1rem !important;
-            font-weight: 600 !important;
-            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3) !important;
+            border-radius: 12px !important;
+            padding: 14px 28px !important;
+            font-size: 1.02rem !important;
+            font-weight: 700 !important;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3) !important;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
             width: 100% !important;
             letter-spacing: 0.3px !important;
@@ -677,12 +794,12 @@ def inject_premium_styles(theme_mode="corporate"):
         div.stButton > button div {
             color: #ffffff !important;
             -webkit-text-fill-color: #ffffff !important;
-            font-weight: 600 !important;
+            font-weight: 700 !important;
         }
         div.stButton > button:hover {
-            background: #4338CA !important;
-            transform: translateY(-1px) !important;
-            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4) !important;
+            background: linear-gradient(135deg, #4338CA 0%, #2563EB 100%) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 24px rgba(79, 70, 229, 0.42) !important;
             filter: none !important;
         }
 
@@ -690,28 +807,30 @@ def inject_premium_styles(theme_mode="corporate"):
         div.st-key-theme_toggle_btn button {
             background: #FFFFFF !important;
             border: 1.5px solid #CBD5E1 !important;
-            color: #475569 !important;
+            color: #334155 !important;
             border-radius: 9999px !important;
             font-size: 0.82rem !important;
             font-weight: 600 !important;
-            padding: 6px 16px !important;
+            padding: 6px 18px !important;
             min-height: 36px !important;
             width: auto !important;
             letter-spacing: 0.3px !important;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
             backdrop-filter: none !important;
+            filter: none !important;
         }
         div.st-key-theme_toggle_btn button p,
         div.st-key-theme_toggle_btn button span {
-            color: #475569 !important;
-            -webkit-text-fill-color: #475569 !important;
+            color: #334155 !important;
+            -webkit-text-fill-color: #334155 !important;
             font-weight: 600 !important;
         }
         div.st-key-theme_toggle_btn button:hover {
-            background: #F1F5F9 !important;
+            background: #F8FAFC !important;
             border-color: #94A3B8 !important;
-            color: #1E293B !important;
-            transform: none !important;
+            color: #0F172A !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08) !important;
             filter: none !important;
         }
 
