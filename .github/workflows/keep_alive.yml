@@ -1,0 +1,23 @@
+name: Streamlit Keep-Alive
+
+on:
+  schedule:
+    # Runs twice a day (at 04:00 and 16:00 UTC) to keep the app active and prevent sleep
+    - cron: '0 4,16 * * *'
+  workflow_dispatch: # Allows you to run it manually anytime from GitHub Actions tab
+
+jobs:
+  keep-alive:
+    name: Ping Streamlit App
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send keep-alive request
+        run: |
+          echo "Pinging Streamlit App to keep it awake..."
+          STATUS=$(curl -s -L -o /dev/null -w "%{http_code}" --max-time 45 "https://website-analyser-rudra.streamlit.app/")
+          echo "Response HTTP Status: $STATUS"
+          if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 400 ]; then
+            echo "Successfully pinged! App is active."
+          else
+            echo "Ping completed with status code $STATUS."
+          fi
